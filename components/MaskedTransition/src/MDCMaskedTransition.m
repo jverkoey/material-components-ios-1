@@ -22,6 +22,8 @@
 #import "MDCMaskedPresentationController.h"
 #import "MDCMaskedTransitionMotion.h"
 
+// Math utilities
+
 static CGPoint centerOfFrame(CGRect frame) {
   return CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
 }
