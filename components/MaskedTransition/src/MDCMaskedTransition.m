@@ -22,11 +22,21 @@
 #import "MDCMaskedPresentationController.h"
 #import "MDCMaskedTransitionMotion.h"
 
-CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds);
-CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
+static CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
   CGPoint anchorPosition = CGPointMake(CGRectGetMidX(frame),
                                        CGRectGetMidY(frame));
   return CGPointMake(anchorPosition.x / bounds.size.width, anchorPosition.y / bounds.size.height);
+}
+
+static CGPoint centerOfFrame(CGRect frame) {
+  return CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
+}
+
+static CGRect frameCenteredAround(CGPoint position, CGSize size) {
+  return CGRectMake(position.x - size.width / 2,
+                    position.y - size.height / 2,
+                    size.width,
+                    size.height);
 }
 
 @interface MDCMaskedTransition () <MDMTransitionWithPresentation>
@@ -113,9 +123,9 @@ CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
 
   // We're going to reparent the fore view, so keep this information for later.
   UIView *originalSuperview = context.foreViewController.view.superview;
-  CGRect originalFrame = context.foreViewController.view.frame;
+  const CGRect originalFrame = context.foreViewController.view.frame;
 
-  // # Scrim
+  // # Scrim and presentation controller configuration
 
   UIView *scrimView;
   if (!_presentationController.scrimView) {
@@ -128,6 +138,10 @@ CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
   } else {
     scrimView = _presentationController.scrimView;
   }
+
+  // The presentation controller, if available, will decide when to make the source view visible
+  // again.
+  _presentationController.sourceView = _sourceView;
 
   // # Reparent the fore view into a masked view
 
@@ -145,16 +159,11 @@ CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
   }
   [context.containerView addSubview:maskedView];
 
-  // # Source view visibility
-
-  _presentationController.sourceView = _sourceView;
-
   // # Flood fill view
-
-  // TODO(featherless): Should we expose the flood fill color as an API?
 
   UIView *floodFillView = [[UIView alloc] initWithFrame:context.foreViewController.view.bounds];
   floodFillView.backgroundColor = _sourceView.backgroundColor;
+  // TODO(featherless): Explore options for configuring the flood fill behavior.
 
   // TODO(featherless): Profile whether it's more performant to fade the flood fill out or to
   // fade the fore view in (what we're currently doing).
@@ -162,44 +171,43 @@ CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
   [maskedView addSubview:context.foreViewController.view];
 
   // # Frame calculations
+  // All frames are assumed to be relative to the container view unless named otherwise.
 
-  CGRect initialSourceFrameInContainer = [_sourceView convertRect:_sourceView.bounds
-                                                           toView:context.containerView];
-  CGRect initialMaskedViewInContainer;
-  CGVector vecToEdge;
+  const CGRect initialSourceFrame = [_sourceView convertRect:_sourceView.bounds
+                                                      toView:context.containerView];
+  CGRect initialMaskedFrame;
+  CGPoint corner;
+  const CGPoint initialSourceCenter = centerOfFrame(initialSourceFrame);
   if (motion.isCentered) {
-    CGPoint initialSourceFrameCenterInContainer = CGPointMake(CGRectGetMidX(initialSourceFrameInContainer),
-                                                   CGRectGetMidY(initialSourceFrameInContainer));
-    initialMaskedViewInContainer = CGRectMake(initialSourceFrameCenterInContainer.x - originalFrame.size.width / 2,
-                                              initialSourceFrameCenterInContainer.y - originalFrame.size.height / 2,
-                                              originalFrame.size.width,
-                                              originalFrame.size.height);
-    vecToEdge = CGVectorMake(initialSourceFrameCenterInContainer.x - CGRectGetMaxX(initialMaskedViewInContainer),
-                             initialSourceFrameCenterInContainer.y - CGRectGetMaxY(initialMaskedViewInContainer));
+    initialMaskedFrame = frameCenteredAround(initialSourceCenter, originalFrame.size);
+    // Bottom right
+    corner = CGPointMake(CGRectGetMaxX(initialMaskedFrame), CGRectGetMaxY(initialMaskedFrame));
 
   } else {
-    initialMaskedViewInContainer = CGRectMake(context.containerView.bounds.origin.x,
-                                              initialSourceFrameInContainer.origin.y - 20,
-                                              originalFrame.size.width,
-                                              originalFrame.size.height);
-    if (CGRectGetMidX(initialSourceFrameInContainer) < CGRectGetMidX(initialMaskedViewInContainer)) {
-      vecToEdge = CGVectorMake(CGRectGetMidX(initialSourceFrameInContainer) - CGRectGetMaxX(initialMaskedViewInContainer),
-                               CGRectGetMidY(initialSourceFrameInContainer) - CGRectGetMidY(initialMaskedViewInContainer));
+    initialMaskedFrame = CGRectMake(context.containerView.bounds.origin.x,
+                                    initialSourceFrame.origin.y - 20,
+                                    originalFrame.size.width,
+                                    originalFrame.size.height);
+    if (CGRectGetMidX(initialSourceFrame) < CGRectGetMidX(initialMaskedFrame)) {
+      // Middle-right
+      corner = CGPointMake(CGRectGetMaxX(initialMaskedFrame), CGRectGetMidY(initialMaskedFrame));
     } else {
-      vecToEdge = CGVectorMake(CGRectGetMidX(initialSourceFrameInContainer) - CGRectGetMinX(initialMaskedViewInContainer),
-                               CGRectGetMidY(initialSourceFrameInContainer) - CGRectGetMidY(initialMaskedViewInContainer));
+      // Middle-left
+      corner = CGPointMake(CGRectGetMinX(initialMaskedFrame), CGRectGetMidY(initialMaskedFrame));
     }
   }
+  const CGVector vecToEdge = CGVectorMake(initialSourceCenter.x - corner.x,
+                                          initialSourceCenter.y - corner.y);
 
-  maskedView.frame = initialMaskedViewInContainer;
-  CGRect initialSourceFrameInMask = [maskedView convertRect:initialSourceFrameInContainer
-                                                   fromView:context.containerView];
+  maskedView.frame = initialMaskedFrame;
+  const CGRect initialSourceFrameInMask = [maskedView convertRect:initialSourceFrame
+                                                         fromView:context.containerView];
 
-  CGFloat initialRadius = _sourceView.bounds.size.width / 2;
-  CGFloat finalRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
-  CGFloat finalScale = finalRadius / initialRadius;
+  const CGFloat initialRadius = _sourceView.bounds.size.width / 2;
+  const CGFloat finalRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
+  const CGFloat finalScale = finalRadius / initialRadius;
 
-  CGRect finalMaskedViewInContainer = originalFrame;
+  const CGRect finalMaskedViewInContainer = originalFrame;
 
   // # Masking
 
@@ -259,12 +267,12 @@ CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
 
   [animator addAnimationWithTiming:motion.horizontalMovement
                             toView:maskedView
-                        withValues:@[ @(CGRectGetMidX(initialMaskedViewInContainer)),
+                        withValues:@[ @(CGRectGetMidX(initialMaskedFrame)),
                                       @(CGRectGetMidX(finalMaskedViewInContainer)) ]];
 
   [animator addAnimationWithTiming:motion.verticalMovement
                             toView:maskedView
-                        withValues:@[ @(CGRectGetMidY(initialMaskedViewInContainer)),
+                        withValues:@[ @(CGRectGetMidY(initialMaskedFrame)),
                                       @(CGRectGetMidY(finalMaskedViewInContainer)) ]];
 
   [animator addAnimationWithTiming:motion.scrimFade
