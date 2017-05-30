@@ -49,86 +49,34 @@ typedef struct MDMExpansionMotion MDMExpansionMotion;
 #define MDMEightyForty {0.4f, 0.0f, 0.2f, 1.0f}
 #define MDMFortyOut {0.4f, 0.0f, 1.0f, 1.0f}
 
-struct MDMExpansionMotion fullscreenExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.225, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
-  },
-  .verticalMovement = {
-    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  }
-};
+struct MDMExpansionMotion fullscreenExpansion;
 
 @interface TransitionAnimator : NSObject
-@end
 
-@implementation TransitionAnimator {
-  MDMTransitionDirection _direction;
-}
-
-- (instancetype)initWithDirection:(MDMTransitionDirection)direction {
-  self = [super init];
-  if (self) {
-    _direction = direction;
-  }
-  return self;
-}
+- (instancetype)initWithDirection:(MDMTransitionDirection)direction;
 
 - (void)addAnimationWithTiming:(MDMMotionTiming)timing
                         toView:(UIView *)view
-                    withValues:(NSArray *)values {
-  [self addAnimationWithTiming:timing toLayer:view.layer withValues:values];
-}
-
+                    withValues:(NSArray *)values;
 - (void)addAnimationWithTiming:(MDMMotionTiming)timing
                        toLayer:(CALayer *)layer
-                    withValues:(NSArray *)values {
-  if (_direction == MDMTransitionDirectionBackward) {
-    values = [[values reverseObjectEnumerator] allObjects];
-  }
-  if ([[values firstObject] isKindOfClass:[UIColor class]]) {
-    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
-    for (UIColor *color in values) {
-      [convertedArray addObject:(id)color.CGColor];
-    }
-    values = convertedArray;
-  } else if ([[values firstObject] isKindOfClass:[UIBezierPath class]]) {
-    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
-    for (UIBezierPath *bezierPath in values) {
-      [convertedArray addObject:(id)bezierPath.CGPath];
-    }
-    values = convertedArray;
-  }
+                    withValues:(NSArray *)values;
 
-  NSString *keyPath = [NSString stringWithCString:timing.keyPath encoding:NSUTF8StringEncoding];
-  CABasicAnimation *fade = [CABasicAnimation animationWithKeyPath:keyPath];
-  if (timing.delay != 0) {
-    fade.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * MDMSimulatorAnimationDragCoefficient();
-    fade.fillMode = kCAFillModeBackwards;
-  }
-  fade.duration = timing.duration * MDMSimulatorAnimationDragCoefficient();
-  fade.timingFunction = [CAMediaTimingFunction functionWithControlPoints:timing.controlPoints[0]
-                                                                        :timing.controlPoints[1]
-                                                                        :timing.controlPoints[2]
-                                                                        :timing.controlPoints[3]];
-  fade.fromValue = [values firstObject];
-  fade.toValue = [values lastObject];
-  [layer addAnimation:fade forKey:fade.keyPath];
-  [layer setValue:fade.toValue forKey:fade.keyPath];
-}
+@end
+
+@interface MDCMaskedTransition () <MDMTransitionWithPresentation>
+@end
+
+@interface MDCMaskedPresentationController : UIPresentationController
+
+- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController
+                       presentingViewController:(UIViewController *)presentingViewController
+                  calculateFrameOfPresentedView:(CGRect (^)(UIPresentationController *))calculateFrameOfPresentedView
+    NS_DESIGNATED_INITIALIZER;
+
+- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController
+                       presentingViewController:(UIViewController *)presentingViewController
+    NS_UNAVAILABLE;
 
 @end
 
@@ -142,6 +90,10 @@ struct MDMExpansionMotion fullscreenExpansion = {
     _sourceView = sourceView;
   }
   return self;
+}
+
+- (MDMExpansionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
+  return fullscreenExpansion;
 }
 
 - (void)startWithContext:(NSObject<MDMTransitionContext> *)context {
@@ -227,9 +179,9 @@ struct MDMExpansionMotion fullscreenExpansion = {
     [context transitionDidEnd];
   }];
 
-  MDMExpansionMotion motion = fullscreenExpansion;
-
   TransitionAnimator *animator = [[TransitionAnimator alloc] initWithDirection:context.direction];
+
+  MDMExpansionMotion motion = [self motionForContext:context];
 
   [animator addAnimationWithTiming:motion.contentFade
                             toView:context.foreViewController.view
@@ -247,7 +199,8 @@ struct MDMExpansionMotion fullscreenExpansion = {
                            toLayer:shapeLayer
                         withValues:@[ [UIBezierPath bezierPathWithOvalInRect:sourceFrameInContent],
                                       [UIBezierPath bezierPathWithOvalInRect:foreMaskBounds] ]];
-  // Upon completion of the animation we want to remove the mask.
+  // Upon completion of the animation we want all of the content to be visible, so we jump to a full
+  // bounds mask.
   shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds] CGPath];
 
   [animator addAnimationWithTiming:motion.verticalMovement
@@ -262,4 +215,122 @@ struct MDMExpansionMotion fullscreenExpansion = {
   [CATransaction commit];
 }
 
+#pragma mark - MDMTransitionWithPresentation
+
+- (UIModalPresentationStyle)defaultModalPresentationStyle {
+  if (_calculateFrameOfPresentedView != nil) {
+    return UIModalPresentationCustom;
+  }
+  return UIModalPresentationFullScreen;
+}
+
+- (UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
+                                                      presentingViewController:(UIViewController *)presenting
+                                                          sourceViewController:(UIViewController *)source {
+  return [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
+                                                         presentingViewController:presenting
+                                                    calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
+}
+
 @end
+
+@implementation MDCMaskedPresentationController {
+  CGRect (^_calculateFrameOfPresentedView)(UIPresentationController *);
+}
+
+- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController
+                       presentingViewController:(UIViewController *)presentingViewController
+                  calculateFrameOfPresentedView:(CGRect (^)(UIPresentationController *))calculateFrameOfPresentedView {
+  self = [super initWithPresentedViewController:presentedViewController
+                       presentingViewController:presentingViewController];
+  if (self) {
+    _calculateFrameOfPresentedView = calculateFrameOfPresentedView;
+  }
+  return self;
+}
+
+- (CGRect)frameOfPresentedViewInContainerView {
+  return _calculateFrameOfPresentedView(self);
+}
+
+@end
+
+@implementation TransitionAnimator {
+  MDMTransitionDirection _direction;
+}
+
+- (instancetype)initWithDirection:(MDMTransitionDirection)direction {
+  self = [super init];
+  if (self) {
+    _direction = direction;
+  }
+  return self;
+}
+
+- (void)addAnimationWithTiming:(MDMMotionTiming)timing
+                        toView:(UIView *)view
+                    withValues:(NSArray *)values {
+  [self addAnimationWithTiming:timing toLayer:view.layer withValues:values];
+}
+
+- (void)addAnimationWithTiming:(MDMMotionTiming)timing
+                       toLayer:(CALayer *)layer
+                    withValues:(NSArray *)values {
+  if (_direction == MDMTransitionDirectionBackward) {
+    values = [[values reverseObjectEnumerator] allObjects];
+  }
+  if ([[values firstObject] isKindOfClass:[UIColor class]]) {
+    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
+    for (UIColor *color in values) {
+      [convertedArray addObject:(id)color.CGColor];
+    }
+    values = convertedArray;
+  } else if ([[values firstObject] isKindOfClass:[UIBezierPath class]]) {
+    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
+    for (UIBezierPath *bezierPath in values) {
+      [convertedArray addObject:(id)bezierPath.CGPath];
+    }
+    values = convertedArray;
+  }
+
+  NSString *keyPath = [NSString stringWithCString:timing.keyPath encoding:NSUTF8StringEncoding];
+  CABasicAnimation *fade = [CABasicAnimation animationWithKeyPath:keyPath];
+  if (timing.delay != 0) {
+    fade.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * MDMSimulatorAnimationDragCoefficient();
+    fade.fillMode = kCAFillModeBackwards;
+  }
+  fade.duration = timing.duration * MDMSimulatorAnimationDragCoefficient();
+  fade.timingFunction = [CAMediaTimingFunction functionWithControlPoints:timing.controlPoints[0]
+                                                                        :timing.controlPoints[1]
+                                                                        :timing.controlPoints[2]
+                                                                        :timing.controlPoints[3]];
+  fade.fromValue = [values firstObject];
+  fade.toValue = [values lastObject];
+  [layer addAnimation:fade forKey:fade.keyPath];
+  [layer setValue:fade.toValue forKey:fade.keyPath];
+}
+
+@end
+
+struct MDMExpansionMotion fullscreenExpansion = {
+  .contentFade = {
+    .delay = 0.150, .duration = 0.225, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
+  },
+  .floodBackgroundColor = {
+    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
+    .keyPath = "backgroundColor",
+  },
+  .maskTransformation = {
+    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
+    .keyPath = "path",
+  },
+  .verticalMovement = {
+    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
+    .keyPath = "position.y",
+  },
+  .scrimFade = {
+    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
+  }
+};
