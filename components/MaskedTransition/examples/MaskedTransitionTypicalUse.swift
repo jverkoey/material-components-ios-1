@@ -132,6 +132,8 @@ private class ModalViewController: UIViewController {
   override func viewDidLoad() {
     super.viewDidLoad()
 
+    view.backgroundColor = .white
+
     view.addGestureRecognizer(UITapGestureRecognizer(target: self, action: #selector(didTap)))
 
     let label = UILabel(frame: view.bounds)

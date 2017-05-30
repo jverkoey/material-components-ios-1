@@ -16,32 +16,59 @@
 
 #import "MDCMaskedTransition.h"
 
+#if TARGET_IPHONE_SIMULATOR
+UIKIT_EXTERN float UIAnimationDragCoefficient(void); // UIKit private drag coefficient.
+#endif
+
+CGFloat MDMSimulatorAnimationDragCoefficient(void);
+CGFloat MDMSimulatorAnimationDragCoefficient(void) {
+#if TARGET_IPHONE_SIMULATOR
+  return UIAnimationDragCoefficient();
+#else
+  return 1.0;
+#endif
+}
+
 struct MDMMotionTiming {
-  const char *keyPath;
   CFTimeInterval delay;
   CFTimeInterval duration;
   float controlPoints[4];
+  const char *keyPath;
 };
 typedef struct MDMMotionTiming MDMMotionTiming;
 
 struct MDMExpansionMotion {
   MDMMotionTiming contentFade;
   MDMMotionTiming floodBackgroundColor;
+  MDMMotionTiming maskTransformation;
+  MDMMotionTiming verticalMovement;
+  MDMMotionTiming scrimFade;
 };
 typedef struct MDMExpansionMotion MDMExpansionMotion;
 
+#define MDMEightyForty {0.4f, 0.0f, 0.2f, 1.0f}
+#define MDMFortyOut {0.4f, 0.0f, 1.0f, 1.0f}
+
 struct MDMExpansionMotion fullscreenExpansion = {
   .contentFade = {
+    .delay = 0.150, .duration = 0.225, .controlPoints = MDMEightyForty,
     .keyPath = "opacity",
-    .delay = 0.150,
-    .duration = 0.225,
-    .controlPoints = {0.4f, 0.0f, 0.2f, 1.0f}
   },
   .floodBackgroundColor = {
+    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
     .keyPath = "backgroundColor",
-    .delay = 0,
-    .duration = 0.075,
-    .controlPoints = {0.4f, 0.0f, 0.2f, 1.0f}
+  },
+  .maskTransformation = {
+    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
+    .keyPath = "path",
+  },
+  .verticalMovement = {
+    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
+    .keyPath = "position.y",
+  },
+  .scrimFade = {
+    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
   }
 };
 
@@ -60,7 +87,15 @@ struct MDMExpansionMotion fullscreenExpansion = {
   return self;
 }
 
-- (void)animate:(UIView *)view withValues:(NSArray *)values timing:(MDMMotionTiming)timing {
+- (void)addAnimationWithTiming:(MDMMotionTiming)timing
+                        toView:(UIView *)view
+                    withValues:(NSArray *)values {
+  [self addAnimationWithTiming:timing toLayer:view.layer withValues:values];
+}
+
+- (void)addAnimationWithTiming:(MDMMotionTiming)timing
+                       toLayer:(CALayer *)layer
+                    withValues:(NSArray *)values {
   if (_direction == MDMTransitionDirectionBackward) {
     values = [[values reverseObjectEnumerator] allObjects];
   }
@@ -70,23 +105,29 @@ struct MDMExpansionMotion fullscreenExpansion = {
       [convertedArray addObject:(id)color.CGColor];
     }
     values = convertedArray;
+  } else if ([[values firstObject] isKindOfClass:[UIBezierPath class]]) {
+    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
+    for (UIBezierPath *bezierPath in values) {
+      [convertedArray addObject:(id)bezierPath.CGPath];
+    }
+    values = convertedArray;
   }
 
   NSString *keyPath = [NSString stringWithCString:timing.keyPath encoding:NSUTF8StringEncoding];
   CABasicAnimation *fade = [CABasicAnimation animationWithKeyPath:keyPath];
   if (timing.delay != 0) {
-    fade.beginTime = [view.layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay;
+    fade.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * MDMSimulatorAnimationDragCoefficient();
     fade.fillMode = kCAFillModeBackwards;
   }
-  fade.duration = timing.duration;
+  fade.duration = timing.duration * MDMSimulatorAnimationDragCoefficient();
   fade.timingFunction = [CAMediaTimingFunction functionWithControlPoints:timing.controlPoints[0]
                                                                         :timing.controlPoints[1]
                                                                         :timing.controlPoints[2]
                                                                         :timing.controlPoints[3]];
   fade.fromValue = [values firstObject];
   fade.toValue = [values lastObject];
-  [view.layer addAnimation:fade forKey:fade.keyPath];
-  [view.layer setValue:fade.toValue forKey:fade.keyPath];
+  [layer addAnimation:fade forKey:fade.keyPath];
+  [layer setValue:fade.toValue forKey:fade.keyPath];
 }
 
 @end
@@ -117,13 +158,15 @@ struct MDMExpansionMotion fullscreenExpansion = {
   // Our fore view will be reparented into this view. To avoid double-counting any frame offset, we
   // assign the fore view's frame here and then zero out the fore view's origin. This keeps the fore
   // view at the same relative location on screen.
-  UIView *clippedShiftingView = [[UIView alloc] initWithFrame:context.foreViewController.view.frame];
-  CGRect reparentedFrame = context.foreViewController.view.frame;
-  reparentedFrame.origin = CGPointZero;
-  context.foreViewController.view.frame = reparentedFrame;
+  UIView *maskedContainerView = [[UIView alloc] initWithFrame:context.foreViewController.view.frame];
+  {
+    CGRect reparentedFrame = context.foreViewController.view.frame;
+    reparentedFrame.origin = CGPointZero;
+    context.foreViewController.view.frame = reparentedFrame;
+  }
 
-  clippedShiftingView.clipsToBounds = YES;
-  [context.containerView addSubview:clippedShiftingView];
+  maskedContainerView.clipsToBounds = YES;
+  [context.containerView addSubview:maskedContainerView];
 
   UIView *floodFillView = [[UIView alloc] initWithFrame:context.foreViewController.view.bounds];
 
@@ -132,8 +175,8 @@ struct MDMExpansionMotion fullscreenExpansion = {
 
   // TODO(featherless): Profile whether it's more performant to fade the flood fill out or to
   // fade the fore view in (what we're currently doing).
-  [clippedShiftingView addSubview:floodFillView];
-  [clippedShiftingView addSubview:context.foreViewController.view];
+  [maskedContainerView addSubview:floodFillView];
+  [maskedContainerView addSubview:context.foreViewController.view];
 
   // # Frame calculations
 
@@ -153,23 +196,23 @@ struct MDMExpansionMotion fullscreenExpansion = {
                              CGRectGetMidY(sourceFrameInContainer) - CGRectGetMidY(startingFrame));
   }
 
-//  clippedShiftingView.frame = startingFrame;
+  // Must set this in order to use convertRect:toView:
+  maskedContainerView.frame = startingFrame;
+  CGRect sourceFrameInContent = [maskedContainerView convertRect:sourceFrameInContainer
+                                                        fromView:context.containerView];
 
-//  CGRect sourceFrameInContent = [clippedShiftingView convertRect:sourceFrameInContainer
-//                                                          toView:context.containerView];
-  CGRect endingFrame = originalFrame;
+  CGFloat targetRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
+  CGRect foreMaskBounds = CGRectMake(CGRectGetMidX(sourceFrameInContent) - targetRadius,
+                                     CGRectGetMidY(sourceFrameInContent) - targetRadius,
+                                     targetRadius * 2,
+                                     targetRadius * 2);
 
   // # Masking
 
   CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] init];
-  // TODO(featherless): We're assuming that the shape is circular. Ideally we'd support animating
-  // from any arbitrary shape.
-  shapeLayer.path = [[UIBezierPath bezierPathWithRect:CGRectMake(0,
-                                                                 0,
-                                                                 endingFrame.size.width,
-                                                                 endingFrame.size.height)]
-                     CGPath];
-  clippedShiftingView.layer.mask = shapeLayer;
+  maskedContainerView.layer.mask = shapeLayer;
+
+  _sourceView.hidden = true;
 
   [CATransaction begin];
   [CATransaction setCompletionBlock:^{
@@ -177,6 +220,9 @@ struct MDMExpansionMotion fullscreenExpansion = {
     context.foreViewController.view.frame = originalFrame;
     [originalSuperview addSubview:context.foreViewController.view];
     [scrimView removeFromSuperview];
+    [maskedContainerView removeFromSuperview];
+
+    _sourceView.hidden = false;
 
     [context transitionDidEnd];
   }];
@@ -185,15 +231,33 @@ struct MDMExpansionMotion fullscreenExpansion = {
 
   TransitionAnimator *animator = [[TransitionAnimator alloc] initWithDirection:context.direction];
 
-  [animator animate:context.foreViewController.view withValues:@[ @0, @1 ]
-             timing:motion.contentFade];
+  [animator addAnimationWithTiming:motion.contentFade
+                            toView:context.foreViewController.view
+                        withValues:@[ @0, @1 ]];
 
   UIColor *foreColor = context.foreViewController.view.backgroundColor;
   if (!foreColor) {
     foreColor = [UIColor whiteColor];
   }
-  [animator animate:floodFillView withValues:@[ floodFillView.backgroundColor, foreColor]
-             timing:motion.floodBackgroundColor];
+  [animator addAnimationWithTiming:motion.floodBackgroundColor
+                            toView:floodFillView
+                        withValues:@[ floodFillView.backgroundColor, foreColor ]];
+
+  [animator addAnimationWithTiming:motion.maskTransformation
+                           toLayer:shapeLayer
+                        withValues:@[ [UIBezierPath bezierPathWithOvalInRect:sourceFrameInContent],
+                                      [UIBezierPath bezierPathWithOvalInRect:foreMaskBounds] ]];
+  // Upon completion of the animation we want to remove the mask.
+  shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds] CGPath];
+
+  [animator addAnimationWithTiming:motion.verticalMovement
+                            toView:maskedContainerView
+                        withValues:@[ @(CGRectGetMidY(startingFrame)),
+                                      @(CGRectGetMidY(originalFrame)) ]];
+
+  [animator addAnimationWithTiming:motion.scrimFade
+                            toView:scrimView
+                        withValues:@[ @0, @1 ]];
 
   [CATransaction commit];
 }
