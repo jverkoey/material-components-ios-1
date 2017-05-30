@@ -22,14 +22,12 @@
 #import "MDCMaskedPresentationController.h"
 #import "MDCMaskedTransitionMotion.h"
 
-static CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
-  CGPoint anchorPosition = CGPointMake(CGRectGetMidX(frame),
-                                       CGRectGetMidY(frame));
-  return CGPointMake(anchorPosition.x / bounds.size.width, anchorPosition.y / bounds.size.height);
-}
-
 static CGPoint centerOfFrame(CGRect frame) {
   return CGPointMake(CGRectGetMidX(frame), CGRectGetMidY(frame));
+}
+
+static CGPoint anchorPointFromPosition(CGPoint position, CGRect bounds) {
+  return CGPointMake(position.x / bounds.size.width, position.y / bounds.size.height);
 }
 
 static CGRect frameCenteredAround(CGPoint position, CGSize size) {
@@ -37,6 +35,10 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
                     position.y - size.height / 2,
                     size.width,
                     size.height);
+}
+
+static CGFloat lengthOfVector(CGVector vector) {
+  return (CGFloat)sqrt(vector.dx * vector.dx + vector.dy * vector.dy);
 }
 
 @interface MDCMaskedTransition () <MDMTransitionWithPresentation>
@@ -58,16 +60,20 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
 #pragma mark - Motion router
 
 + (MDCMaskedTransitionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
-  if (CGRectEqualToRect(context.foreViewController.view.frame, context.containerView.bounds)) {
+  const CGRect foreBounds = context.foreViewController.view.bounds;
+  const CGRect foreFrame = context.foreViewController.view.frame;
+  const CGRect containerBounds = context.containerView.bounds;
+
+  if (CGRectEqualToRect(context.foreViewController.view.frame, containerBounds)) {
     if (context.direction == MDMTransitionDirectionForward) {
       return fullscreenExpansion;
     } else {
       //return nil;
     }
 
-  } else if (context.foreViewController.view.bounds.size.width == context.containerView.bounds.size.width
-             && CGRectGetMaxY(context.foreViewController.view.frame) == CGRectGetMaxY(context.containerView.bounds)) {
-    if (context.foreViewController.view.frame.size.height > 100) {
+  } else if (foreBounds.size.width == containerBounds.size.width
+             && CGRectGetMaxY(foreFrame) == CGRectGetMaxY(containerBounds)) {
+    if (foreFrame.size.height > 100) {
       if (context.direction == MDMTransitionDirectionForward) {
         return bottomSheetExpansion;
       } else {
@@ -82,8 +88,8 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
       }
     }
 
-  } else if (context.foreViewController.view.bounds.size.width < context.containerView.bounds.size.width
-             && CGRectGetMidY(context.foreViewController.view.frame) >= CGRectGetMidY(context.containerView.bounds)) {
+  } else if (foreBounds.size.width < containerBounds.size.width
+             && CGRectGetMidY(foreFrame) >= CGRectGetMidY(containerBounds)) {
     if (context.direction == MDMTransitionDirectionForward) {
       return bottomCardExpansion;
     } else {
@@ -118,6 +124,9 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
   // TODO(featherless): This router should be used to fall back to a system slide animation when
   // there is no reverse motion.
   MDCMaskedTransitionMotion motion = [[self class] motionForContext:context];
+
+  MDMMotionTimingAnimator *animator = [[MDMMotionTimingAnimator alloc] init];
+  animator.shouldReverseValues = context.direction == MDMTransitionDirectionBackward;
 
   // # Caching original state
 
@@ -171,10 +180,12 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
   [maskedView addSubview:context.foreViewController.view];
 
   // # Frame calculations
+
   // All frames are assumed to be relative to the container view unless named otherwise.
 
   const CGRect initialSourceFrame = [_sourceView convertRect:_sourceView.bounds
                                                       toView:context.containerView];
+  const CGRect finalMaskedFrame = originalFrame;
   CGRect initialMaskedFrame;
   CGPoint corner;
   const CGPoint initialSourceCenter = centerOfFrame(initialSourceFrame);
@@ -196,29 +207,35 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
       corner = CGPointMake(CGRectGetMinX(initialMaskedFrame), CGRectGetMidY(initialMaskedFrame));
     }
   }
-  const CGVector vecToEdge = CGVectorMake(initialSourceCenter.x - corner.x,
-                                          initialSourceCenter.y - corner.y);
 
   maskedView.frame = initialMaskedFrame;
   const CGRect initialSourceFrameInMask = [maskedView convertRect:initialSourceFrame
                                                          fromView:context.containerView];
 
+  // # Scale calculations
+
   const CGFloat initialRadius = _sourceView.bounds.size.width / 2;
-  const CGFloat finalRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
+  const CGFloat finalRadius = lengthOfVector(CGVectorMake(initialSourceCenter.x - corner.x,
+                                                          initialSourceCenter.y - corner.y));
   const CGFloat finalScale = finalRadius / initialRadius;
 
-  const CGRect finalMaskedViewInContainer = originalFrame;
-
-  // # Masking
+  // # Preparing the mask
 
   CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] init];
-  shapeLayer.anchorPoint = anchorPointCenteredInFrame(initialSourceFrameInMask,
-                                                      maskedView.layer.bounds);
-  shapeLayer.frame = maskedView.layer.bounds;
-  shapeLayer.path = [[UIBezierPath bezierPathWithOvalInRect:initialSourceFrameInMask] CGPath];
+  {
+    // Ensures that we transform from the center of the source view's frame.
+    shapeLayer.anchorPoint = anchorPointFromPosition(centerOfFrame(initialSourceFrameInMask),
+                                                     maskedView.layer.bounds);
+    shapeLayer.frame = maskedView.layer.bounds;
+    shapeLayer.path = [[UIBezierPath bezierPathWithOvalInRect:initialSourceFrameInMask] CGPath];
+  }
   maskedView.layer.mask = shapeLayer;
 
+  // Our source view is always hidden during the transition.
+
   _sourceView.hidden = true;
+
+  // # Begin adding animations.
 
   [CATransaction begin];
   [CATransaction setCompletionBlock:^{
@@ -228,52 +245,61 @@ static CGRect frameCenteredAround(CGPoint position, CGSize size) {
 
     [maskedView removeFromSuperview];
 
+    // No presentation controller means we need to undo any changes we made to the view hierarchy.
     if (!_presentationController) {
       [scrimView removeFromSuperview];
       _sourceView.hidden = false;
     }
 
-    [context transitionDidEnd];
+    [context transitionDidEnd]; // Hand off back to UIKit
   }];
-
-  MDMMotionTimingAnimator *animator = [[MDMMotionTimingAnimator alloc] init];
-  animator.shouldReverseValues = context.direction == MDMTransitionDirectionBackward;
 
   [animator addAnimationWithTiming:motion.contentFade
                             toView:context.foreViewController.view
                         withValues:@[ @0, @1 ]];
 
-  UIColor *foreColor = context.foreViewController.view.backgroundColor;
-  if (!foreColor) {
-    foreColor = [UIColor whiteColor];
+  // Color transformation
+  {
+    UIColor *initialColor = floodFillView.backgroundColor;
+    if (!initialColor) {
+      initialColor = [UIColor clearColor];
+    }
+    UIColor *finalColor = context.foreViewController.view.backgroundColor;
+    if (!finalColor) {
+      finalColor = [UIColor whiteColor];
+    }
+    [animator addAnimationWithTiming:motion.floodBackgroundColor
+                              toView:floodFillView
+                          withValues:@[ initialColor, finalColor ]];
   }
-  [animator addAnimationWithTiming:motion.floodBackgroundColor
-                            toView:floodFillView
-                        withValues:@[ floodFillView.backgroundColor, foreColor ]];
 
-  [CATransaction begin];
-  if (context.direction == MDMTransitionDirectionForward) {
-    [CATransaction setCompletionBlock:^{
-      // Upon completion of the animation we want all of the content to be visible, so we jump to a
-      // full bounds mask.
-      shapeLayer.transform = CATransform3DIdentity;
-      shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds] CGPath];
-    }];
+  // Mask transformation
+  {
+    [CATransaction begin];
+    if (context.direction == MDMTransitionDirectionForward) {
+      [CATransaction setCompletionBlock:^{
+        // Upon completion of the animation we want all of the content to be visible, so we jump
+        // to a full bounds mask.
+        shapeLayer.transform = CATransform3DIdentity;
+        shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds]
+                           CGPath];
+      }];
+    }
+    [animator addAnimationWithTiming:motion.maskTransformation
+                             toLayer:shapeLayer
+                          withValues:@[ @1, @(finalScale) ]];
+    [CATransaction commit];
   }
-  [animator addAnimationWithTiming:motion.maskTransformation
-                           toLayer:shapeLayer
-                        withValues:@[ @1, @(finalScale) ]];
-  [CATransaction commit];
 
   [animator addAnimationWithTiming:motion.horizontalMovement
                             toView:maskedView
                         withValues:@[ @(CGRectGetMidX(initialMaskedFrame)),
-                                      @(CGRectGetMidX(finalMaskedViewInContainer)) ]];
+                                      @(CGRectGetMidX(finalMaskedFrame)) ]];
 
   [animator addAnimationWithTiming:motion.verticalMovement
                             toView:maskedView
                         withValues:@[ @(CGRectGetMidY(initialMaskedFrame)),
-                                      @(CGRectGetMidY(finalMaskedViewInContainer)) ]];
+                                      @(CGRectGetMidY(finalMaskedFrame)) ]];
 
   [animator addAnimationWithTiming:motion.scrimFade
                             toView:scrimView
