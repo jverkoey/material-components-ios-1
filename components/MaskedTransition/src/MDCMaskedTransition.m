@@ -22,6 +22,13 @@
 #import "MDCMaskedPresentationController.h"
 #import "MDCMaskedTransitionMotion.h"
 
+CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds);
+CGPoint anchorPointCenteredInFrame(CGRect frame, CGRect bounds) {
+  CGPoint anchorPosition = CGPointMake(CGRectGetMidX(frame),
+                                       CGRectGetMidY(frame));
+  return CGPointMake(anchorPosition.x / bounds.size.width, anchorPosition.y / bounds.size.height);
+}
+
 @interface MDCMaskedTransition () <MDMTransitionWithPresentation>
 @end
 
@@ -90,14 +97,25 @@
 - (UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
                                                       presentingViewController:(UIViewController *)presenting
                                                           sourceViewController:(UIViewController *)source {
-  _presentationController = [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
-                                                                            presentingViewController:presenting
-                                                                       calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
+  _presentationController =
+      [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
+                                                      presentingViewController:presenting
+                                                 calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
   return _presentationController;
 }
 
 - (void)startWithContext:(NSObject<MDMTransitionContext> *)context {
+  // TODO(featherless): This router should be used to fall back to a system slide animation when
+  // there is no reverse motion.
   MDCMaskedTransitionMotion motion = [[self class] motionForContext:context];
+
+  // # Caching original state
+
+  // We're going to reparent the fore view, so keep this information for later.
+  UIView *originalSuperview = context.foreViewController.view.superview;
+  CGRect originalFrame = context.foreViewController.view.frame;
+
+  // # Scrim
 
   UIView *scrimView;
   if (!_presentationController.scrimView) {
@@ -111,32 +129,31 @@
     scrimView = _presentationController.scrimView;
   }
 
-  _presentationController.sourceView = _sourceView;
+  // # Reparent the fore view into a masked view
 
-  // We're going to reparent the fore view, so keep this information for later.
-  UIView *originalSuperview = context.foreViewController.view.superview;
-  CGRect originalFrame = context.foreViewController.view.frame;
-  UIViewAutoresizing originalAutoresizingMask = context.foreViewController.view.autoresizingMask;
-
-  // # Reparenting
-
-  // Our fore view will be reparented into this view. To avoid double-counting any frame offset, we
-  // assign the fore view's frame here and then zero out the fore view's origin. This keeps the fore
-  // view at the same relative location on screen.
+  // We want to keep the fore view at the sameposition on screen, so we
+  //
+  // 1. steal the fore view's frame,
+  // 2. zero out the fore view's origin, and then,
+  // 3. on completion, reset the fore view's frame.
+  //
   UIView *maskedView = [[UIView alloc] initWithFrame:context.foreViewController.view.frame];
   {
     CGRect reparentedFrame = context.foreViewController.view.frame;
     reparentedFrame.origin = CGPointZero;
-    context.foreViewController.view.autoresizingMask = UIViewAutoresizingNone;
     context.foreViewController.view.frame = reparentedFrame;
   }
-
-  maskedView.clipsToBounds = YES;
   [context.containerView addSubview:maskedView];
 
-  UIView *floodFillView = [[UIView alloc] initWithFrame:context.foreViewController.view.bounds];
+  // # Source view visibility
+
+  _presentationController.sourceView = _sourceView;
+
+  // # Flood fill view
 
   // TODO(featherless): Should we expose the flood fill color as an API?
+
+  UIView *floodFillView = [[UIView alloc] initWithFrame:context.foreViewController.view.bounds];
   floodFillView.backgroundColor = _sourceView.backgroundColor;
 
   // TODO(featherless): Profile whether it's more performant to fade the flood fill out or to
@@ -174,22 +191,23 @@
     }
   }
 
-  // Must set this in order to use convertRect:toView:
   maskedView.frame = initialMaskedViewInContainer;
   CGRect initialSourceFrameInMask = [maskedView convertRect:initialSourceFrameInContainer
                                                    fromView:context.containerView];
 
-  CGFloat targetRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
-  CGRect finalSourceFrameInMask = CGRectMake(CGRectGetMidX(initialSourceFrameInMask) - targetRadius,
-                                             CGRectGetMidY(initialSourceFrameInMask) - targetRadius,
-                                             targetRadius * 2,
-                                             targetRadius * 2);
+  CGFloat initialRadius = _sourceView.bounds.size.width / 2;
+  CGFloat finalRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
+  CGFloat finalScale = finalRadius / initialRadius;
 
   CGRect finalMaskedViewInContainer = originalFrame;
 
   // # Masking
 
   CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] init];
+  shapeLayer.anchorPoint = anchorPointCenteredInFrame(initialSourceFrameInMask,
+                                                      maskedView.layer.bounds);
+  shapeLayer.frame = maskedView.layer.bounds;
+  shapeLayer.path = [[UIBezierPath bezierPathWithOvalInRect:initialSourceFrameInMask] CGPath];
   maskedView.layer.mask = shapeLayer;
 
   _sourceView.hidden = true;
@@ -197,7 +215,6 @@
   [CATransaction begin];
   [CATransaction setCompletionBlock:^{
     context.foreViewController.view.frame = originalFrame;
-    context.foreViewController.view.autoresizingMask = originalAutoresizingMask;
 
     [originalSuperview addSubview:context.foreViewController.view];
 
@@ -226,15 +243,19 @@
                             toView:floodFillView
                         withValues:@[ floodFillView.backgroundColor, foreColor ]];
 
+  [CATransaction begin];
+  if (context.direction == MDMTransitionDirectionForward) {
+    [CATransaction setCompletionBlock:^{
+      // Upon completion of the animation we want all of the content to be visible, so we jump to a
+      // full bounds mask.
+      shapeLayer.transform = CATransform3DIdentity;
+      shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds] CGPath];
+    }];
+  }
   [animator addAnimationWithTiming:motion.maskTransformation
                            toLayer:shapeLayer
-                        withValues:@[ [UIBezierPath bezierPathWithOvalInRect:initialSourceFrameInMask],
-                                      [UIBezierPath bezierPathWithOvalInRect:finalSourceFrameInMask] ]];
-  if (context.direction == MDMTransitionDirectionForward) {
-    // Upon completion of the animation we want all of the content to be visible, so we jump to a
-    // full bounds mask.
-    shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds] CGPath];
-  }
+                        withValues:@[ @1, @(finalScale) ]];
+  [CATransaction commit];
 
   [animator addAnimationWithTiming:motion.horizontalMovement
                             toView:maskedView

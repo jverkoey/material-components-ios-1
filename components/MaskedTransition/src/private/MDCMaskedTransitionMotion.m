@@ -31,7 +31,7 @@ struct MDCMaskedTransitionMotion fullscreenExpansion = {
   },
   .maskTransformation = {
     .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
+    .keyPath = "transform.scale.xy",
   },
   .horizontalMovement = MDMNoTiming,
   .verticalMovement = {
@@ -56,7 +56,7 @@ struct MDCMaskedTransitionMotion bottomSheetExpansion = {
   },
   .maskTransformation = {
     .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
+    .keyPath = "transform.scale.xy",
   },
   .horizontalMovement = MDMNoTiming,
   .verticalMovement = {
@@ -81,7 +81,7 @@ struct MDCMaskedTransitionMotion bottomCardExpansion = {
   },
   .maskTransformation = {
     .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
+    .keyPath = "transform.scale.xy",
   },
   .horizontalMovement = {
     .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
@@ -109,7 +109,7 @@ struct MDCMaskedTransitionMotion bottomCardCollapse = {
   },
   .maskTransformation = {
     .delay = 0.000, .duration = 0.180, .controlPoints = MDMEightyIn,
-    .keyPath = "path",
+    .keyPath = "transform.scale.xy",
   },
   .horizontalMovement = {
     .delay = 0.045, .duration = 0.255, .controlPoints = MDMEightyForty,
@@ -137,7 +137,7 @@ struct MDCMaskedTransitionMotion toolbarExpansion = {
   },
   .maskTransformation = {
     .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
+    .keyPath = "transform.scale.xy",
   },
   .horizontalMovement = {
     .delay = 0.000, .duration = 0.300, .controlPoints = MDMEightyForty,
@@ -165,7 +165,7 @@ struct MDCMaskedTransitionMotion toolbarCollapse = {
   },
   .maskTransformation = {
     .delay = 0.000, .duration = 0.180, .controlPoints = MDMEightyIn,
-    .keyPath = "path",
+    .keyPath = "transform.scale.xy",
   },
   .horizontalMovement = {
     .delay = 0.105, .duration = 0.195, .controlPoints = MDMEightyForty,
