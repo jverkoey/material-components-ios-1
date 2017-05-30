@@ -87,10 +87,14 @@ struct MDMExpansionMotion toolbarCollapse;
                        presentingViewController:(UIViewController *)presentingViewController
     NS_UNAVAILABLE;
 
+@property(nonatomic, strong) UIView *sourceView;
+@property(nonatomic, strong) UIView *scrimView;
+
 @end
 
 @implementation MDCMaskedTransition {
   UIView *_sourceView;
+  MDCMaskedPresentationController *_presentationController;
 }
 
 - (instancetype)initWithSourceView:(UIView *)sourceView {
@@ -111,7 +115,6 @@ struct MDMExpansionMotion toolbarCollapse;
 
   } else if (context.foreViewController.view.bounds.size.width == context.containerView.bounds.size.width
              && CGRectGetMaxY(context.foreViewController.view.frame) == CGRectGetMaxY(context.containerView.bounds)) {
-
     if (context.foreViewController.view.frame.size.height > 100) {
       if (context.direction == MDMTransitionDirectionForward) {
         return bottomSheetExpansion;
@@ -126,6 +129,7 @@ struct MDMExpansionMotion toolbarCollapse;
         return toolbarCollapse;
       }
     }
+
   } else if (context.foreViewController.view.bounds.size.width < context.containerView.bounds.size.width
              && CGRectGetMidY(context.foreViewController.view.frame) >= CGRectGetMidY(context.containerView.bounds)) {
     if (context.direction == MDMTransitionDirectionForward) {
@@ -142,9 +146,21 @@ struct MDMExpansionMotion toolbarCollapse;
 - (void)startWithContext:(NSObject<MDMTransitionContext> *)context {
   MDMExpansionMotion motion = [self motionForContext:context];
 
-  UIView *scrimView = [[UIView alloc] initWithFrame:context.containerView.bounds];
-  scrimView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
-  [context.containerView addSubview:scrimView];
+  UIView *scrimView;
+  if (!_presentationController.scrimView) {
+    scrimView = [[UIView alloc] initWithFrame:context.containerView.bounds];
+    scrimView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
+    [context.containerView addSubview:scrimView];
+
+    // Give the scrim view to the presentation controller - it will now manage the lifecycle of the
+    // scrim view instead of the transition.
+    _presentationController.scrimView = scrimView;
+
+  } else {
+    scrimView = _presentationController.scrimView;
+  }
+
+  _presentationController.sourceView = _sourceView;
 
   // We're going to reparent the fore view, so keep this information for later.
   UIView *originalSuperview = context.foreViewController.view.superview;
@@ -231,10 +247,13 @@ struct MDMExpansionMotion toolbarCollapse;
     context.foreViewController.view.autoresizingMask = originalAutoresizingMask;
 
     [originalSuperview addSubview:context.foreViewController.view];
-    [scrimView removeFromSuperview];
+
     [maskedView removeFromSuperview];
 
-    _sourceView.hidden = false;
+    if (!_presentationController) {
+      [scrimView removeFromSuperview];
+      _sourceView.hidden = false;
+    }
 
     [context transitionDidEnd];
   }];
@@ -292,9 +311,10 @@ struct MDMExpansionMotion toolbarCollapse;
 - (UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
                                                       presentingViewController:(UIViewController *)presenting
                                                           sourceViewController:(UIViewController *)source {
-  return [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
-                                                         presentingViewController:presenting
-                                                    calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
+  _presentationController = [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
+                                                                            presentingViewController:presenting
+                                                                       calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
+  return _presentationController;
 }
 
 @end
@@ -316,6 +336,27 @@ struct MDMExpansionMotion toolbarCollapse;
 
 - (CGRect)frameOfPresentedViewInContainerView {
   return _calculateFrameOfPresentedView(self);
+}
+
+- (void)dismissalTransitionDidEnd:(BOOL)completed {
+  if (completed) {
+    [_scrimView removeFromSuperview];
+    _scrimView = nil;
+
+    self.sourceView = nil;
+  }
+}
+
+- (void)setSourceView:(UIView *)sourceView {
+  if (sourceView == _sourceView) {
+    return;
+  }
+
+  _sourceView.hidden = false;
+
+  _sourceView = sourceView;
+
+  _sourceView.hidden = true;
 }
 
 @end
