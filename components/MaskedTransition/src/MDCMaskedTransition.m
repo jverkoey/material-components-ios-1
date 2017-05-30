@@ -340,23 +340,12 @@ struct MDMExpansionMotion toolbarCollapse;
 
 - (void)dismissalTransitionDidEnd:(BOOL)completed {
   if (completed) {
-    [_scrimView removeFromSuperview];
-    _scrimView = nil;
+    [self.scrimView removeFromSuperview];
+    self.scrimView = nil;
 
+    self.sourceView.hidden = false;
     self.sourceView = nil;
   }
-}
-
-- (void)setSourceView:(UIView *)sourceView {
-  if (sourceView == _sourceView) {
-    return;
-  }
-
-  _sourceView.hidden = false;
-
-  _sourceView = sourceView;
-
-  _sourceView.hidden = true;
 }
 
 @end
