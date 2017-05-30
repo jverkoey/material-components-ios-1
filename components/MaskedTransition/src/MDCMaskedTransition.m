@@ -18,25 +18,11 @@
 
 #import "MDMMotionTiming.h"
 #import "MDMMotionTimingAnimator.h"
+
+#import "MDCMaskedPresentationController.h"
 #import "MDCMaskedTransitionMotion.h"
 
 @interface MDCMaskedTransition () <MDMTransitionWithPresentation>
-@end
-
-@interface MDCMaskedPresentationController : UIPresentationController
-
-- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController
-                       presentingViewController:(UIViewController *)presentingViewController
-                  calculateFrameOfPresentedView:(CGRect (^)(UIPresentationController *))calculateFrameOfPresentedView
-    NS_DESIGNATED_INITIALIZER;
-
-- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController
-                       presentingViewController:(UIViewController *)presentingViewController
-    NS_UNAVAILABLE;
-
-@property(nonatomic, strong) UIView *sourceView;
-@property(nonatomic, strong) UIView *scrimView;
-
 @end
 
 @implementation MDCMaskedTransition {
@@ -52,7 +38,9 @@
   return self;
 }
 
-- (MDCMaskedTransitionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
+#pragma mark - Motion router
+
++ (MDCMaskedTransitionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
   if (CGRectEqualToRect(context.foreViewController.view.frame, context.containerView.bounds)) {
     if (context.direction == MDMTransitionDirectionForward) {
       return fullscreenExpansion;
@@ -90,8 +78,26 @@
   return fullscreenExpansion;
 }
 
+#pragma mark - MDMTransitionWithPresentation
+
+- (UIModalPresentationStyle)defaultModalPresentationStyle {
+  if (_calculateFrameOfPresentedView != nil) {
+    return UIModalPresentationCustom;
+  }
+  return UIModalPresentationFullScreen;
+}
+
+- (UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
+                                                      presentingViewController:(UIViewController *)presenting
+                                                          sourceViewController:(UIViewController *)source {
+  _presentationController = [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
+                                                                            presentingViewController:presenting
+                                                                       calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
+  return _presentationController;
+}
+
 - (void)startWithContext:(NSObject<MDMTransitionContext> *)context {
-  MDCMaskedTransitionMotion motion = [self motionForContext:context];
+  MDCMaskedTransitionMotion motion = [[self class] motionForContext:context];
 
   UIView *scrimView;
   if (!_presentationController.scrimView) {
@@ -99,8 +105,6 @@
     scrimView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
     [context.containerView addSubview:scrimView];
 
-    // Give the scrim view to the presentation controller - it will now manage the lifecycle of the
-    // scrim view instead of the transition.
     _presentationController.scrimView = scrimView;
 
   } else {
@@ -147,12 +151,14 @@
   CGRect initialMaskedViewInContainer;
   CGVector vecToEdge;
   if (motion.isCentered) {
-    initialMaskedViewInContainer = CGRectMake(CGRectGetMidX(initialSourceFrameInContainer) - originalFrame.size.width / 2,
-                                              CGRectGetMidY(initialSourceFrameInContainer) - originalFrame.size.height / 2,
+    CGPoint initialSourceFrameCenterInContainer = CGPointMake(CGRectGetMidX(initialSourceFrameInContainer),
+                                                   CGRectGetMidY(initialSourceFrameInContainer));
+    initialMaskedViewInContainer = CGRectMake(initialSourceFrameCenterInContainer.x - originalFrame.size.width / 2,
+                                              initialSourceFrameCenterInContainer.y - originalFrame.size.height / 2,
                                               originalFrame.size.width,
                                               originalFrame.size.height);
-    vecToEdge = CGVectorMake(CGRectGetMidX(initialSourceFrameInContainer) - CGRectGetMaxX(initialMaskedViewInContainer),
-                             CGRectGetMidY(initialSourceFrameInContainer) - CGRectGetMaxY(initialMaskedViewInContainer));
+    vecToEdge = CGVectorMake(initialSourceFrameCenterInContainer.x - CGRectGetMaxX(initialMaskedViewInContainer),
+                             initialSourceFrameCenterInContainer.y - CGRectGetMaxY(initialMaskedViewInContainer));
 
   } else {
     initialMaskedViewInContainer = CGRectMake(context.containerView.bounds.origin.x,
@@ -245,55 +251,6 @@
                         withValues:@[ @0, @1 ]];
 
   [CATransaction commit];
-}
-
-#pragma mark - MDMTransitionWithPresentation
-
-- (UIModalPresentationStyle)defaultModalPresentationStyle {
-  if (_calculateFrameOfPresentedView != nil) {
-    return UIModalPresentationCustom;
-  }
-  return UIModalPresentationFullScreen;
-}
-
-- (UIPresentationController *)presentationControllerForPresentedViewController:(UIViewController *)presented
-                                                      presentingViewController:(UIViewController *)presenting
-                                                          sourceViewController:(UIViewController *)source {
-  _presentationController = [[MDCMaskedPresentationController alloc] initWithPresentedViewController:presented
-                                                                            presentingViewController:presenting
-                                                                       calculateFrameOfPresentedView:_calculateFrameOfPresentedView];
-  return _presentationController;
-}
-
-@end
-
-@implementation MDCMaskedPresentationController {
-  CGRect (^_calculateFrameOfPresentedView)(UIPresentationController *);
-}
-
-- (instancetype)initWithPresentedViewController:(UIViewController *)presentedViewController
-                       presentingViewController:(UIViewController *)presentingViewController
-                  calculateFrameOfPresentedView:(CGRect (^)(UIPresentationController *))calculateFrameOfPresentedView {
-  self = [super initWithPresentedViewController:presentedViewController
-                       presentingViewController:presentingViewController];
-  if (self) {
-    _calculateFrameOfPresentedView = calculateFrameOfPresentedView;
-  }
-  return self;
-}
-
-- (CGRect)frameOfPresentedViewInContainerView {
-  return _calculateFrameOfPresentedView(self);
-}
-
-- (void)dismissalTransitionDidEnd:(BOOL)completed {
-  if (completed) {
-    [self.scrimView removeFromSuperview];
-    self.scrimView = nil;
-
-    self.sourceView.hidden = false;
-    self.sourceView = nil;
-  }
 }
 
 @end
