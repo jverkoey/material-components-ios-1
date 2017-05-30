@@ -41,15 +41,20 @@ struct MDMExpansionMotion {
   MDMMotionTiming contentFade;
   MDMMotionTiming floodBackgroundColor;
   MDMMotionTiming maskTransformation;
+  MDMMotionTiming horizontalMovement;
   MDMMotionTiming verticalMovement;
   MDMMotionTiming scrimFade;
+  BOOL isCentered;
 };
 typedef struct MDMExpansionMotion MDMExpansionMotion;
 
+#define MDMNoTiming { .keyPath = nil }
 #define MDMEightyForty {0.4f, 0.0f, 0.2f, 1.0f}
 #define MDMFortyOut {0.4f, 0.0f, 1.0f, 1.0f}
 
 struct MDMExpansionMotion fullscreenExpansion;
+struct MDMExpansionMotion bottomSheetExpansion;
+struct MDMExpansionMotion bottomCardExpansion;
 
 @interface TransitionAnimator : NSObject
 
@@ -93,10 +98,46 @@ struct MDMExpansionMotion fullscreenExpansion;
 }
 
 - (MDMExpansionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
+  if (CGRectEqualToRect(context.foreViewController.view.frame, context.containerView.bounds)) {
+    if (context.direction == MDMTransitionDirectionForward) {
+      return fullscreenExpansion;
+    } else {
+      //return nil;
+    }
+
+  } else if (context.foreViewController.view.bounds.size.width == context.containerView.bounds.size.width
+             && CGRectGetMaxY(context.foreViewController.view.frame) == CGRectGetMaxY(context.containerView.bounds)) {
+
+    if (context.foreViewController.view.frame.size.height > 100) {
+      if (context.direction == MDMTransitionDirectionForward) {
+        return bottomSheetExpansion;
+      } else {
+        //return nil
+      }
+
+    } else {
+      if (context.direction == MDMTransitionDirectionForward) {
+        //return toolbarExpansion;
+      } else {
+        //return toolbarCollapse
+      }
+    }
+  } else if (context.foreViewController.view.bounds.size.width < context.containerView.bounds.size.width
+             && CGRectGetMidY(context.foreViewController.view.frame) >= CGRectGetMidY(context.containerView.bounds)) {
+    if (context.direction == MDMTransitionDirectionForward) {
+      return bottomCardExpansion;
+    } else {
+      //return bottomCardCollapse
+    }
+  }
+
+  // TODO: Support returning nil in some way.
   return fullscreenExpansion;
 }
 
 - (void)startWithContext:(NSObject<MDMTransitionContext> *)context {
+  MDMExpansionMotion motion = [self motionForContext:context];
+
   UIView *scrimView = [[UIView alloc] initWithFrame:context.containerView.bounds];
   scrimView.backgroundColor = [UIColor colorWithWhite:0 alpha:0.3];
   [context.containerView addSubview:scrimView];
@@ -104,21 +145,23 @@ struct MDMExpansionMotion fullscreenExpansion;
   // We're going to reparent the fore view, so keep this information for later.
   UIView *originalSuperview = context.foreViewController.view.superview;
   CGRect originalFrame = context.foreViewController.view.frame;
+  UIViewAutoresizing originalAutoresizingMask = context.foreViewController.view.autoresizingMask;
 
   // # Reparenting
 
   // Our fore view will be reparented into this view. To avoid double-counting any frame offset, we
   // assign the fore view's frame here and then zero out the fore view's origin. This keeps the fore
   // view at the same relative location on screen.
-  UIView *maskedContainerView = [[UIView alloc] initWithFrame:context.foreViewController.view.frame];
+  UIView *maskedView = [[UIView alloc] initWithFrame:context.foreViewController.view.frame];
   {
     CGRect reparentedFrame = context.foreViewController.view.frame;
     reparentedFrame.origin = CGPointZero;
+    context.foreViewController.view.autoresizingMask = UIViewAutoresizingNone;
     context.foreViewController.view.frame = reparentedFrame;
   }
 
-  maskedContainerView.clipsToBounds = YES;
-  [context.containerView addSubview:maskedContainerView];
+  maskedView.clipsToBounds = YES;
+  [context.containerView addSubview:maskedView];
 
   UIView *floodFillView = [[UIView alloc] initWithFrame:context.foreViewController.view.bounds];
 
@@ -127,52 +170,65 @@ struct MDMExpansionMotion fullscreenExpansion;
 
   // TODO(featherless): Profile whether it's more performant to fade the flood fill out or to
   // fade the fore view in (what we're currently doing).
-  [maskedContainerView addSubview:floodFillView];
-  [maskedContainerView addSubview:context.foreViewController.view];
+  [maskedView addSubview:floodFillView];
+  [maskedView addSubview:context.foreViewController.view];
 
   // # Frame calculations
 
-  CGRect sourceFrameInContainer = [_sourceView convertRect:_sourceView.bounds
-                                                    toView:context.containerView];
-  CGRect startingFrame = CGRectMake(originalFrame.origin.x,
-                                    sourceFrameInContainer.origin.y - 20,
-                                    originalFrame.size.width,
-                                    originalFrame.size.height);
-
+  CGRect initialSourceFrameInContainer = [_sourceView convertRect:_sourceView.bounds
+                                                           toView:context.containerView];
+  CGRect initialMaskedViewInContainer;
   CGVector vecToEdge;
-  if (CGRectGetMidX(sourceFrameInContainer) < CGRectGetMidX(startingFrame)) {
-    vecToEdge = CGVectorMake(CGRectGetMidX(sourceFrameInContainer) - CGRectGetMaxX(startingFrame),
-                             CGRectGetMidY(sourceFrameInContainer) - CGRectGetMidY(startingFrame));
+  if (motion.isCentered) {
+    initialMaskedViewInContainer = CGRectMake(CGRectGetMidX(initialSourceFrameInContainer) - originalFrame.size.width / 2,
+                                              CGRectGetMidY(initialSourceFrameInContainer) - originalFrame.size.height / 2,
+                                              originalFrame.size.width,
+                                              originalFrame.size.height);
+    vecToEdge = CGVectorMake(CGRectGetMidX(initialSourceFrameInContainer) - CGRectGetMaxX(initialMaskedViewInContainer),
+                             CGRectGetMidY(initialSourceFrameInContainer) - CGRectGetMaxY(initialMaskedViewInContainer));
+
   } else {
-    vecToEdge = CGVectorMake(CGRectGetMidX(sourceFrameInContainer) - CGRectGetMinX(startingFrame),
-                             CGRectGetMidY(sourceFrameInContainer) - CGRectGetMidY(startingFrame));
+    initialMaskedViewInContainer = CGRectMake(context.containerView.bounds.origin.x,
+                                              initialSourceFrameInContainer.origin.y - 20,
+                                              originalFrame.size.width,
+                                              originalFrame.size.height);
+    if (CGRectGetMidX(initialSourceFrameInContainer) < CGRectGetMidX(initialMaskedViewInContainer)) {
+      vecToEdge = CGVectorMake(CGRectGetMidX(initialSourceFrameInContainer) - CGRectGetMaxX(initialMaskedViewInContainer),
+                               CGRectGetMidY(initialSourceFrameInContainer) - CGRectGetMidY(initialMaskedViewInContainer));
+    } else {
+      vecToEdge = CGVectorMake(CGRectGetMidX(initialSourceFrameInContainer) - CGRectGetMinX(initialMaskedViewInContainer),
+                               CGRectGetMidY(initialSourceFrameInContainer) - CGRectGetMidY(initialMaskedViewInContainer));
+    }
   }
 
   // Must set this in order to use convertRect:toView:
-  maskedContainerView.frame = startingFrame;
-  CGRect sourceFrameInContent = [maskedContainerView convertRect:sourceFrameInContainer
-                                                        fromView:context.containerView];
+  maskedView.frame = initialMaskedViewInContainer;
+  CGRect initialSourceFrameInMask = [maskedView convertRect:initialSourceFrameInContainer
+                                                   fromView:context.containerView];
 
   CGFloat targetRadius = (CGFloat)sqrt(vecToEdge.dx * vecToEdge.dx + vecToEdge.dy * vecToEdge.dy);
-  CGRect foreMaskBounds = CGRectMake(CGRectGetMidX(sourceFrameInContent) - targetRadius,
-                                     CGRectGetMidY(sourceFrameInContent) - targetRadius,
-                                     targetRadius * 2,
-                                     targetRadius * 2);
+  CGRect finalSourceFrameInMask = CGRectMake(CGRectGetMidX(initialSourceFrameInMask) - targetRadius,
+                                             CGRectGetMidY(initialSourceFrameInMask) - targetRadius,
+                                             targetRadius * 2,
+                                             targetRadius * 2);
+
+  CGRect finalMaskedViewInContainer = originalFrame;
 
   // # Masking
 
   CAShapeLayer *shapeLayer = [[CAShapeLayer alloc] init];
-  maskedContainerView.layer.mask = shapeLayer;
+  maskedView.layer.mask = shapeLayer;
 
   _sourceView.hidden = true;
 
   [CATransaction begin];
   [CATransaction setCompletionBlock:^{
-    // Restore our state before we complete.
     context.foreViewController.view.frame = originalFrame;
+    context.foreViewController.view.autoresizingMask = originalAutoresizingMask;
+
     [originalSuperview addSubview:context.foreViewController.view];
     [scrimView removeFromSuperview];
-    [maskedContainerView removeFromSuperview];
+    [maskedView removeFromSuperview];
 
     _sourceView.hidden = false;
 
@@ -180,8 +236,6 @@ struct MDMExpansionMotion fullscreenExpansion;
   }];
 
   TransitionAnimator *animator = [[TransitionAnimator alloc] initWithDirection:context.direction];
-
-  MDMExpansionMotion motion = [self motionForContext:context];
 
   [animator addAnimationWithTiming:motion.contentFade
                             toView:context.foreViewController.view
@@ -197,16 +251,21 @@ struct MDMExpansionMotion fullscreenExpansion;
 
   [animator addAnimationWithTiming:motion.maskTransformation
                            toLayer:shapeLayer
-                        withValues:@[ [UIBezierPath bezierPathWithOvalInRect:sourceFrameInContent],
-                                      [UIBezierPath bezierPathWithOvalInRect:foreMaskBounds] ]];
+                        withValues:@[ [UIBezierPath bezierPathWithOvalInRect:initialSourceFrameInMask],
+                                      [UIBezierPath bezierPathWithOvalInRect:finalSourceFrameInMask] ]];
   // Upon completion of the animation we want all of the content to be visible, so we jump to a full
   // bounds mask.
   shapeLayer.path = [[UIBezierPath bezierPathWithRect:context.foreViewController.view.bounds] CGPath];
 
+  [animator addAnimationWithTiming:motion.horizontalMovement
+                            toView:maskedView
+                        withValues:@[ @(CGRectGetMidX(initialMaskedViewInContainer)),
+                                      @(CGRectGetMidX(finalMaskedViewInContainer)) ]];
+
   [animator addAnimationWithTiming:motion.verticalMovement
-                            toView:maskedContainerView
-                        withValues:@[ @(CGRectGetMidY(startingFrame)),
-                                      @(CGRectGetMidY(originalFrame)) ]];
+                            toView:maskedView
+                        withValues:@[ @(CGRectGetMidY(initialMaskedViewInContainer)),
+                                      @(CGRectGetMidY(finalMaskedViewInContainer)) ]];
 
   [animator addAnimationWithTiming:motion.scrimFade
                             toView:scrimView
@@ -276,6 +335,10 @@ struct MDMExpansionMotion fullscreenExpansion;
 - (void)addAnimationWithTiming:(MDMMotionTiming)timing
                        toLayer:(CALayer *)layer
                     withValues:(NSArray *)values {
+  if (timing.keyPath == nil) {
+    return;
+  }
+
   if (_direction == MDMTransitionDirectionBackward) {
     values = [[values reverseObjectEnumerator] allObjects];
   }
@@ -294,20 +357,20 @@ struct MDMExpansionMotion fullscreenExpansion;
   }
 
   NSString *keyPath = [NSString stringWithCString:timing.keyPath encoding:NSUTF8StringEncoding];
-  CABasicAnimation *fade = [CABasicAnimation animationWithKeyPath:keyPath];
+  CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:keyPath];
   if (timing.delay != 0) {
-    fade.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * MDMSimulatorAnimationDragCoefficient();
-    fade.fillMode = kCAFillModeBackwards;
+    animation.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * MDMSimulatorAnimationDragCoefficient();
+    animation.fillMode = kCAFillModeBackwards;
   }
-  fade.duration = timing.duration * MDMSimulatorAnimationDragCoefficient();
-  fade.timingFunction = [CAMediaTimingFunction functionWithControlPoints:timing.controlPoints[0]
-                                                                        :timing.controlPoints[1]
-                                                                        :timing.controlPoints[2]
-                                                                        :timing.controlPoints[3]];
-  fade.fromValue = [values firstObject];
-  fade.toValue = [values lastObject];
-  [layer addAnimation:fade forKey:fade.keyPath];
-  [layer setValue:fade.toValue forKey:fade.keyPath];
+  animation.duration = timing.duration * MDMSimulatorAnimationDragCoefficient();
+  animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:timing.controlPoints[0]
+                                                                             :timing.controlPoints[1]
+                                                                             :timing.controlPoints[2]
+                                                                             :timing.controlPoints[3]];
+  animation.fromValue = [values firstObject];
+  animation.toValue = [values lastObject];
+  [layer addAnimation:animation forKey:animation.keyPath];
+  [layer setValue:animation.toValue forKeyPath:animation.keyPath];
 }
 
 @end
@@ -325,6 +388,7 @@ struct MDMExpansionMotion fullscreenExpansion = {
     .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
     .keyPath = "path",
   },
+  .horizontalMovement = MDMNoTiming,
   .verticalMovement = {
     .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
     .keyPath = "position.y",
@@ -332,5 +396,59 @@ struct MDMExpansionMotion fullscreenExpansion = {
   .scrimFade = {
     .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
     .keyPath = "opacity",
-  }
+  },
+  .isCentered = false
+};
+
+struct MDMExpansionMotion bottomSheetExpansion = {
+  .contentFade = { // No spec for this
+    .delay = 0.100, .duration = 0.200, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
+  },
+  .floodBackgroundColor = {
+    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
+    .keyPath = "backgroundColor",
+  },
+  .maskTransformation = {
+    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
+    .keyPath = "path",
+  },
+  .horizontalMovement = MDMNoTiming,
+  .verticalMovement = {
+    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
+    .keyPath = "position.y",
+  },
+  .scrimFade = {
+    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
+  },
+  .isCentered = false
+};
+
+struct MDMExpansionMotion bottomCardExpansion = {
+  .contentFade = {
+    .delay = 0.150, .duration = 0.150, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
+  },
+  .floodBackgroundColor = {
+    .delay = 0.075, .duration = 0.075, .controlPoints = MDMEightyForty,
+    .keyPath = "backgroundColor",
+  },
+  .maskTransformation = {
+    .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
+    .keyPath = "path",
+  },
+  .horizontalMovement = {
+    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
+    .keyPath = "position.x",
+  },
+  .verticalMovement = {
+    .delay = 0.000, .duration = 0.345, .controlPoints = MDMEightyForty,
+    .keyPath = "position.y",
+  },
+  .scrimFade = {
+    .delay = 0.075, .duration = 0.150, .controlPoints = MDMEightyForty,
+    .keyPath = "opacity",
+  },
+  .isCentered = true
 };

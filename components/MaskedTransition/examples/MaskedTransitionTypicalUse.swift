@@ -56,7 +56,15 @@ open class MaskedTransitionTypicalUseSwiftExample: UIViewController {
     leftFab.autoresizingMask = [.flexibleTopMargin, .flexibleRightMargin]
     view.addSubview(leftFab)
 
-    targets.append(.init(name: "Centered sheet", viewControllerType: ModalViewController.self, calculateFrame: { info in
+    targets.append(.init(name: "Bottom sheet", viewControllerType: ModalViewController.self, calculateFrame: { info in
+      let size = CGSize(width: info.containerView!.bounds.width, height: 300)
+      return CGRect(x: info.containerView!.bounds.minX,
+                    y: info.containerView!.bounds.height - size.height,
+                    width: size.width,
+                    height: size.height)
+    }))
+
+    targets.append(.init(name: "Centered card", viewControllerType: ModalViewController.self, calculateFrame: { info in
       let size = CGSize(width: 200, height: 200)
       return CGRect(x: (info.containerView!.bounds.width - size.width) / 2,
                     y: (info.containerView!.bounds.height - size.height) / 2,
