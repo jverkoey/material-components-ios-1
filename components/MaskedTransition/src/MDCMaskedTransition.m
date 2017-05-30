@@ -16,6 +16,9 @@
 
 #import "MDCMaskedTransition.h"
 
+#import "MDMMotionTiming.h"
+#import "MDCMaskedTransitionMotion.h"
+
 #if TARGET_IPHONE_SIMULATOR
 UIKIT_EXTERN float UIAnimationDragCoefficient(void); // UIKit private drag coefficient.
 #endif
@@ -28,37 +31,6 @@ CGFloat MDMSimulatorAnimationDragCoefficient(void) {
   return 1.0;
 #endif
 }
-
-struct MDMMotionTiming {
-  CFTimeInterval delay;
-  CFTimeInterval duration;
-  float controlPoints[4];
-  const char *keyPath;
-};
-typedef struct MDMMotionTiming MDMMotionTiming;
-
-struct MDMExpansionMotion {
-  MDMMotionTiming contentFade;
-  MDMMotionTiming floodBackgroundColor;
-  MDMMotionTiming maskTransformation;
-  MDMMotionTiming horizontalMovement;
-  MDMMotionTiming verticalMovement;
-  MDMMotionTiming scrimFade;
-  BOOL isCentered;
-};
-typedef struct MDMExpansionMotion MDMExpansionMotion;
-
-#define MDMNoTiming { .keyPath = nil }
-#define MDMEightyForty {0.4f, 0.0f, 0.2f, 1.0f}
-#define MDMFortyOut {0.4f, 0.0f, 1.0f, 1.0f}
-#define MDMEightyIn {0.0f, 0.0f, 0.2f, 1.0f}
-
-struct MDMExpansionMotion fullscreenExpansion;
-struct MDMExpansionMotion bottomSheetExpansion;
-struct MDMExpansionMotion bottomCardExpansion;
-struct MDMExpansionMotion bottomCardCollapse;
-struct MDMExpansionMotion toolbarExpansion;
-struct MDMExpansionMotion toolbarCollapse;
 
 @interface TransitionAnimator : NSObject
 
@@ -105,7 +77,7 @@ struct MDMExpansionMotion toolbarCollapse;
   return self;
 }
 
-- (MDMExpansionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
+- (MDCMaskedTransitionMotion)motionForContext:(NSObject<MDMTransitionContext> *)context {
   if (CGRectEqualToRect(context.foreViewController.view.frame, context.containerView.bounds)) {
     if (context.direction == MDMTransitionDirectionForward) {
       return fullscreenExpansion;
@@ -144,7 +116,7 @@ struct MDMExpansionMotion toolbarCollapse;
 }
 
 - (void)startWithContext:(NSObject<MDMTransitionContext> *)context {
-  MDMExpansionMotion motion = [self motionForContext:context];
+  MDCMaskedTransitionMotion motion = [self motionForContext:context];
 
   UIView *scrimView;
   if (!_presentationController.scrimView) {
@@ -410,165 +382,3 @@ struct MDMExpansionMotion toolbarCollapse;
 }
 
 @end
-
-struct MDMExpansionMotion fullscreenExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.225, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
-  },
-  .horizontalMovement = MDMNoTiming,
-  .verticalMovement = {
-    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .isCentered = false
-};
-
-struct MDMExpansionMotion bottomSheetExpansion = {
-  .contentFade = { // No spec for this
-    .delay = 0.100, .duration = 0.200, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
-  },
-  .horizontalMovement = MDMNoTiming,
-  .verticalMovement = {
-    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .isCentered = false
-};
-
-struct MDMExpansionMotion bottomCardExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.075, .duration = 0.075, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
-  },
-  .horizontalMovement = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "position.x",
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.345, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.075, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .isCentered = true
-};
-
-struct MDMExpansionMotion bottomCardCollapse = {
-  .contentFade = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMFortyOut,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.060, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.180, .controlPoints = MDMEightyIn,
-    .keyPath = "path",
-  },
-  .horizontalMovement = {
-    .delay = 0.045, .duration = 0.255, .controlPoints = MDMEightyForty,
-    .keyPath = "position.x",
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.255, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .isCentered = true
-};
-
-struct MDMExpansionMotion toolbarExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.075, .duration = 0.075, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
-    .keyPath = "path",
-  },
-  .horizontalMovement = {
-    .delay = 0.000, .duration = 0.300, .controlPoints = MDMEightyForty,
-    .keyPath = "position.x",
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.120, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.075, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .isCentered = true
-};
-
-struct MDMExpansionMotion toolbarCollapse = {
-  .contentFade = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMFortyOut,
-    .keyPath = "opacity",
-  },
-  .floodBackgroundColor = {
-    .delay = 0.060, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "backgroundColor",
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.180, .controlPoints = MDMEightyIn,
-    .keyPath = "path",
-  },
-  .horizontalMovement = {
-    .delay = 0.105, .duration = 0.195, .controlPoints = MDMEightyForty,
-    .keyPath = "position.x",
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.255, .controlPoints = MDMEightyForty,
-    .keyPath = "position.y",
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-    .keyPath = "opacity",
-  },
-  .isCentered = true
-};
