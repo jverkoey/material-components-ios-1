@@ -16,12 +16,34 @@
 
 #import <Foundation/Foundation.h>
 
+/**
+ A representation of timing for a simple tween animation.
+ */
 struct MDMMotionTiming {
-  CFTimeInterval delay;
+  /**
+   The amount of time, in seconds, over which this animation should interpolate between its values.
+   */
   CFTimeInterval duration;
+
+  /**
+   The amount of time, in seconds, before this animation's value interpolation should begin.
+   */
+  CFTimeInterval delay;
+
+  /**
+   The second and third control points of a standard cubic bezier curve.
+
+   See the documentation for CAMediaTimingFunction for more information.
+
+   The values in the array correspond to [c1x, c1y, c2x, c2y].
+   */
   float controlPoints[4];
-  const char *keyPath;
 };
 typedef struct MDMMotionTiming MDMMotionTiming;
 
-#define MDMNoTiming { .keyPath = nil }
+/**
+ A timing structure that has no duration.
+
+ Represents an absence of animation.
+ */
+#define MDMNoTiming (MDMMotionTiming){ .duration = 0 }

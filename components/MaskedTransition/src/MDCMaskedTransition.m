@@ -255,8 +255,9 @@ static CGFloat lengthOfVector(CGVector vector) {
   }];
 
   [animator addAnimationWithTiming:motion.contentFade
-                            toView:context.foreViewController.view
-                        withValues:@[ @0, @1 ]];
+                           toLayer:context.foreViewController.view.layer
+                        withValues:@[ @0, @1 ]
+                           keyPath:@"opacity"];
 
   // Color transformation
   {
@@ -269,8 +270,9 @@ static CGFloat lengthOfVector(CGVector vector) {
       finalColor = [UIColor whiteColor];
     }
     [animator addAnimationWithTiming:motion.floodBackgroundColor
-                              toView:floodFillView
-                          withValues:@[ initialColor, finalColor ]];
+                             toLayer:floodFillView.layer
+                          withValues:@[ initialColor, finalColor ]
+                             keyPath:@"backgroundColor"];
   }
 
   // Mask transformation
@@ -287,23 +289,27 @@ static CGFloat lengthOfVector(CGVector vector) {
     }
     [animator addAnimationWithTiming:motion.maskTransformation
                              toLayer:shapeLayer
-                          withValues:@[ @1, @(finalScale) ]];
+                          withValues:@[ @1, @(finalScale) ]
+                             keyPath:@"transform.scale.xy"];
     [CATransaction commit];
   }
 
   [animator addAnimationWithTiming:motion.horizontalMovement
-                            toView:maskedView
+                           toLayer:maskedView.layer
                         withValues:@[ @(CGRectGetMidX(initialMaskedFrame)),
-                                      @(CGRectGetMidX(finalMaskedFrame)) ]];
+                                      @(CGRectGetMidX(finalMaskedFrame)) ]
+                           keyPath:@"position.x"];
 
   [animator addAnimationWithTiming:motion.verticalMovement
-                            toView:maskedView
+                           toLayer:maskedView.layer
                         withValues:@[ @(CGRectGetMidY(initialMaskedFrame)),
-                                      @(CGRectGetMidY(finalMaskedFrame)) ]];
+                                      @(CGRectGetMidY(finalMaskedFrame)) ]
+                           keyPath:@"position.y"];
 
   [animator addAnimationWithTiming:motion.scrimFade
-                            toView:scrimView
-                        withValues:@[ @0, @1 ]];
+                           toLayer:scrimView.layer
+                        withValues:@[ @0, @1 ]
+                           keyPath:@"opacity"];
 
   [CATransaction commit];
 }

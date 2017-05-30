@@ -20,8 +20,7 @@
 UIKIT_EXTERN float UIAnimationDragCoefficient(void); // UIKit private drag coefficient.
 #endif
 
-CGFloat simulatorAnimationDragCoefficient(void);
-CGFloat simulatorAnimationDragCoefficient(void) {
+static CGFloat simulatorAnimationDragCoefficient(void) {
 #if TARGET_IPHONE_SIMULATOR
   return UIAnimationDragCoefficient();
 #else
@@ -29,30 +28,14 @@ CGFloat simulatorAnimationDragCoefficient(void) {
 #endif
 }
 
-@implementation MDMMotionTimingAnimator
-
-- (void)addAnimationWithTiming:(MDMMotionTiming)timing
-                        toView:(UIView *)view
-                    withValues:(NSArray *)values {
-  [self addAnimationWithTiming:timing toLayer:view.layer withValues:values];
-}
-
-- (void)addAnimationWithTiming:(MDMMotionTiming)timing
-                       toLayer:(CALayer *)layer
-                    withValues:(NSArray *)values {
-  if (timing.keyPath == nil) {
-    return;
-  }
-
-  if (_shouldReverseValues) {
-    values = [[values reverseObjectEnumerator] allObjects];
-  }
+static NSArray* coerceUIKitValuesToCoreAnimationValues(NSArray *values) {
   if ([[values firstObject] isKindOfClass:[UIColor class]]) {
     NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
     for (UIColor *color in values) {
       [convertedArray addObject:(id)color.CGColor];
     }
     values = convertedArray;
+
   } else if ([[values firstObject] isKindOfClass:[UIBezierPath class]]) {
     NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
     for (UIBezierPath *bezierPath in values) {
@@ -60,8 +43,25 @@ CGFloat simulatorAnimationDragCoefficient(void) {
     }
     values = convertedArray;
   }
+  return values;
+}
 
-  NSString *keyPath = [NSString stringWithCString:timing.keyPath encoding:NSUTF8StringEncoding];
+@implementation MDMMotionTimingAnimator
+
+- (void)addAnimationWithTiming:(MDMMotionTiming)timing
+                       toLayer:(CALayer *)layer
+                    withValues:(NSArray *)values
+                       keyPath:(NSString *)keyPath {
+  if (timing.duration == 0) {
+    return;
+  }
+
+  if (_shouldReverseValues) {
+    values = [[values reverseObjectEnumerator] allObjects];
+  }
+
+  values = coerceUIKitValuesToCoreAnimationValues(values);
+
   CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:keyPath];
   if (timing.delay != 0) {
     animation.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * simulatorAnimationDragCoefficient();
