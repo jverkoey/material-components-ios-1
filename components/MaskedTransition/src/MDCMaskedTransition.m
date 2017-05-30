@@ -17,33 +17,8 @@
 #import "MDCMaskedTransition.h"
 
 #import "MDMMotionTiming.h"
+#import "MDMMotionTimingAnimator.h"
 #import "MDCMaskedTransitionMotion.h"
-
-#if TARGET_IPHONE_SIMULATOR
-UIKIT_EXTERN float UIAnimationDragCoefficient(void); // UIKit private drag coefficient.
-#endif
-
-CGFloat MDMSimulatorAnimationDragCoefficient(void);
-CGFloat MDMSimulatorAnimationDragCoefficient(void) {
-#if TARGET_IPHONE_SIMULATOR
-  return UIAnimationDragCoefficient();
-#else
-  return 1.0;
-#endif
-}
-
-@interface TransitionAnimator : NSObject
-
-- (instancetype)initWithDirection:(MDMTransitionDirection)direction;
-
-- (void)addAnimationWithTiming:(MDMMotionTiming)timing
-                        toView:(UIView *)view
-                    withValues:(NSArray *)values;
-- (void)addAnimationWithTiming:(MDMMotionTiming)timing
-                       toLayer:(CALayer *)layer
-                    withValues:(NSArray *)values;
-
-@end
 
 @interface MDCMaskedTransition () <MDMTransitionWithPresentation>
 @end
@@ -230,7 +205,8 @@ CGFloat MDMSimulatorAnimationDragCoefficient(void) {
     [context transitionDidEnd];
   }];
 
-  TransitionAnimator *animator = [[TransitionAnimator alloc] initWithDirection:context.direction];
+  MDMMotionTimingAnimator *animator = [[MDMMotionTimingAnimator alloc] init];
+  animator.shouldReverseValues = context.direction == MDMTransitionDirectionBackward;
 
   [animator addAnimationWithTiming:motion.contentFade
                             toView:context.foreViewController.view
@@ -318,67 +294,6 @@ CGFloat MDMSimulatorAnimationDragCoefficient(void) {
     self.sourceView.hidden = false;
     self.sourceView = nil;
   }
-}
-
-@end
-
-@implementation TransitionAnimator {
-  MDMTransitionDirection _direction;
-}
-
-- (instancetype)initWithDirection:(MDMTransitionDirection)direction {
-  self = [super init];
-  if (self) {
-    _direction = direction;
-  }
-  return self;
-}
-
-- (void)addAnimationWithTiming:(MDMMotionTiming)timing
-                        toView:(UIView *)view
-                    withValues:(NSArray *)values {
-  [self addAnimationWithTiming:timing toLayer:view.layer withValues:values];
-}
-
-- (void)addAnimationWithTiming:(MDMMotionTiming)timing
-                       toLayer:(CALayer *)layer
-                    withValues:(NSArray *)values {
-  if (timing.keyPath == nil) {
-    return;
-  }
-
-  if (_direction == MDMTransitionDirectionBackward) {
-    values = [[values reverseObjectEnumerator] allObjects];
-  }
-  if ([[values firstObject] isKindOfClass:[UIColor class]]) {
-    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
-    for (UIColor *color in values) {
-      [convertedArray addObject:(id)color.CGColor];
-    }
-    values = convertedArray;
-  } else if ([[values firstObject] isKindOfClass:[UIBezierPath class]]) {
-    NSMutableArray *convertedArray = [NSMutableArray arrayWithCapacity:values.count];
-    for (UIBezierPath *bezierPath in values) {
-      [convertedArray addObject:(id)bezierPath.CGPath];
-    }
-    values = convertedArray;
-  }
-
-  NSString *keyPath = [NSString stringWithCString:timing.keyPath encoding:NSUTF8StringEncoding];
-  CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:keyPath];
-  if (timing.delay != 0) {
-    animation.beginTime = [layer convertTime:CACurrentMediaTime() fromLayer:nil] + timing.delay * MDMSimulatorAnimationDragCoefficient();
-    animation.fillMode = kCAFillModeBackwards;
-  }
-  animation.duration = timing.duration * MDMSimulatorAnimationDragCoefficient();
-  animation.timingFunction = [CAMediaTimingFunction functionWithControlPoints:timing.controlPoints[0]
-                                                                             :timing.controlPoints[1]
-                                                                             :timing.controlPoints[2]
-                                                                             :timing.controlPoints[3]];
-  animation.fromValue = [values firstObject];
-  animation.toValue = [values lastObject];
-  [layer addAnimation:animation forKey:animation.keyPath];
-  [layer setValue:animation.toValue forKeyPath:animation.keyPath];
 }
 
 @end
