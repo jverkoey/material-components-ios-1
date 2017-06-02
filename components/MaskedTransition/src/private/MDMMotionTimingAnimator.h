@@ -35,8 +35,8 @@
  @param timing The timing to be used for the animation.
  @param layer The layer to be animated.
  @param values The values to be used in the animation. Must contain exactly two values. Supported
- UIKit values include UIColor and UIBezierPath - such types will be coerced to their Core Animation
- equivalent.
+ UIKit types will be coerced to their Core Animation equivalent. Supported UIKit values include
+ UIColor and UIBezierPath.
  @param keyPath The key path of the property to be animated.
  */
 - (void)addAnimationWithTiming:(MDMMotionTiming)timing

@@ -30,7 +30,7 @@ struct MDCMaskedTransitionMotion fullscreenExpansion = {
   .maskTransformation = {
     .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
   },
-  .horizontalMovement = MDMNoTiming,
+  .horizontalMovement = MDMNoAnimation,
   .verticalMovement = {
     .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
   },
@@ -50,7 +50,7 @@ struct MDCMaskedTransitionMotion bottomSheetExpansion = {
   .maskTransformation = {
     .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
   },
-  .horizontalMovement = MDMNoTiming,
+  .horizontalMovement = MDMNoAnimation,
   .verticalMovement = {
     .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
   },

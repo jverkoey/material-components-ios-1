@@ -46,4 +46,4 @@ typedef struct MDMMotionTiming MDMMotionTiming;
 
  Represents an absence of animation.
  */
-#define MDMNoTiming (MDMMotionTiming){ .duration = 0 }
+#define MDMNoAnimation (MDMMotionTiming){ .duration = 0 }
