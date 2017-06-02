@@ -17,7 +17,8 @@
 #import "MDCMaskedTransition.h"
 
 #import "MDMMotionTiming.h"
-#import "MDMMotionTimingAnimator.h"
+#import "MDMAnimator.h"
+#import "UIView+Animator.h"
 
 #import "MDCMaskedPresentationController.h"
 #import "MDCMaskedTransitionMotion.h"
@@ -67,40 +68,24 @@ static CGFloat lengthOfVector(CGVector vector) {
   const CGRect containerBounds = context.containerView.bounds;
 
   if (CGRectEqualToRect(context.foreViewController.view.frame, containerBounds)) {
-    if (context.direction == MDMTransitionDirectionForward) {
-      return fullscreenExpansion;
-    } else {
-      //return nil;
-    }
+    return fullscreen;
 
   } else if (foreBounds.size.width == containerBounds.size.width
              && CGRectGetMaxY(foreFrame) == CGRectGetMaxY(containerBounds)) {
     if (foreFrame.size.height > 100) {
-      if (context.direction == MDMTransitionDirectionForward) {
-        return bottomSheetExpansion;
-      } else {
-        //return nil
-      }
+      return bottomSheet;
 
     } else {
-      if (context.direction == MDMTransitionDirectionForward) {
-        return toolbarExpansion;
-      } else {
-        return toolbarCollapse;
-      }
+      return toolbar;
     }
 
   } else if (foreBounds.size.width < containerBounds.size.width
              && CGRectGetMidY(foreFrame) >= CGRectGetMidY(containerBounds)) {
-    if (context.direction == MDMTransitionDirectionForward) {
-      return bottomCardExpansion;
-    } else {
-      return bottomCardCollapse;
-    }
+    return bottomCard;
   }
 
   // TODO: Support returning nil in some way.
-  return fullscreenExpansion;
+  return fullscreen;
 }
 
 #pragma mark - MDMTransitionWithPresentation
@@ -126,9 +111,6 @@ static CGFloat lengthOfVector(CGVector vector) {
   // TODO(featherless): This router should be used to fall back to a system slide animation when
   // there is no reverse motion.
   MDCMaskedTransitionMotion motion = [[self class] motionForContext:context];
-
-  MDMMotionTimingAnimator *animator = [[MDMMotionTimingAnimator alloc] init];
-  animator.shouldReverseValues = context.direction == MDMTransitionDirectionBackward;
 
   // # Caching original state
 
@@ -255,6 +237,15 @@ static CGFloat lengthOfVector(CGVector vector) {
 
     [context transitionDidEnd]; // Hand off back to UIKit
   }];
+
+  NSString *expanded = @"expanded";
+  NSString *collapsed = @"collapsed";
+
+  MDMAnimator *viewAnimator = [[MDMAnimator alloc] initWithObject:context.foreViewController.view];
+
+  viewAnimator.states[expanded] = @{ @"opacity": @1 };
+  viewAnimator.states[collapsed] = @{ @"opacity": @0 };
+  // TODO: How do we reasonably associate the timing with this property?
 
   [animator addAnimationWithTiming:motion.contentFade
                            toLayer:context.foreViewController.view.layer

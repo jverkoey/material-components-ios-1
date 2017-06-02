@@ -16,134 +16,143 @@
 
 #import "MDCMaskedTransitionMotion.h"
 
-#define MDMEightyForty {0.4f, 0.0f, 0.2f, 1.0f}
-#define MDMFortyOut {0.4f, 0.0f, 1.0f, 1.0f}
-#define MDMEightyIn {0.0f, 0.0f, 0.2f, 1.0f}
+#define MDMNoAnimation {.curve = { .type = MDMMotionCurveTypeInstant }}
+#define MDMEightyForty _MDMBezier(0.4f, 0.0f, 0.2f, 1.0f)
+#define MDMFortyOut _MDMBezier(0.4f, 0.0f, 1.0f, 1.0f)
+#define MDMEightyIn _MDMBezier(0.0f, 0.0f, 0.2f, 1.0f)
 
-struct MDCMaskedTransitionMotion fullscreenExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.225, .controlPoints = MDMEightyForty,
+struct MDCMaskedTransitionMotion fullscreen = {
+  .expansion = {
+    .contentFade = {
+      .delay = 0.150, .duration = 0.225, .curve = MDMEightyForty,
+    },
+    .floodBackgroundColor = {
+      .delay = 0.000, .duration = 0.075, .curve = MDMEightyForty,
+    },
+    .maskTransformation = {
+      .delay = 0.000, .duration = 0.105, .curve = MDMFortyOut,
+    },
+    .horizontalMovement = MDMNoAnimation,
+    .verticalMovement = {
+      .delay = 0.045, .duration = 0.330, .curve = MDMEightyForty,
+    },
+    .scrimFade = {
+      .delay = 0.000, .duration = 0.150, .curve = MDMEightyForty,
+    }
   },
-  .floodBackgroundColor = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-  },
-  .horizontalMovement = MDMNoAnimation,
-  .verticalMovement = {
-    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
+  .shouldSlideWhenCollapsed = true,
   .isCentered = false
 };
 
-struct MDCMaskedTransitionMotion bottomSheetExpansion = {
-  .contentFade = { // No spec for this
-    .delay = 0.100, .duration = 0.200, .controlPoints = MDMEightyForty,
+struct MDCMaskedTransitionMotion bottomSheet = {
+  .expansion = {
+    .contentFade = { // No spec for this
+      .delay = 0.100, .duration = 0.200, .curve = MDMEightyForty,
+    },
+    .floodBackgroundColor = {
+      .delay = 0.000, .duration = 0.075, .curve = MDMEightyForty,
+    },
+    .maskTransformation = {
+      .delay = 0.000, .duration = 0.105, .curve = MDMFortyOut,
+    },
+    .horizontalMovement = MDMNoAnimation,
+    .verticalMovement = {
+      .delay = 0.045, .duration = 0.330, .curve = MDMEightyForty,
+    },
+    .scrimFade = {
+      .delay = 0.000, .duration = 0.150, .curve = MDMEightyForty,
+    }
   },
-  .floodBackgroundColor = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMEightyForty,
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.105, .controlPoints = MDMFortyOut,
-  },
-  .horizontalMovement = MDMNoAnimation,
-  .verticalMovement = {
-    .delay = 0.045, .duration = 0.330, .controlPoints = MDMEightyForty,
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
+  .shouldSlideWhenCollapsed = true,
   .isCentered = false
 };
 
-struct MDCMaskedTransitionMotion bottomCardExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.150, .controlPoints = MDMEightyForty,
+struct MDCMaskedTransitionMotion bottomCard = {
+  .expansion = {
+    .contentFade = {
+      .delay = 0.150, .duration = 0.150, .curve = MDMEightyForty,
+    },
+    .floodBackgroundColor = {
+      .delay = 0.075, .duration = 0.075, .curve = MDMEightyForty,
+    },
+    .maskTransformation = {
+      .delay = 0.045, .duration = 0.225, .curve = MDMFortyOut,
+    },
+    .horizontalMovement = {
+      .delay = 0.000, .duration = 0.150, .curve = MDMEightyForty,
+    },
+    .verticalMovement = {
+      .delay = 0.000, .duration = 0.345, .curve = MDMEightyForty,
+    },
+    .scrimFade = {
+      .delay = 0.075, .duration = 0.150, .curve = MDMEightyForty,
+    }
   },
-  .floodBackgroundColor = {
-    .delay = 0.075, .duration = 0.075, .controlPoints = MDMEightyForty,
+  .collapse = {
+    .contentFade = {
+      .delay = 0.000, .duration = 0.075, .curve = MDMFortyOut,
+    },
+    .floodBackgroundColor = {
+      .delay = 0.060, .duration = 0.150, .curve = MDMEightyForty,
+    },
+    .maskTransformation = {
+      .delay = 0.000, .duration = 0.180, .curve = MDMEightyIn,
+    },
+    .horizontalMovement = {
+      .delay = 0.045, .duration = 0.255, .curve = MDMEightyForty,
+    },
+    .verticalMovement = {
+      .delay = 0.000, .duration = 0.255, .curve = MDMEightyForty,
+    },
+    .scrimFade = {
+      .delay = 0.000, .duration = 0.150, .curve = MDMEightyForty,
+    }
   },
-  .maskTransformation = {
-    .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
-  },
-  .horizontalMovement = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.345, .controlPoints = MDMEightyForty,
-  },
-  .scrimFade = {
-    .delay = 0.075, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
+  .shouldSlideWhenCollapsed = false,
   .isCentered = true
 };
 
-struct MDCMaskedTransitionMotion bottomCardCollapse = {
-  .contentFade = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMFortyOut,
+struct MDCMaskedTransitionMotion toolbar = {
+  .expansion = {
+    .contentFade = {
+      .delay = 0.150, .duration = 0.150, .curve = MDMEightyForty,
+    },
+    .floodBackgroundColor = {
+      .delay = 0.075, .duration = 0.075, .curve = MDMEightyForty,
+    },
+    .maskTransformation = {
+      .delay = 0.045, .duration = 0.225, .curve = MDMFortyOut,
+    },
+    .horizontalMovement = {
+      .delay = 0.000, .duration = 0.300, .curve = MDMEightyForty,
+    },
+    .verticalMovement = {
+      .delay = 0.000, .duration = 0.120, .curve = MDMEightyForty,
+    },
+    .scrimFade = {
+      .delay = 0.075, .duration = 0.150, .curve = MDMEightyForty,
+    }
   },
-  .floodBackgroundColor = {
-    .delay = 0.060, .duration = 0.150, .controlPoints = MDMEightyForty,
+  .collapse = {
+    .contentFade = {
+      .delay = 0.000, .duration = 0.075, .curve = MDMFortyOut,
+    },
+    .floodBackgroundColor = {
+      .delay = 0.060, .duration = 0.150, .curve = MDMEightyForty,
+    },
+    .maskTransformation = {
+      .delay = 0.000, .duration = 0.180, .curve = MDMEightyIn,
+    },
+    .horizontalMovement = {
+      .delay = 0.105, .duration = 0.195, .curve = MDMEightyForty,
+    },
+    .verticalMovement = {
+      .delay = 0.000, .duration = 0.255, .curve = MDMEightyForty,
+    },
+    .scrimFade = {
+      .delay = 0.000, .duration = 0.150, .curve = MDMEightyForty,
+    }
   },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.180, .controlPoints = MDMEightyIn,
-  },
-  .horizontalMovement = {
-    .delay = 0.045, .duration = 0.255, .controlPoints = MDMEightyForty,
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.255, .controlPoints = MDMEightyForty,
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
-  .isCentered = true
-};
-
-struct MDCMaskedTransitionMotion toolbarExpansion = {
-  .contentFade = {
-    .delay = 0.150, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
-  .floodBackgroundColor = {
-    .delay = 0.075, .duration = 0.075, .controlPoints = MDMEightyForty,
-  },
-  .maskTransformation = {
-    .delay = 0.045, .duration = 0.225, .controlPoints = MDMFortyOut,
-  },
-  .horizontalMovement = {
-    .delay = 0.000, .duration = 0.300, .controlPoints = MDMEightyForty,
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.120, .controlPoints = MDMEightyForty,
-  },
-  .scrimFade = {
-    .delay = 0.075, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
-  .isCentered = true
-};
-
-struct MDCMaskedTransitionMotion toolbarCollapse = {
-  .contentFade = {
-    .delay = 0.000, .duration = 0.075, .controlPoints = MDMFortyOut,
-  },
-  .floodBackgroundColor = {
-    .delay = 0.060, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
-  .maskTransformation = {
-    .delay = 0.000, .duration = 0.180, .controlPoints = MDMEightyIn,
-  },
-  .horizontalMovement = {
-    .delay = 0.105, .duration = 0.195, .controlPoints = MDMEightyForty,
-  },
-  .verticalMovement = {
-    .delay = 0.000, .duration = 0.255, .controlPoints = MDMEightyForty,
-  },
-  .scrimFade = {
-    .delay = 0.000, .duration = 0.150, .controlPoints = MDMEightyForty,
-  },
+  .shouldSlideWhenCollapsed = false,
   .isCentered = true
 };

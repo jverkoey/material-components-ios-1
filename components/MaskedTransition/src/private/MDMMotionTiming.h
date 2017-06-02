@@ -15,15 +15,15 @@
  */
 
 #import <Foundation/Foundation.h>
+#import <CoreGraphics/CoreGraphics.h>
+
+#import "MDMMotionCurve.h"
+#import "MDMMotionRepetition.h"
 
 /**
- A representation of timing for a simple tween animation.
+ A representation of timing for an animation.
  */
 struct MDMMotionTiming {
-  /**
-   The amount of time, in seconds, over which this animation should interpolate between its values.
-   */
-  CFTimeInterval duration;
 
   /**
    The amount of time, in seconds, before this animation's value interpolation should begin.
@@ -31,19 +31,19 @@ struct MDMMotionTiming {
   CFTimeInterval delay;
 
   /**
-   The second and third control points of a standard cubic bezier curve.
-
-   See the documentation for CAMediaTimingFunction for more information.
-
-   The values in the array correspond to [c1x, c1y, c2x, c2y].
+   The amount of time, in seconds, over which this animation should interpolate between its values.
    */
-  float controlPoints[4];
-};
+  CFTimeInterval duration;
+
+  /**
+   The velocity and acceleration of the animation over time.
+   */
+  MDMMotionCurve curve;
+
+  /**
+   The repetition characteristics of the animation.
+   */
+  MDMMotionRepetition repetition;
+
+} NS_SWIFT_NAME(MotionTiming);
 typedef struct MDMMotionTiming MDMMotionTiming;
-
-/**
- A timing structure that has no duration.
-
- Represents an absence of animation.
- */
-#define MDMNoAnimation (MDMMotionTiming){ .duration = 0 }

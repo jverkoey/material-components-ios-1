@@ -17,20 +17,25 @@
 #import <Foundation/Foundation.h>
 #import "MDMMotionTiming.h"
 
-struct MDCMaskedTransitionMotion {
+struct MDCMaskedTransitionMotionSpec {
   MDMMotionTiming contentFade;
   MDMMotionTiming floodBackgroundColor;
   MDMMotionTiming maskTransformation;
   MDMMotionTiming horizontalMovement;
   MDMMotionTiming verticalMovement;
   MDMMotionTiming scrimFade;
+};
+typedef struct MDCMaskedTransitionMotionSpec MDCMaskedTransitionMotionSpec;
+
+struct MDCMaskedTransitionMotion {
+  MDCMaskedTransitionMotionSpec expansion;
+  MDCMaskedTransitionMotionSpec collapse;
+  BOOL shouldSlideWhenCollapsed;
   BOOL isCentered;
 };
 typedef struct MDCMaskedTransitionMotion MDCMaskedTransitionMotion;
 
-FOUNDATION_EXPORT struct MDCMaskedTransitionMotion fullscreenExpansion;
-FOUNDATION_EXPORT struct MDCMaskedTransitionMotion bottomSheetExpansion;
-FOUNDATION_EXPORT struct MDCMaskedTransitionMotion bottomCardExpansion;
-FOUNDATION_EXPORT struct MDCMaskedTransitionMotion bottomCardCollapse;
-FOUNDATION_EXPORT struct MDCMaskedTransitionMotion toolbarExpansion;
-FOUNDATION_EXPORT struct MDCMaskedTransitionMotion toolbarCollapse;
+FOUNDATION_EXPORT struct MDCMaskedTransitionMotion fullscreen;
+FOUNDATION_EXPORT struct MDCMaskedTransitionMotion bottomSheet;
+FOUNDATION_EXPORT struct MDCMaskedTransitionMotion bottomCard;
+FOUNDATION_EXPORT struct MDCMaskedTransitionMotion toolbar;
