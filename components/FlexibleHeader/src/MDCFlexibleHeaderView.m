@@ -17,6 +17,7 @@
 #import "MDCFlexibleHeaderView.h"
 
 #import "MaterialApplication.h"
+#import "MaterialUIMetrics.h"
 #import "private/MDCStatusBarShifter.h"
 
 #if TARGET_IPHONE_SIMULATOR
@@ -452,13 +453,7 @@ static NSString *const MDCFlexibleHeaderDelegateKey = @"MDCFlexibleHeaderDelegat
     }
 
     if (!_hasExplicitlySetMinHeight) {
-      // Edge case for UITableViewController: If we're a subview of _trackingScrollView,
-      // we need to get the Safe Area insets from there and not use ours.
-      if ([self isDescendantOfView:_trackingScrollView]) {
-        _minimumHeight = kFlexibleHeaderDefaultHeight + _trackingScrollView.safeAreaInsets.top;
-      } else {
-        _minimumHeight = kFlexibleHeaderDefaultHeight + self.safeAreaInsets.top;
-      }
+      _minimumHeight = kFlexibleHeaderDefaultHeight + MDCDeviceTopSafeAreaInset();
     }
     if (!_hasExplicitlySetMaxHeight) {
       _maximumHeight = _minimumHeight;
@@ -553,7 +548,7 @@ static NSString *const MDCFlexibleHeaderDelegateKey = @"MDCFlexibleHeaderDelegat
 
       // If the injected Safe Area inset hasn't changed, no-op.
       MDCFlexibleHeaderScrollViewInfo *info = [_trackedScrollViews objectForKey:scrollView];
-      if (!info || info.topSafeAreaInsetAdjustment == scrollView.safeAreaInsets.top) {
+      if (!info || info.topSafeAreaInsetAdjustment == MDCDeviceTopSafeAreaInset()) {
         return;
       }
 
@@ -561,7 +556,7 @@ static NSString *const MDCFlexibleHeaderDelegateKey = @"MDCFlexibleHeaderDelegat
       if (info.hasTopSafeAreaInsetAdjustment) {
         insets.top += info.topSafeAreaInsetAdjustment;
       }
-      info.topSafeAreaInsetAdjustment = scrollView.safeAreaInsets.top;
+      info.topSafeAreaInsetAdjustment = MDCDeviceTopSafeAreaInset();
       insets.top -= info.topSafeAreaInsetAdjustment;
       info.hasTopSafeAreaInsetAdjustment = YES;
       scrollView.contentInset = insets;
@@ -832,7 +827,7 @@ static NSString *const MDCFlexibleHeaderDelegateKey = @"MDCFlexibleHeaderDelegat
   // If on iOS 11, take into account the scroll view's Safe Area insets.
 #if defined(__IPHONE_11_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0)
   if (@available(iOS 11.0, *)) {
-    _trackingInfo.injectedTopScrollIndicatorInset -= _trackingScrollView.safeAreaInsets.top;
+    _trackingInfo.injectedTopScrollIndicatorInset -= MDCDeviceTopSafeAreaInset();
   }
 #endif
 
