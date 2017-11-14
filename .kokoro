@@ -43,6 +43,18 @@ fix_bazel_imports() {
   trap reset_imports EXIT
 }
 
+affected_targets() {
+  set +x
+  while read file; do
+    bazel_fullname=$(bazel query "$file" 2>/dev/null || echo "")
+    if [ -z "$bazel_fullname" ]; then
+      continue
+    fi
+    bazel query "attr('srcs', $bazel_fullname, ${bazel_fullname//:*/}:*)" 2>/dev/null || true
+  done | sort | uniq
+  set -x
+}
+
 if [ ! -d .kokoro-ios-runner ]; then
   git clone https://github.com/material-foundation/kokoro-ios-runner.git .kokoro-ios-runner
 fi
@@ -54,6 +66,16 @@ git checkout "$TAG" > /dev/null
 popd
 
 fix_bazel_imports
+
+merge_sha=$(git merge-base HEAD origin/develop)
+
+echo "Affected files:"
+git diff $merge_sha...HEAD --name-only
+
+echo "Affected targets:"
+git diff $merge_sha...HEAD --name-only | affected_targets
+
+exit 1
 
 ./.kokoro-ios-runner/bazel.sh test //components/... 8.2.0
 
