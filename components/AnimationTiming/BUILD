@@ -32,7 +32,10 @@ mdc_objc_library(
         "UIKit",
         "XCTest",
     ],
-    deps = [":AnimationTiming"],
+    deps = [
+        ":AnimationTiming",
+        "@motion_interchange_objc//:MotionInterchange",
+    ],
     visibility = ["//visibility:private"],
 )
 
