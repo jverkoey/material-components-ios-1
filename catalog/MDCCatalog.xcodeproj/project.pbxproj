@@ -21,6 +21,7 @@
 		64307B4A1DF76198004AE4AC /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 64307B491DF76198004AE4AC /* Assets.xcassets */; };
 		64F6D8811F91522A00AA4B24 /* MDCCatalogDebugAlert.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F6D8801F91522A00AA4B24 /* MDCCatalogDebugAlert.swift */; };
 		64F6D8831F915CA600AA4B24 /* MDCDebugSafeAreaInsetsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 64F6D8821F915CA600AA4B24 /* MDCDebugSafeAreaInsetsView.swift */; };
+		66333E592085851200DCEBF5 /* MDCThemePreviewerViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 66333E582085851200DCEBF5 /* MDCThemePreviewerViewController.swift */; };
 		664524B71C6BA62A001ADBF8 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664524B61C6BA62A001ADBF8 /* AppDelegate.swift */; };
 		664524B91C6BA62A001ADBF8 /* MDCNodeListViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 664524B81C6BA62A001ADBF8 /* MDCNodeListViewController.swift */; };
 		664524BE1C6BA62A001ADBF8 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 664524BD1C6BA62A001ADBF8 /* Assets.xcassets */; };
@@ -131,6 +132,7 @@
 		64307B491DF76198004AE4AC /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		64F6D8801F91522A00AA4B24 /* MDCCatalogDebugAlert.swift */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.swift; path = MDCCatalogDebugAlert.swift; sourceTree = "<group>"; };
 		64F6D8821F915CA600AA4B24 /* MDCDebugSafeAreaInsetsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDCDebugSafeAreaInsetsView.swift; sourceTree = "<group>"; };
+		66333E582085851200DCEBF5 /* MDCThemePreviewerViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDCThemePreviewerViewController.swift; sourceTree = "<group>"; };
 		664524B31C6BA62A001ADBF8 /* MDCCatalog.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = MDCCatalog.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		664524B61C6BA62A001ADBF8 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		664524B81C6BA62A001ADBF8 /* MDCNodeListViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MDCNodeListViewController.swift; sourceTree = "<group>"; };
@@ -253,6 +255,7 @@
 				64F6D8821F915CA600AA4B24 /* MDCDebugSafeAreaInsetsView.swift */,
 				664524B81C6BA62A001ADBF8 /* MDCNodeListViewController.swift */,
 				66D3389420730A3E00FFA1AB /* MDCThemePickerViewController.swift */,
+				66333E582085851200DCEBF5 /* MDCThemePreviewerViewController.swift */,
 				665A34DE1C6BDAE700962055 /* Resources */,
 			);
 			path = MDCCatalog;
@@ -622,6 +625,7 @@
 				6681FDFD1CC586660013A0C7 /* MDCCatalogTileView.swift in Sources */,
 				0B4A5E6D1CC9307A00D2AC5D /* MDCCatalogWindow.swift in Sources */,
 				66CD19292072A54000DE6340 /* AppTheme.swift in Sources */,
+				66333E592085851200DCEBF5 /* MDCThemePreviewerViewController.swift in Sources */,
 				664524B91C6BA62A001ADBF8 /* MDCNodeListViewController.swift in Sources */,
 				64F6D8811F91522A00AA4B24 /* MDCCatalogDebugAlert.swift in Sources */,
 				64F6D8831F915CA600AA4B24 /* MDCDebugSafeAreaInsetsView.swift in Sources */,
