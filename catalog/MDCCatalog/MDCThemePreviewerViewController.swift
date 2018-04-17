@@ -61,10 +61,20 @@ class MDCThemePreviewerViewController: UIViewController {
       self.view.backgroundColor = colorScheme.backgroundColor
     }
 
+    let activityIndicator = MDCActivityIndicator()
+    activityIndicator.sizeToFit()
+    activityIndicator.startAnimating()
+    activityIndicator.frame = CGRect(origin: .init(x: 16, y: 16), size: activityIndicator.bounds.size)
+    componentsScrollView.addSubview(activityIndicator)
+    expandContentSize(activityIndicator)
+    colorSchemeDidChangeApplicators.append {
+      MDCActivityIndicatorColorThemer.applySemanticColorScheme(colorScheme, to: activityIndicator)
+    }
+
     let flatButton = MDCFlatButton()
     flatButton.setTitle("Flat button", for: .normal)
     flatButton.sizeToFit()
-    flatButton.frame = CGRect(origin: .init(x: 16, y: 16), size: flatButton.frame.size)
+    flatButton.frame = CGRect(origin: .init(x: contentSize.width + 16, y: 16), size: flatButton.frame.size)
     componentsScrollView.addSubview(flatButton)
     expandContentSize(flatButton)
     colorSchemeDidChangeApplicators.append {
@@ -73,7 +83,7 @@ class MDCThemePreviewerViewController: UIViewController {
 
     let floatingButton = MDCFloatingButton()
     floatingButton.setTitle("+", for: .normal)
-    floatingButton.frame = CGRect(origin: .init(x: flatButton.frame.maxX + 16, y: 16),
+    floatingButton.frame = CGRect(origin: .init(x: contentSize.width + 16, y: 16),
                                   size: floatingButton.sizeThatFits(CGSize(width: view.bounds.width, height: view.bounds.height)))
     componentsScrollView.addSubview(floatingButton)
     expandContentSize(floatingButton)
@@ -83,7 +93,7 @@ class MDCThemePreviewerViewController: UIViewController {
 
     let raisedButton = MDCRaisedButton()
     raisedButton.setTitle("Raised button", for: .normal)
-    raisedButton.frame = CGRect(origin: .init(x: floatingButton.frame.maxX + 16, y: 16),
+    raisedButton.frame = CGRect(origin: .init(x: contentSize.width + 16, y: 16),
                                   size: raisedButton.sizeThatFits(CGSize(width: view.bounds.width, height: view.bounds.height)))
     componentsScrollView.addSubview(raisedButton)
     expandContentSize(raisedButton)
@@ -92,12 +102,29 @@ class MDCThemePreviewerViewController: UIViewController {
     }
 
     let card = MDCCard()
-    card.frame = CGRect(origin: .init(x: raisedButton.frame.maxX + 16, y: 16),
+    card.frame = CGRect(origin: .init(x: contentSize.width + 16, y: 16),
                         size: .init(width: 200, height: 200))
     componentsScrollView.addSubview(card)
     expandContentSize(card)
     colorSchemeDidChangeApplicators.append {
       MDCCardsColorThemer.applySemanticColorScheme(colorScheme, to: card)
+    }
+
+    let navigationBar = MDCNavigationBar()
+    navigationBar.title = "Navigation Bar"
+    let backImage = MDCIcons.imageFor_ic_arrow_back()!.withRenderingMode(.alwaysTemplate)
+    navigationBar.leadingBarButtonItem = UIBarButtonItem(image: backImage, style: .plain, target: nil, action: nil)
+    navigationBar.trailingBarButtonItem = UIBarButtonItem(title: "T",
+                                                       style: .plain,
+                                                       target: nil,
+                                                       action: nil)
+    navigationBar.sizeToFit()
+    navigationBar.frame = CGRect(origin: .init(x: 16, y: contentSize.height + 16),
+                        size: .init(width: 320, height: navigationBar.bounds.height))
+    componentsScrollView.addSubview(navigationBar)
+    expandContentSize(navigationBar)
+    colorSchemeDidChangeApplicators.append {
+      MDCNavigationBarColorThemer.applySemanticColorScheme(colorScheme, to: navigationBar)
     }
 
     componentsScrollView.contentSize = contentSize
@@ -212,6 +239,10 @@ let symbolsModel = [
       colorScheme.primaryColor = $0
       NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
     }),
+    ColorSchemeEditor(title: "Primary variant", initialValue: { colorScheme.primaryColorVariant }, didChange: {
+      colorScheme.primaryColorVariant = $0
+      NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
+    }),
     ColorSchemeEditor(title: "Secondary", initialValue: { colorScheme.secondaryColor }, didChange: {
       colorScheme.secondaryColor = $0
       NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
@@ -222,6 +253,22 @@ let symbolsModel = [
     }),
     ColorSchemeEditor(title: "Background", initialValue: { colorScheme.backgroundColor }, didChange: {
       colorScheme.backgroundColor = $0
+      NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
+    }),
+    ColorSchemeEditor(title: "On primary", initialValue: { colorScheme.onPrimaryColor }, didChange: {
+      colorScheme.onPrimaryColor = $0
+      NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
+    }),
+    ColorSchemeEditor(title: "On secondary", initialValue: { colorScheme.onSecondaryColor }, didChange: {
+      colorScheme.onSecondaryColor = $0
+      NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
+    }),
+    ColorSchemeEditor(title: "On surface", initialValue: { colorScheme.onSurfaceColor }, didChange: {
+      colorScheme.onSurfaceColor = $0
+      NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
+    }),
+    ColorSchemeEditor(title: "On background", initialValue: { colorScheme.onBackgroundColor }, didChange: {
+      colorScheme.onBackgroundColor = $0
       NotificationCenter.default.post(name: NSNotification.Name(rawValue: "DidChangeColor"), object: nil)
     })
   ],
