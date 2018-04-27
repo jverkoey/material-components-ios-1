@@ -27,6 +27,12 @@ the linear implementation.
   <li class="icon-list-item icon-list-item--link"><a href="https://material.io/components/ios/catalog/progress-indicators/activity-indicators/api-docs/Protocols/MDCActivityIndicatorDelegate.html">API: MDCActivityIndicatorDelegate</a></li>
 </ul>
 
+## Supported extensions
+
+<ul class="icon-list">
+  <li class="icon-list-item icon-list-item--components"><a href="#color-theming">Color Theming</a></li>
+</ul>
+
 ## Related Components
 
 <ul class="icon-list">
@@ -77,9 +83,9 @@ import MaterialComponents.MaterialActivityIndicator
 indicators express an unspecified wait time, while determinate indicators represent the length of a
 process. Activity indicators are indeterminate by default.
 
-## Usage
+## Typical usage
 
-### Typical use: Indeterminate
+### As an indeterminate indicator
 
 MDCActivityIndicator instances are indeterminate by default.
 
@@ -112,15 +118,13 @@ MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] init];
 ```
 <!--</div>-->
 
-
-### Typical use: Determinate
+### As a determinate indicator
 
 MDCActivityIndicator instances can be shown as determinate by modifying the `indicatorMode`
-property and setting a percentage progress with `progress`. `progress` must be set to a floating
-point number between 0 and 1. Values beyond this range will be capped within the range.
+property and setting a percentage progress with
+<a href="https://material.io/components/ios/catalog/progress-indicators/activity-indicators/api-docs/Classes/MDCActivityIndicator.html#/c:objc(cs)MDCActivityIndicator(py)progress"><code>progress</code></a>.
 
-Note: Activity indicators are hidden unless they are animating, even if the indicator is determinate
-progress.
+Note: Activity indicators are only visible once `startAnimating` is called.
 
 <!--<div class="material-code-render" markdown="1">-->
 #### Swift
@@ -155,55 +159,7 @@ activityIndicator.progress = 0.5;
 ```
 <!--</div>-->
 
-### Theming
-
-You can theme an activity indicator with your app's color scheme using the ColorThemer extension.
-
-You must first add the Color Themer extension to your project:
-
-``` bash
-pod 'MaterialComponents/ActivityIndicator+Extensions/ColorThemer'
-```
-
-You can then import the theming APIs:
-
-<!--<div class="material-code-render" markdown="1">-->
-#### Swift
-``` swift
-import MaterialComponents.MaterialActivityIndicator_ColorThemer
-```
-
-#### Objective-C
-
-``` objc
-#import "MaterialActivityIndicator+ColorThemer.h"
-```
-<!--</div>-->
-
-MDCActivityIndicatorColorThemer allows you to theme an activity indicator with your app's color
-scheme.
-
-<!--<div class="material-code-render" markdown="1">-->
-#### Swift
-``` swift
-let colorScheme: MDCSemanticColorScheme()
-
-let activityIndicator = MDCActivityIndicator()
-MDCActivityIndicatorColorThemer.applySemanticColorScheme(colorScheme, to: activityIndicator)
-```
-
-#### Objective-C
-
-``` objc
-id<MDCColorScheming> colorScheme = [[MDCSemanticColorScheme alloc] init];
-
-MDCActivityIndicator *activityIndicator = [[MDCActivityIndicator alloc] init];
-[MDCActivityIndicatorColorThemer applySemanticColorScheme:colorScheme
-                                      toActivityIndicator:activityIndicator];
-```
-<!--</div>-->
-
-### Showing multiple indeterminate colors
+### With multiple indeterminate colors
 
 Indeterminate activity indicators support showing multiple colors via the `cycleColors` API.
 Consider using this property if your brand consists of more than one primary color.
@@ -223,5 +179,37 @@ activityIndicator.cycleColors =  @[ UIColor.blueColor,
                                     UIColor.redColor,
                                     UIColor.greenColor,
                                     UIColor.yellowColor ];
+```
+<!--</div>-->
+
+## Extensions
+
+This component supports theming. [Learn more about theming](../../docs/theming/).
+
+### Color Theming
+
+Add the following to your Podfile:
+
+``` bash
+pod 'MaterialComponents/ActivityIndicator+Extensions/ColorThemer'
+```
+
+And use the themer like so:
+
+<!--<div class="material-code-render" markdown="1">-->
+#### Swift
+``` swift
+import MaterialComponents.MaterialActivityIndicator_ColorThemer
+
+MDCActivityIndicatorColorThemer.applySemanticColorScheme(colorScheme, to: activityIndicator)
+```
+
+#### Objective-C
+
+``` objc
+#import "MaterialActivityIndicator+ColorThemer.h"
+
+[MDCActivityIndicatorColorThemer applySemanticColorScheme:colorScheme
+                                      toActivityIndicator:activityIndicator];
 ```
 <!--</div>-->
