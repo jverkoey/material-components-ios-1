@@ -1,0 +1,35 @@
+---
+name: Team handbook
+about: Propose a change to the team's handbook.
+
+---
+
+- [ ] The issue's title has a prefix of `[Team handbook]`.
+- [ ] The issue has been labeled with `Team handbook`.
+- [ ] You have provided a list of variants to your proposal.
+
+# Variants
+
+## Variant 1: A single-sentence description of this variant.
+
+A longer-form description of the variant.
+
+Pros:
+
+- Individual items describing the positive aspects of this variant.
+
+Cons:
+
+- Individual items describing the negative aspects of this variant.
+
+## Variant 2: A single-sentence description of this variant.
+
+A longer-form description of the variant.
+
+Pros:
+
+- Individual items describing the positive aspects of this variant.
+
+Cons:
+
+- Individual items describing the negative aspects of this variant.
