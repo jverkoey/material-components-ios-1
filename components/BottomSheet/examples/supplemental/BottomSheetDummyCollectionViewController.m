@@ -46,6 +46,15 @@
 
   [self.collectionView registerClass:[DummyCollectionViewCell class]
           forCellWithReuseIdentifier:NSStringFromClass([DummyCollectionViewCell class])];
+
+  [self performSelector:@selector(reset) withObject:nil afterDelay:3.0];
+}
+
+- (void)reset {
+  _numItems = ((arc4random() % 100) < 50) ? 3 : 50;
+  NSLog(@"%@", @(_numItems));
+  [self.collectionView reloadData];
+  [self performSelector:@selector(reset) withObject:nil afterDelay:3.0];
 }
 
 - (void)viewWillLayoutSubviews {
