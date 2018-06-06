@@ -66,7 +66,7 @@
   webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
   [self.view addSubview:webView];
 
-  NSURL *url = [NSURL URLWithString:@"https://google.com"];
+  NSURL *url = [NSURL URLWithString:@"http://x.com"];
   NSURLRequest *request = [NSURLRequest requestWithURL:url];
   [webView loadRequest:request];
 
@@ -75,6 +75,11 @@
 
   // Step 3: Register the App Bar views.
   [self.appBar addSubviewsToParent];
+
+  CGRect offset = webView.frame;
+  offset.origin.y += self.appBar.headerViewController.headerView.frame.size.height;
+  offset.size.height -= self.appBar.headerViewController.headerView.frame.size.height;
+  webView.frame = offset;
 
   self.navigationItem.rightBarButtonItem =
       [[UIBarButtonItem alloc] initWithTitle:@"Right"
