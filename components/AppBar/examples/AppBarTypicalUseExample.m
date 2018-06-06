@@ -15,12 +15,13 @@
  */
 
 #import <UIKit/UIKit.h>
+#import <WebKit/WebKit.h>
 
 #import "MaterialAppBar.h"
 #import "MaterialAppBar+ColorThemer.h"
 #import "MaterialAppBar+TypographyThemer.h"
 
-@interface AppBarTypicalUseExample : UITableViewController
+@interface AppBarTypicalUseExample : UIViewController
 
 // Step 1: Create an App Bar.
 @property(nonatomic, strong) MDCAppBar *appBar;
@@ -46,7 +47,12 @@
 
     // Behavioral flags.
     _appBar.inferTopSafeAreaInsetFromViewController = YES;
+    _appBar.headerViewController.topLayoutGuideViewController = self;
     _appBar.headerViewController.headerView.minMaxHeightIncludesSafeArea = NO;
+    // Allows us to avoid forwarding events, but means we can't enable shift behaviors.
+    _appBar.headerViewController.headerView.observesTrackingScrollViewScrollEvents = YES;
+
+    _appBar.headerViewController.useAdditionalSafeAreaInsetsAPIs = YES;
 
     [self addChildViewController:_appBar.headerViewController];
 
@@ -67,11 +73,56 @@
   // Need to update the status bar style after applying the theme.
   [self setNeedsStatusBarAppearanceUpdate];
 
-  // Allows us to avoid forwarding events, but means we can't enable shift behaviors.
-  self.appBar.headerViewController.headerView.observesTrackingScrollViewScrollEvents = YES;
+  WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+  WKWebView *webView = [[WKWebView alloc] initWithFrame:self.view.bounds configuration:config];
+  [self.view addSubview:webView];
 
+  NSURL *url = [NSURL URLWithString:@"http://localhost:8000"];
+  NSURLRequest *request = [NSURLRequest requestWithURL:url];
+  [webView loadRequest:request];
+
+#if defined(__IPHONE_11_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0)
+  if (@available(iOS 11.0, *)) {
+    // No need to do anything - additionalSafeAreaInsets will inset our content.
+    webView.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight);
+  } else {
+#endif
+  webView.translatesAutoresizingMaskIntoConstraints = NO;
+  [NSLayoutConstraint activateConstraints:
+   @[[NSLayoutConstraint constraintWithItem:webView
+                                  attribute:NSLayoutAttributeTop
+                                  relatedBy:NSLayoutRelationEqual
+                                     toItem:self.topLayoutGuide
+                                  attribute:NSLayoutAttributeBottom
+                                 multiplier:1.0
+                                   constant:0],
+     [NSLayoutConstraint constraintWithItem:webView
+                                  attribute:NSLayoutAttributeBottom
+                                  relatedBy:NSLayoutRelationEqual
+                                     toItem:self.view
+                                  attribute:NSLayoutAttributeBottom
+                                 multiplier:1.0
+                                   constant:0],
+     [NSLayoutConstraint constraintWithItem:webView
+                                  attribute:NSLayoutAttributeLeft
+                                  relatedBy:NSLayoutRelationEqual
+                                     toItem:self.view
+                                  attribute:NSLayoutAttributeLeft
+                                 multiplier:1.0
+                                   constant:0],
+     [NSLayoutConstraint constraintWithItem:webView
+                                  attribute:NSLayoutAttributeRight
+                                  relatedBy:NSLayoutRelationEqual
+                                     toItem:self.view
+                                  attribute:NSLayoutAttributeRight
+                                 multiplier:1.0
+                                   constant:0]
+     ]];
+#if defined(__IPHONE_11_0) && (__IPHONE_OS_VERSION_MAX_ALLOWED >= __IPHONE_11_0)
+  }
+#endif
   // Recommended step: Set the tracking scroll view.
-  self.appBar.headerViewController.headerView.trackingScrollView = self.tableView;
+  self.appBar.headerViewController.headerView.trackingScrollView = webView.scrollView;
 
   // Step 3: Register the App Bar views.
   [self.appBar addSubviewsToParent];
@@ -123,27 +174,6 @@
 
 + (BOOL)catalogIsPresentable {
   return YES;
-}
-
-@end
-
-#pragma mark - Typical application code (not Material-specific)
-
-@implementation AppBarTypicalUseExample (UITableViewDataSource)
-
-- (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section {
-  return 50;
-}
-
-- (UITableViewCell *)tableView:(UITableView *)tableView
-         cellForRowAtIndexPath:(NSIndexPath *)indexPath {
-  UITableViewCell *cell = [self.tableView dequeueReusableCellWithIdentifier:@"cell"];
-  if (!cell) {
-    cell =
-        [[UITableViewCell alloc] initWithStyle:UITableViewCellStyleDefault reuseIdentifier:@"cell"];
-  }
-  cell.layoutMargins = UIEdgeInsetsZero;
-  return cell;
 }
 
 @end

@@ -102,6 +102,18 @@
  */
 @property(nonatomic) BOOL inferTopSafeAreaInsetFromViewController;
 
+#pragma mark - Preferring additional safe area insets over content insets
+
+/**
+ On devices running iOS 11 and up, enabling this behavior will disable the contentInset adjustment
+ behavior of the tracking scroll view in favor of relying on additionalSafeAreaInsets to adjust the
+ tracking scroll view's contents.
+
+ On devices running below iOS 11, the tracking scroll view's contentInset will still be adjusted
+ even if this flag is enabled.
+ */
+@property(nonatomic) BOOL useAdditionalSafeAreaInsetsAPIs;
+
 #pragma mark UIViewController methods
 
 /**

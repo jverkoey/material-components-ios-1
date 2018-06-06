@@ -475,7 +475,7 @@ static char *const kKVOContextMDCFlexibleHeaderViewController =
     // the tracking scroll view's contentInsets. Some day - in the long distant future when we only
     // support iOS 11 and up - we can probably drop the content inset adjustment behavior in favor
     // of modifying additionalSafeAreaInsets instead.
-    if (self.headerView.trackingScrollView != nil) {
+    if (self.headerView.trackingScrollView != nil && !self.useAdditionalSafeAreaInsetsAPIs) {
       // Reset the additional safe area insets if we are now tracking a scroll view.
       if (topLayoutGuideViewController != nil) {
         UIEdgeInsets additionalSafeAreaInsets =
@@ -539,6 +539,18 @@ static char *const kKVOContextMDCFlexibleHeaderViewController =
 
 - (BOOL)inferTopSafeAreaInsetFromViewController {
   return _headerView.inferTopSafeAreaInsetFromViewController;
+}
+
+- (void)setUseAdditionalSafeAreaInsetsAPIs:(BOOL)useAdditionalSafeAreaInsetsAPIs {
+  self.headerView.useAdditionalSafeAreaInsetsAPIs = useAdditionalSafeAreaInsetsAPIs;
+
+  if (useAdditionalSafeAreaInsetsAPIs) {
+    self.inferTopSafeAreaInsetFromViewController = YES;
+  }
+}
+
+- (BOOL)useAdditionalSafeAreaInsetsAPIs {
+  return self.headerView.useAdditionalSafeAreaInsetsAPIs;
 }
 
 #pragma mark - Top safe area inset extraction

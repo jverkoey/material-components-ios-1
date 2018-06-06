@@ -429,6 +429,10 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   if (@available(iOS 11.0, *)) {
     [super safeAreaInsetsDidChange];
 
+    if (_contentInsetsAreChanging) {
+      return; // No-op
+    }
+
     if (self.inferTopSafeAreaInsetFromViewController) {
       // Will eventually invoke fhv_topSafeAreaInsetDidChange if needed.
       [self extractTopSafeAreaInset];
@@ -547,6 +551,19 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   return _topSafeAreaGuide.frame.size.height;
 }
 
+- (void)setUseAdditionalSafeAreaInsetsAPIs:(BOOL)useAdditionalSafeAreaInsetsAPIs {
+  if (_useAdditionalSafeAreaInsetsAPIs == useAdditionalSafeAreaInsetsAPIs) {
+    return;
+  }
+  _useAdditionalSafeAreaInsetsAPIs = useAdditionalSafeAreaInsetsAPIs;
+
+  if (_useAdditionalSafeAreaInsetsAPIs) {
+    [self fhv_enforceInsetsForScrollView:self.trackingScrollView];
+  } else {
+    [self fhv_removeInsetsFromScrollView:self.trackingScrollView];
+  }
+}
+
 #pragma mark - Private (fhv_ prefix)
 
 - (void)fhv_setContentOffset:(CGPoint)contentOffset {
@@ -626,7 +643,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
 // This ensures that when our scroll view is scrolled to its top that our header is able to be fully
 // expanded.
 - (CGFloat)fhv_enforceInsetsForScrollView:(UIScrollView *)scrollView {
-  if (!scrollView) {
+  if (!scrollView || self.useAdditionalSafeAreaInsetsAPIs) {
     return 0;
   }
 

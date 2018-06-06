@@ -41,4 +41,15 @@
  */
 @property(nonatomic, readonly) CGFloat topSafeAreaGuideLength;
 
+#pragma mark - Preferring additional safe area insets over content insets
+
+/**
+ On devices running iOS 11 and up, enabling this behavior will disable the contentInset adjustment
+ behavior of the tracking scroll view in favor of relying on additionalSafeAreaInsets to adjust the
+ tracking scroll view's contents.
+
+ On devices running an OS below iOS 11, this behavior does nothing.
+ */
+@property(nonatomic) BOOL useAdditionalSafeAreaInsetsAPIs;
+
 @end
