@@ -294,6 +294,9 @@ static NSString *const MDCButtonBarButtonLayoutPositionKey = @"MDCButtonBarButto
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(title))]) {
           [button setTitle:newValue forState:UIControlStateNormal];
 
+        } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(tintColor))]) {
+          button.tintColor = newValue;
+
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(image))]) {
           [button setImage:newValue forState:UIControlStateNormal];
 
@@ -388,7 +391,9 @@ static NSString *const MDCButtonBarButtonLayoutPositionKey = @"MDCButtonBarButto
     }
 
     NSArray<NSString *> *keyPaths = @[
-      kEnabledSelector, NSStringFromSelector(@selector(title)),
+      kEnabledSelector,
+      NSStringFromSelector(@selector(tintColor)),
+      NSStringFromSelector(@selector(title)),
       NSStringFromSelector(@selector(image))
     ];
 

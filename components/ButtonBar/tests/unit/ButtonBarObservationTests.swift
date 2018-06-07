@@ -86,6 +86,34 @@ class ButtonBarObservationTests: XCTestCase {
     }
   }
 
+  func testTintColorChangesAreObserved() {
+    let item = UIBarButtonItem(title: "Title", style: .plain, target: nil, action: nil)
+    item.tintColor = .blue
+    buttonBar.items = [item]
+    buttonBar.layoutSubviews()
+
+    do {
+      let tintColors = buttonBar.subviews.flatMap { $0 as? MDCButton }.flatMap { $0.tintColor }
+      XCTAssertEqual(tintColors, [item.tintColor!])
+    }
+
+    // Change the value post-assignment
+    item.tintColor = .red
+
+    do {
+      let tintColors = buttonBar.subviews.flatMap { $0 as? MDCButton }.flatMap { $0.tintColor }
+      XCTAssertEqual(tintColors, [item.tintColor!])
+    }
+
+    // Verify that the tint color reverts to the default
+    item.tintColor = nil
+
+    do {
+      let tintColors = buttonBar.subviews.flatMap { $0 as? MDCButton }.flatMap { $0.tintColor }
+      XCTAssertEqual(tintColors, [buttonBar.tintColor])
+    }
+  }
+
   private func createImage(colored color: UIColor) -> UIImage {
     UIGraphicsBeginImageContextWithOptions(CGSize(width: 64, height: 64), true, 1)
     color.setFill()

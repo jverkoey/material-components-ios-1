@@ -43,6 +43,7 @@ typedef NS_OPTIONS(NSUInteger, MDCButtonBarLayoutPosition) {
  - enabled
  - title
  - image
+ - tintColor
 
  If any of the above properties change, the MDCButtonBar will immediately reflect the change
  in the visible UIButton instance.
