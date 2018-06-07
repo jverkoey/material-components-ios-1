@@ -114,6 +114,26 @@ class ButtonBarObservationTests: XCTestCase {
     }
   }
 
+  func testTagChangesAreObserved() {
+    let item = UIBarButtonItem(title: "Title", style: .plain, target: nil, action: nil)
+    item.tag = 100
+    buttonBar.items = [item]
+    buttonBar.layoutSubviews()
+
+    do {
+      let tags = buttonBar.subviews.flatMap { $0 as? MDCButton }.map { $0.tag }
+      XCTAssertEqual(tags, [item.tag])
+    }
+
+    // Change the value post-assignment
+    item.tag = 50
+
+    do {
+      let tags = buttonBar.subviews.flatMap { $0 as? MDCButton }.map { $0.tag }
+      XCTAssertEqual(tags, [item.tag])
+    }
+  }
+
   private func createImage(colored color: UIColor) -> UIImage {
     UIGraphicsBeginImageContextWithOptions(CGSize(width: 64, height: 64), true, 1)
     color.setFill()

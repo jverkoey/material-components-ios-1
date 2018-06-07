@@ -42,6 +42,7 @@ typedef NS_OPTIONS(NSUInteger, MDCButtonBarLayoutPosition) {
 
  - enabled
  - image
+ - tag
  - tintColor
  - title
 

@@ -291,6 +291,9 @@ static NSString *const MDCButtonBarButtonLayoutPositionKey = @"MDCButtonBarButto
             [button setValue:newValue forKey:keyPath];
           }
 
+        } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(tag))]) {
+          button.tag = [newValue integerValue];
+
         } else if ([keyPath isEqualToString:NSStringFromSelector(@selector(tintColor))]) {
           button.tintColor = newValue;
 
@@ -392,6 +395,7 @@ static NSString *const MDCButtonBarButtonLayoutPositionKey = @"MDCButtonBarButto
 
     NSArray<NSString *> *keyPaths = @[
       kEnabledSelector,
+      NSStringFromSelector(@selector(tag)),
       NSStringFromSelector(@selector(tintColor)),
       NSStringFromSelector(@selector(title)),
       NSStringFromSelector(@selector(image))
