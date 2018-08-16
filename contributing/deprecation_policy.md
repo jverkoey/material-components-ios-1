@@ -67,6 +67,19 @@ MDCAppBarViewController.
 
 Send this migration guide out for review as a standalone pull request.
 
+Every migration guide is different, but a good general rule of thumb is to include the following
+information:
+
+- A mapping from to-be-deprecated APIs to new APIs, if applicable.
+- A comparison of differences in behavior between the old API to the new API. This is a good
+opportunity to call out any potential challenges in the migration.
+- Code snippets of before/after migration.
+
+Example migration guides:
+
+- [Semantic color schemes](https://github.com/material-components/material-components-ios/tree/bd8a8153bc318365e2e76c42a7f6e16e76267ac0/components/schemes/Color#migration-guide-semantic-color-schemes)
+- [MDCAppBar to MDCAppBarViewController](https://github.com/material-components/material-components-ios/tree/bd8a8153bc318365e2e76c42a7f6e16e76267ac0/components/AppBar#migration-guide-mdcappbar-to-mdcappbarviewcontroller)
+
 ### Step 4: Annotate the API as "ToBeDeprecated"
 
 Add a `@warning` annotation to the API's public documentation indicating the intent for this API to
