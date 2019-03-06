@@ -19,6 +19,7 @@
 @protocol MDCBottomNavigationBarDelegate;
 
 /** States used to configure bottom navigation on when to show item titles. */
+NS_AVAILABLE_IOS(9_0)
 typedef NS_ENUM(NSInteger, MDCBottomNavigationBarTitleVisibility) {
 
   // Default behavior is to show title when item is selected, hide otherwise.
@@ -35,6 +36,7 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarTitleVisibility) {
  States used to configure bottom navigation in landscape mode with respect to how items are spaced
  and item title orientation. Titles will be shown or hidden depending on title hide state.
  */
+NS_AVAILABLE_IOS(9_0)
 typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
 
   // Items are distributed using the entire width of the device, justified. Titles are centered
@@ -57,6 +59,7 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
  can be selected at at time. The selected item's title text is displayed. Title text for unselected
  items are hidden.
  */
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationBar : UIView
 
 /** The bottom navigation bar delegate. */
@@ -199,6 +202,7 @@ typedef NS_ENUM(NSInteger, MDCBottomNavigationBarAlignment) {
  Delegate protocol for MDCBottomNavigationBar. Clients may implement this protocol to receive
  notifications of selection changes by user action in the bottom navigation bar.
  */
+NS_AVAILABLE_IOS(9_0)
 @protocol MDCBottomNavigationBarDelegate <UINavigationBarDelegate>
 
 @optional

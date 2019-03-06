@@ -21,6 +21,7 @@
 /**
  A testing MDCBottomNavigationBar that allows safeAreaInsets to be set programmatically.
  */
+NS_AVAILABLE_IOS(9_0)
 @interface MDCSafeAreaCustomizingBottomNavigationBar : MDCBottomNavigationBar
 /** Set this to override the value returned by @c safeAreaInsets. */
 @property(nonatomic, assign) UIEdgeInsets test_safeAreaInsets;
@@ -42,6 +43,7 @@
 @property(nonatomic, strong) UILabel *label;
 @end
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationTests : XCTestCase
 @property(nonatomic, strong) MDCBottomNavigationBar *bottomNavBar;
 @end

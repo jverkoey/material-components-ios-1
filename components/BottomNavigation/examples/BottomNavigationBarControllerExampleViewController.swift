@@ -18,6 +18,7 @@ import MaterialComponentsBeta.MaterialBottomNavigationBeta
 import MaterialComponents.MaterialBottomNavigation_ColorThemer
 import MaterialComponents.MaterialBottomNavigation_TypographyThemer
 
+@available(iOS 9.0, *)
 class BottomNavigationControllerExampleViewController: MDCBottomNavigationBarController {
 
   public var colorScheme: MDCColorScheming  = MDCSemanticColorScheme() {
@@ -62,6 +63,7 @@ class BottomNavigationControllerExampleViewController: MDCBottomNavigationBarCon
 
 // MARK: Private Functions
 
+@available(iOS 9.0, *)
 extension BottomNavigationControllerExampleViewController {
   fileprivate func apply(colorScheme: MDCColorScheming) {
     MDCBottomNavigationBarColorThemer.applySemanticColorScheme(colorScheme, toBottomNavigation: self.navigationBar)

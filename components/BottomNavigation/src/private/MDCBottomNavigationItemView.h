@@ -17,6 +17,7 @@
 #import "MDCBottomNavigationBar.h"
 #import "MaterialInk.h"
 
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationItemView : UIView
 
 @property(nonatomic, assign) BOOL titleBelowIcon;

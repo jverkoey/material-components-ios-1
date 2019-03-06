@@ -15,7 +15,6 @@
 import XCTest
 import MaterialComponents.MaterialActivityIndicator
 
-@available(iOS 9.0, *)
 class ActivityIndicatorTests: XCTestCase {
 
   func testCycleColorDefaultValue() {

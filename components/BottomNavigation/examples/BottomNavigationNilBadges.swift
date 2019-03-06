@@ -16,6 +16,7 @@ import Foundation
 import MaterialComponents.MaterialAppBar
 import MaterialComponents.MaterialBottomNavigation_ColorThemer
 
+@available(iOS 9.0, *)
 class BottomNavigationNilBadges : UIViewController {
 
   let appBarViewController = MDCAppBarViewController()
@@ -110,6 +111,7 @@ class BottomNavigationNilBadges : UIViewController {
 }
 
 // MARK: Catalog by convention
+@available(iOS 9.0, *)
 extension BottomNavigationNilBadges {
 
   class func catalogMetadata() -> [String: Any] {

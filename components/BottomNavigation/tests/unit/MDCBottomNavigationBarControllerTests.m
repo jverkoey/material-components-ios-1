@@ -19,6 +19,7 @@
 
 static CGFloat const kDefaultExpectationTimeout = 15;
 
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationControllerTests
     : XCTestCase <MDCBottomNavigationBarControllerDelegate>
 

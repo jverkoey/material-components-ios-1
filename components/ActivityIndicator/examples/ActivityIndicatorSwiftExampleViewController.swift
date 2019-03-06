@@ -15,7 +15,6 @@
 import UIKit
 import MaterialComponents.MaterialActivityIndicator
 
-@available(iOS 9.0, *)
 class ActivityIndicatorSwiftExampleViewController: UIViewController {
 
    struct MDCPalette {
@@ -79,7 +78,6 @@ class ActivityIndicatorSwiftExampleViewController: UIViewController {
    }
 }
 
-@available(iOS 9.0, *)
 extension ActivityIndicatorSwiftExampleViewController : MDCActivityIndicatorDelegate {
    func activityIndicatorAnimationDidFinish(_ activityIndicator: MDCActivityIndicator) {
       return

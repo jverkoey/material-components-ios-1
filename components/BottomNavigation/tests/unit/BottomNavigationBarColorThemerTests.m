@@ -18,12 +18,14 @@
 #import "MaterialBottomNavigation.h"
 #import "MaterialColorScheme.h"
 
+NS_AVAILABLE_IOS(9_0)
 @interface FakeColorScheme : NSObject <MDCColorScheme>
 @property(nonatomic, strong) UIColor *primaryColor;
 @end
 @implementation FakeColorScheme
 @end
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationBarColorThemerTests : XCTestCase
 
 @end

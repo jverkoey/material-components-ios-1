@@ -18,6 +18,7 @@
 /**
  The Material Design color system's themer for instances of MDCBottomNavigationBar.
  */
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationBarColorThemer : NSObject
 
 /**
@@ -31,6 +32,7 @@
 
 @end
 
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationBarColorThemer (ToBeDeprecated)
 
 /**

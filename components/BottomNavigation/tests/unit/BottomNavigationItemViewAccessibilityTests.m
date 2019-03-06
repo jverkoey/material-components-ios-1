@@ -16,6 +16,7 @@
 
 #import "MDCBottomNavigationItemView.h"
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationItemViewAccessibilityTests : XCTestCase
 
 @end

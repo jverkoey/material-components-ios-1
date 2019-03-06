@@ -16,6 +16,7 @@ import Foundation
 import MaterialComponents.MaterialBottomNavigation_ColorThemer
 import MaterialComponents.MaterialColorScheme
 
+@available(iOS 9.0, *)
 class BottomNavigationTitleVisibilityChangeExample: UIViewController, MDCBottomNavigationBarDelegate {
   
   var colorScheme = MDCSemanticColorScheme()
@@ -109,6 +110,7 @@ class BottomNavigationTitleVisibilityChangeExample: UIViewController, MDCBottomN
 }
 
 // MARK: Catalog by convention
+@available(iOS 9.0, *)
 extension BottomNavigationTitleVisibilityChangeExample {
   
   class func catalogMetadata() -> [String: Any] {

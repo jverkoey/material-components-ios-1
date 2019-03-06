@@ -17,6 +17,7 @@ import MaterialComponents.MaterialBottomNavigation_ColorThemer
 import MaterialComponents.MaterialTypographyScheme
 
 // Example to show different icons for selected and unselected states
+@available(iOS 9.0, *)
 class BottomNavigationSelectedIconExample: UIViewController {
   var colorScheme = MDCSemanticColorScheme()
   var typographyScheme = MDCTypographyScheme()
@@ -65,6 +66,7 @@ class BottomNavigationSelectedIconExample: UIViewController {
 
 
 // MARK: - Catalog by Conventions
+@available(iOS 9.0, *)
 extension BottomNavigationSelectedIconExample {
 
   class func catalogMetadata() -> [String: Any] {

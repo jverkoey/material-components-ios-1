@@ -36,6 +36,7 @@ static UIImage *fakeImage(void) {
 - (CGPoint)badgeCenterFromIconFrame:(CGRect)iconFrame isRTL:(BOOL)isRTL;
 @end
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationItemViewTests : XCTestCase
 
 @end

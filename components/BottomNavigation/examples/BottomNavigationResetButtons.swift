@@ -20,6 +20,7 @@ import MaterialComponents.MaterialColorScheme
 import MaterialComponents.MaterialTypographyScheme
 
 /// Example to showcase a reorder of the tabs from an user action
+@available(iOS 9.0, *)
 class BottomNavigationResetExample: UIViewController {
 
   var colorScheme = MDCSemanticColorScheme()
@@ -114,6 +115,7 @@ class BottomNavigationResetExample: UIViewController {
 }
 
 // MARK: Catalog by convention
+@available(iOS 9.0, *)
 extension BottomNavigationResetExample {
 
   class func catalogMetadata() -> [String: Any] {

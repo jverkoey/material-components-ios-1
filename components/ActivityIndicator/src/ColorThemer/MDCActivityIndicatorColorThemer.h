@@ -20,7 +20,6 @@
 /**
  The Material Design color system's themer for instances of MDCActivityIndicator.
  */
-NS_AVAILABLE_IOS(9_0)
 @interface MDCActivityIndicatorColorThemer : NSObject
 
 /**
@@ -34,7 +33,6 @@ NS_AVAILABLE_IOS(9_0)
 
 @end
 
-NS_AVAILABLE_IOS(9_0)
 @interface MDCActivityIndicatorColorThemer (ToBeDeprecated)
 
 /**

@@ -17,6 +17,7 @@ import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialPalettes
 import MaterialComponents.MaterialBottomNavigation_ColorThemer
 
+@available(iOS 9.0, *)
 class BottomNavigationExplicitlySetColorExample: UIViewController {
 
   var colorScheme = MDCSemanticColorScheme()
@@ -115,6 +116,7 @@ class BottomNavigationExplicitlySetColorExample: UIViewController {
 }
 
 // MARK: Catalog by convention
+@available(iOS 9.0, *)
 extension BottomNavigationExplicitlySetColorExample {
 
   class func catalogMetadata() -> [String: Any] {

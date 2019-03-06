@@ -20,6 +20,7 @@
 #import "MaterialColorScheme.h"
 #import "MaterialTypographyScheme.h"
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationBlurExample : UIViewController <UICollectionViewDataSource>
 
 @property(nonatomic, strong) MDCTypographyScheme *typographyScheme;

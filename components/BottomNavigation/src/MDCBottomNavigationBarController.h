@@ -24,6 +24,7 @@
  * navigation bar and will display the corresponding view controller in the content view when an
  * in the navigation bar is selected.
  */
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationBarController : UIViewController <MDCBottomNavigationBarDelegate>
 
 /**
@@ -73,6 +74,7 @@
  * The protocol for clients of the MDCBottomNavigationBarController to conform to for updates on the
  * bottom navigation bar, manage selection, and other possible actions.
  */
+NS_AVAILABLE_IOS(9_0)
 @protocol MDCBottomNavigationBarControllerDelegate <NSObject>
 @optional
 /**

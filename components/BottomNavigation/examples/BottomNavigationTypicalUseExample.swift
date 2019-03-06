@@ -16,6 +16,7 @@ import Foundation
 import MaterialComponents.MaterialBottomNavigation_ColorThemer
 import MaterialComponents.MaterialColorScheme
 
+@available(iOS 9.0, *)
 class BottomNavigationTypicalUseSwiftExample: UIViewController {
 
   var colorScheme = MDCSemanticColorScheme()
@@ -80,6 +81,7 @@ class BottomNavigationTypicalUseSwiftExample: UIViewController {
 }
 
 // MARK: Catalog by convention
+@available(iOS 9.0, *)
 extension BottomNavigationTypicalUseSwiftExample {
 
   class func catalogMetadata() -> [String: Any] {

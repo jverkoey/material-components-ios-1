@@ -16,6 +16,7 @@
 #import "MaterialColorScheme.h"
 #import "MaterialTypographyScheme.h"
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationTypicalUseExample : UIViewController
 @property(nonatomic, strong) MDCSemanticColorScheme *colorScheme;
 @property(nonatomic, strong) MDCTypographyScheme *typographyScheme;

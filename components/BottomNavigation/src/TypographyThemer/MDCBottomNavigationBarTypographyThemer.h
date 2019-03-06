@@ -20,6 +20,7 @@
 /**
  The Material Design typography system's themer for instances of MDCBottomNavigationBar.
  */
+NS_AVAILABLE_IOS(9_0)
 @interface MDCBottomNavigationBarTypographyThemer : NSObject
 
 /**

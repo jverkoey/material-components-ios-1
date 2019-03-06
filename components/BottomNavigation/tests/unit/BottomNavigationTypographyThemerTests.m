@@ -16,6 +16,7 @@
 #import "MaterialBottomNavigation+TypographyThemer.h"
 #import "MaterialBottomNavigation.h"
 
+NS_AVAILABLE_IOS(9_0)
 @interface BottomNavigationTypographyThemerTests : XCTestCase
 
 @end
