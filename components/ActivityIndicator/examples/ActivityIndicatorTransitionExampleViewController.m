@@ -15,8 +15,10 @@
 #import <UIKit/UIKit.h>
 
 #import "MaterialActivityIndicator.h"
+#import "MaterialChips.h"
 #import "MaterialButtons+ButtonThemer.h"
 #import "MaterialButtons.h"
+#import "MDCOutlinedControlView.h"
 
 static const CGFloat kActivityIndicatorExampleArrowHeadSize = 5;
 static const CGFloat kActivityIndicatorExampleStrokeWidth = 2;
@@ -33,6 +35,9 @@ static const NSTimeInterval kActivityIndicatorExampleAnimationDuration = 2.0 / 3
   MDCActivityIndicator *_activityIndicator;
   MDCButton *_button;
 
+  UITextField *_textField;
+  UITextView *_textView;
+  MDCChipField *_chipField;
   CALayer *_rotationContainer;
   CALayer *_refreshArrowContainer;
   CAShapeLayer *_refreshArrowPoint;
@@ -50,10 +55,50 @@ static const NSTimeInterval kActivityIndicatorExampleAnimationDuration = 2.0 / 3
   return self;
 }
 
+- (void)didTapBackground {
+  [_textField resignFirstResponder];
+  [_textView resignFirstResponder];
+  [_chipField resignFirstResponder];
+}
+
 - (void)viewDidLoad {
   [super viewDidLoad];
 
   self.view.backgroundColor = self.colorScheme.backgroundColor;
+
+  [self.view addSubview:[[UIScrollView alloc] init]];
+
+  _textField = [[UITextField alloc] init];
+  _textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+  MDCOutlinedControlView *containerView = [[MDCOutlinedControlView alloc] initWithFrame:CGRectZero
+                                                                            contentView:_textField];
+  containerView.floatingLabel.text = @"Label";
+  CGFloat estimatedHeight = [containerView sizeThatFits:self.view.bounds.size].height;
+  containerView.frame = CGRectMake(16, 122, self.view.bounds.size.width - 32, estimatedHeight);
+  [self.view addSubview:containerView];
+
+  _textView = [[UITextView alloc] init];
+  _textView.font = _textField.font;
+  MDCOutlinedControlView *containerView2 = [[MDCOutlinedControlView alloc] initWithFrame:CGRectZero
+                                                                             contentView:_textView];
+  containerView2.floatingLabel.text = @"Label 2";
+  estimatedHeight = [containerView2 sizeThatFits:self.view.bounds.size].height;
+  containerView2.frame = CGRectMake(16, CGRectGetMaxY(containerView.frame) + 16,
+                                    self.view.bounds.size.width - 32, estimatedHeight * 2);
+  [self.view addSubview:containerView2];
+
+  _chipField = [[MDCChipField alloc] init];
+  _chipField.textField.font = _textField.font;
+  MDCOutlinedControlView *containerView3 = [[MDCOutlinedControlView alloc] initWithFrame:CGRectZero
+                                                                             contentView:_chipField];
+  containerView3.floatingLabel.text = @"Label 3";
+  estimatedHeight = [containerView3 sizeThatFits:self.view.bounds.size].height;
+  containerView3.frame = CGRectMake(16, CGRectGetMaxY(containerView2.frame) + 16,
+                                    self.view.bounds.size.width - 32, estimatedHeight * 2);
+  [self.view addSubview:containerView3];
+
+  UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(didTapBackground)];
+  [self.view addGestureRecognizer:tap];
 
   _activityIndicator = [[MDCActivityIndicator alloc] initWithFrame:CGRectZero];
   [_activityIndicator sizeToFit];
@@ -61,7 +106,7 @@ static const NSTimeInterval kActivityIndicatorExampleAnimationDuration = 2.0 / 3
   _activityIndicator.autoresizingMask =
       UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
   _activityIndicator.delegate = self;
-  [self.view addSubview:_activityIndicator];
+//  [self.view addSubview:_activityIndicator];
 
   _button = [[MDCButton alloc] init];
   MDCButtonScheme *buttonScheme = [[MDCButtonScheme alloc] init];
@@ -76,7 +121,7 @@ static const NSTimeInterval kActivityIndicatorExampleAnimationDuration = 2.0 / 3
   _button.center = CGPointMake(self.view.bounds.size.width / 2, 200);
   _button.autoresizingMask =
       UIViewAutoresizingFlexibleLeftMargin | UIViewAutoresizingFlexibleRightMargin;
-  [self.view addSubview:_button];
+//  [self.view addSubview:_button];
 
   // Layers used in the custom transition animation.
 
