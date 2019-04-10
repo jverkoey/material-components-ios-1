@@ -12,10 +12,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-#import "MDCSimpleTextFieldLayout.h"
+#import "MDCTextFieldLayout.h"
 
 #import "MDCContainedInputView.h"
-#import "MDCSimpleTextField.h"
 
 static const CGFloat kLeadingMargin = (CGFloat)12.0;
 static const CGFloat kTrailingMargin = (CGFloat)12.0;
@@ -24,15 +23,14 @@ static const CGFloat kFloatingPlaceholderXOffsetFromTextArea = (CGFloat)3.0;
 static const CGFloat kClearButtonTouchTargetSideLength = (CGFloat)30.0;
 static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
 
-@interface MDCSimpleTextFieldLayout ()
+@interface MDCTextFieldLayout ()
 @end
 
-@implementation MDCSimpleTextFieldLayout
+@implementation MDCTextFieldLayout
 
 #pragma mark Object Lifecycle
 
 - (instancetype)initWithTextFieldSize:(CGSize)textFieldSize
-                       containerStyle:(id<MDCContainedInputViewStyle>)containerStyle
                                  text:(NSString *)text
                           placeholder:(NSString *)placeholder
                                  font:(UIFont *)font
@@ -56,7 +54,6 @@ static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
   self = [super init];
   if (self) {
     [self calculateLayoutWithTextFieldSize:textFieldSize
-                            containerStyle:containerStyle
                                       text:text
                                placeholder:placeholder
                                       font:font
@@ -84,7 +81,6 @@ static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
 #pragma mark Layout Calculation
 
 - (void)calculateLayoutWithTextFieldSize:(CGSize)textFieldSize
-                          containerStyle:(id<MDCContainedInputViewStyle>)containerStyle
                                     text:(NSString *)text
                              placeholder:(NSString *)placeholder
                                     font:(UIFont *)font
@@ -164,17 +160,18 @@ static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
   }
   CGFloat floatingPlaceholderHeight =
       canPlaceholderFloat ? [self textHeightWithFont:floatingPlaceholderFont] : 0;
-  CGFloat floatingPlaceholderMinY = [containerStyle.densityInformer
-      floatingPlaceholderMinYWithFloatingPlaceholderHeight:floatingPlaceholderHeight];
+
+  CGFloat filledPlaceholderTopPaddingScaleHeuristic = ((CGFloat)50.0 / (CGFloat)70.0);
+  CGFloat floatingPlaceholderMinY = filledPlaceholderTopPaddingScaleHeuristic * floatingPlaceholderHeight;
+
   CGFloat floatingPlaceholderMaxY = floatingPlaceholderMinY + floatingPlaceholderHeight;
-  CGFloat textRectMinYWithFloatingPlaceholder = [containerStyle.densityInformer
-      contentAreaTopPaddingWithFloatingPlaceholderMaxY:floatingPlaceholderMaxY];
+  CGFloat textRectMinYWithFloatingPlaceholder = floatingPlaceholderMaxY + (CGFloat)6.5;
   CGFloat textRectHeight = [self textHeightWithFont:font];
   CGFloat textRectCenterYWithFloatingPlaceholder =
       textRectMinYWithFloatingPlaceholder + ((CGFloat)0.5 * textRectHeight);
   CGFloat textRectMaxYWithFloatingPlaceholder =
       textRectMinYWithFloatingPlaceholder + textRectHeight;
-  CGFloat bottomPadding = [containerStyle.densityInformer normalContentAreaBottomPadding];
+  CGFloat bottomPadding = 10;
   CGFloat intrinsicContentAreaHeight = textRectMaxYWithFloatingPlaceholder + bottomPadding;
   CGFloat topRowBottomRowDividerY = intrinsicContentAreaHeight;
   if (preferredMainContentAreaHeight > intrinsicContentAreaHeight) {
@@ -261,7 +258,6 @@ static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
 
   CGRect placeholderFrameNormal =
       [self placeholderFrameWithPlaceholder:placeholder
-                             containerStyle:containerStyle
                            placeholderState:MDCContainedInputViewPlaceholderStateNormal
                                        font:font
                     floatingPlaceholderFont:floatingPlaceholderFont
@@ -270,7 +266,6 @@ static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
                                       isRTL:isRTL];
   CGRect placeholderFrameFloating =
       [self placeholderFrameWithPlaceholder:placeholder
-                             containerStyle:containerStyle
                            placeholderState:MDCContainedInputViewPlaceholderStateFloating
                                        font:font
                     floatingPlaceholderFont:floatingPlaceholderFont
@@ -509,7 +504,6 @@ static const CGFloat kClearButtonImageViewSideLength = (CGFloat)18.0;
 }
 
 - (CGRect)placeholderFrameWithPlaceholder:(NSString *)placeholder
-                           containerStyle:(id<MDCContainedInputViewStyle>)containerStyle
                          placeholderState:(MDCContainedInputViewPlaceholderState)placeholderState
                                      font:(UIFont *)font
                   floatingPlaceholderFont:(UIFont *)floatingPlaceholderFont

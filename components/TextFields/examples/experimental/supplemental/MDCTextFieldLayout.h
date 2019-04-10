@@ -21,7 +21,7 @@
 
 NS_ASSUME_NONNULL_BEGIN
 
-@interface MDCSimpleTextFieldLayout : NSObject
+@interface MDCTextFieldLayout : NSObject
 
 @property(nonatomic, readonly, class) CGFloat clearButtonSideLength;
 @property(nonatomic, readonly, class) CGFloat clearButtonImageViewSideLength;
@@ -46,7 +46,6 @@ NS_ASSUME_NONNULL_BEGIN
 @property(nonatomic, assign) CGFloat topRowBottomRowDividerY;
 
 - (instancetype)initWithTextFieldSize:(CGSize)textFieldSize
-                       containerStyle:(id<MDCContainedInputViewStyle>)containerStyle
                                  text:(NSString *)text
                           placeholder:(NSString *)placeholder
                                  font:(UIFont *)font

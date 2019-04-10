@@ -1,0 +1,109 @@
+// Copyright 2019-present the Material Components for iOS authors. All Rights Reserved.
+//
+// Licensed under the Apache License, Version 2.0 (the "License");
+// you may not use this file except in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing, software
+// distributed under the License is distributed on an "AS IS" BASIS,
+// WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+// See the License for the specific language governing permissions and
+// limitations under the License.
+
+#import <UIKit/UIKit.h>
+
+#import "MDCContainedInputView.h"
+
+static const UIControlState MDCTextFieldStateError = 0x00010000;
+
+/**
+ A UITextField subclass that attempts to do the following:
+
+ - Earnestly interpret and actualize the Material guidelines for text fields, which can be found
+ here: https://material.io/design/components/text-fields.html#outlined-text-field
+
+ - Feel intuitive for someone used to the conventions of iOS development and UIKit controls.
+
+ - Enable easy set up and reliable and predictable behavior.
+
+ */
+@interface MDCFilledTextField : UITextField
+
+/**
+ The @c leadingUnderlineLabel can be used to display helper or error text.
+ */
+@property(strong, nonatomic, readonly, nonnull) UILabel *placeholderLabel;
+/**
+ The @c leadingUnderlineLabel can be used to display helper or error text.
+ */
+@property(strong, nonatomic, readonly, nonnull) UILabel *leadingUnderlineLabel;
+
+/**
+ The @c trailingUnderlineLabel can be used to display helper or error text.
+ */
+@property(strong, nonatomic, readonly, nonnull) UILabel *trailingUnderlineLabel;
+
+/**
+ This property is used to determine how much horizontal space to allot for each of the two underline
+ labels.
+ */
+@property(nonatomic, assign)
+    MDCContainedInputViewUnderlineLabelDrawPriority underlineLabelDrawPriority;
+
+/**
+ When @c underlineLabelDrawPriority is set to @c .custom the value of this property helps determine
+ what percentage of the available width each underline label gets. It can be thought of as a
+ divider. A value of @c 0 would result in the trailing underline label getting all the available
+ width. A value of @c 1 would result in the leading underline label getting all the available width.
+ A value of @c .5 would result in each underline label getting 50% of the available width.
+ */
+@property(nonatomic, assign) CGFloat customUnderlineLabelDrawPriority;
+
+/**
+ When set to YES, the placeholder floats above the input text instead of disappearing. When
+ set to NO it disappears.
+
+ @note The default is YES.
+ @note When set to YES, the text field will reserve space for the floating placeholder in the
+ layout, which will result in a text field that requires more height to render properly. Consider
+ resizing the text field after setting this property, perhaps by calling @c -sizeToFit.
+ */
+@property(nonatomic, assign) BOOL labelFloats;
+
+/**
+ This property toggles a state (similar to @c isHighlighted, @c isEnabled, @c isSelected, etc.) that
+ is part of a general interpretation of the states outlined in the Material guidelines for Text
+ Fields. See the @c MDCContainedInputViewState enum for more information.
+ */
+@property(nonatomic, assign) BOOL isErrored;
+
+/**
+ This property toggles a state (similar to @c isHighlighted, @c isEnabled, @c isSelected, etc.) that
+ is part of a general interpretation of the states outlined in the Material guidelines for Text
+ Fields. See the @c MDCContainedInputViewState enum for more information.
+ */
+@property(nonatomic, assign) BOOL isActivated;
+
+/**
+ This is essentially an RTL-aware wrapper around UITextField's leftView/rightView class.
+ */
+@property(strong, nonatomic, nullable) UIView *leadingView;
+
+/**
+ This is essentially an RTL-aware wrapper around UITextField's leftView/rightView class.
+ */
+@property(strong, nonatomic, nullable) UIView *trailingView;
+
+/**
+ This is essentially an RTL-aware wrapper around UITextField's leftViewMode/rightViewMode class.
+ */
+@property(nonatomic, assign) UITextFieldViewMode leadingViewMode;
+
+/**
+ This is essentially an RTL-aware wrapper around UITextField's leftViewMode/rightViewMode class.
+ */
+@property(nonatomic, assign) UITextFieldViewMode trailingViewMode;
+
+@end

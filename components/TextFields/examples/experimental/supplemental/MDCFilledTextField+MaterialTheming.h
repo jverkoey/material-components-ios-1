@@ -17,21 +17,13 @@
 #import "MDCContainedInputView.h"
 #import "MDCContainerStyleFilled.h"
 #import "MDCContainerStyleOutlined.h"
-#import "MDCSimpleTextField.h"
+#import "MDCFilledTextField.h"
 #import "MaterialContainerScheme.h"
-
-@interface MDCSimpleTextFieldFilledDensityInformer
-    : MDCContainerStyleFilledDensityInformer <MDCContainedInputViewStyleDensityInforming>
-@end
-
-@interface MDCSimpleTextFieldOutlinedDensityInformer
-    : MDCContainerStyleOutlinedDensityInformer <MDCContainedInputViewStyleDensityInforming>
-@end
 
 /**
  This category is used to style SimpleTextField instances with an MDCContainerScheme.
  */
-@interface MDCSimpleTextField (MaterialTheming)
+@interface MDCFilledTextField (MaterialTheming)
 
 /**
  Applies a container scheme's subsystem-specific schemes to the receiver.
@@ -39,21 +31,5 @@
  @param scheme A container scheme instance.
  */
 - (void)applyThemeWithScheme:(nonnull id<MDCContainerScheming>)scheme;
-
-/**
- Sets an MDCContainerStyleFilled instance as the containerStyle and then applies the container
- scheme's subsystem-specific schemes to the receiver.
-
- @param scheme A container scheme instance.
- */
-- (void)applyFilledThemeWithScheme:(nonnull id<MDCContainerScheming>)scheme;
-
-/**
- Sets an MDCContainerStyleOutlined instance as the containerStyle and then applies the container
- scheme's subsystem-specific schemes to the receiver.
-
- @param scheme A container scheme instance.
- */
-- (void)applyOutlinedThemeWithScheme:(nonnull id<MDCContainerScheming>)scheme;
 
 @end
