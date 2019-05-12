@@ -38,6 +38,8 @@
  */
 @property(nonatomic, nullable, readonly) id<MDCShapeScheming> shapeScheme;
 
+- (void)applyProxyInvocationsToInstance:(nonnull id)instance;
+
 @end
 
 /**
@@ -46,6 +48,8 @@
  */
 __attribute__((objc_subclassing_restricted)) @interface MDCContainerScheme
     : NSObject<MDCContainerScheming>
+
+- (nonnull id)proxyForClass:(nonnull Class)aClass;
 
 /**
  Defaults to @c MDCColorSchemeDefaultsMaterial201804

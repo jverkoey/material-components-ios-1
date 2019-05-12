@@ -15,6 +15,12 @@
 #import "MaterialActionSheet.h"
 #import "MaterialContainerScheme.h"
 
+@interface MDCContainerScheme (MaterialActionSheet)
+
+@property(nonatomic, strong, readonly, nonnull) MDCActionSheetController *actionSheetController;
+
+@end
+
 @interface MDCActionSheetController (MaterialTheming)
 
 /**

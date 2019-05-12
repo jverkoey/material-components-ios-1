@@ -87,7 +87,12 @@
   [actionSheet addAction:homeAction];
   [actionSheet addAction:favoriteAction];
   [actionSheet addAction:emailAction];
-  [actionSheet applyThemeWithScheme:self.containerScheme];
+
+  MDCContainerScheme *containerScheme = [[MDCContainerScheme alloc] init];
+  containerScheme.actionSheetController.actionTextColor = [UIColor redColor];
+  containerScheme.actionSheetController.actionTintColor = [UIColor blueColor];
+
+  [actionSheet applyThemeWithScheme:containerScheme];
   [self presentViewController:actionSheet animated:YES completion:nil];
 }
 
@@ -99,7 +104,7 @@
   return @{
     @"breadcrumbs" : @[ @"Action Sheet", @"Action Sheet" ],
     @"primaryDemo" : @YES,
-    @"presentable" : @NO
+    @"presentable" : @YES
   };
 }
 
