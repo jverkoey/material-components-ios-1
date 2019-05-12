@@ -53,7 +53,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
 
   MDCButton *containedButton = [[MDCButton alloc] init];
   [containedButton setTitle:@"Button" forState:UIControlStateNormal];
-  [containedButton applyContainedThemeWithScheme:self.containerScheme];
+  [containedButton applyThemeNamed:MDCButtonThemeNameContained withScheme:self.containerScheme];
   [containedButton sizeToFit];
   CGFloat containedButtonVerticalInset =
       MIN(0, -(kMinimumAccessibleButtonSize.height - CGRectGetHeight(containedButton.bounds)) / 2);
@@ -71,7 +71,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
 
   MDCButton *disabledContainedButton = [[MDCButton alloc] init];
   [disabledContainedButton setTitle:@"Button" forState:UIControlStateNormal];
-  [disabledContainedButton applyContainedThemeWithScheme:self.containerScheme];
+  [disabledContainedButton applyThemeNamed:MDCButtonThemeNameContained withScheme:self.containerScheme];
   [disabledContainedButton sizeToFit];
   [disabledContainedButton addTarget:self
                               action:@selector(didTap:)
@@ -82,7 +82,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
   // Text button
 
   MDCButton *textButton = [[MDCButton alloc] init];
-  [textButton applyTextThemeWithScheme:self.containerScheme];
+  [textButton applyThemeNamed:MDCButtonThemeNameText withScheme:self.containerScheme];
   [textButton setTitle:@"Button" forState:UIControlStateNormal];
   [textButton sizeToFit];
   CGFloat textButtonVerticalInset =
@@ -100,7 +100,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
 
   MDCButton *disabledTextButton = [[MDCButton alloc] init];
   [disabledTextButton setTitle:@"Button" forState:UIControlStateNormal];
-  [disabledTextButton applyTextThemeWithScheme:self.containerScheme];
+  [disabledTextButton applyThemeNamed:MDCButtonThemeNameText withScheme:self.containerScheme];
   [disabledTextButton sizeToFit];
   [disabledTextButton addTarget:self
                          action:@selector(didTap:)
@@ -112,7 +112,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
 
   MDCButton *outlinedButton = [[MDCButton alloc] init];
   [outlinedButton setTitle:@"Button" forState:UIControlStateNormal];
-  [outlinedButton applyOutlinedThemeWithScheme:self.containerScheme];
+  [outlinedButton applyThemeNamed:MDCButtonThemeNameOutlined withScheme:self.containerScheme];
   [outlinedButton sizeToFit];
   CGFloat outlineButtonVerticalInset =
       MIN(0, -(kMinimumAccessibleButtonSize.height - CGRectGetHeight(outlinedButton.frame)) / 2);
@@ -130,7 +130,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
 
   MDCButton *disabledOutlinedButton = [[MDCButton alloc] init];
   [disabledOutlinedButton setTitle:@"Button" forState:UIControlStateNormal];
-  [disabledOutlinedButton applyOutlinedThemeWithScheme:self.containerScheme];
+  [disabledOutlinedButton applyThemeNamed:MDCButtonThemeNameOutlined withScheme:self.containerScheme];
   [disabledOutlinedButton sizeToFit];
   [disabledOutlinedButton addTarget:self
                              action:@selector(didTap:)

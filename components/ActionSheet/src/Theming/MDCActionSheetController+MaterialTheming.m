@@ -18,15 +18,11 @@ static const CGFloat kHighAlpha = (CGFloat)0.87;
 static const CGFloat kMediumAlpha = (CGFloat)0.6;
 static const CGFloat kInkAlpha = (CGFloat)0.16;
 
-@implementation MDCContainerScheme (MaterialActionSheet)
-
-- (MDCActionSheetController *)actionSheetController {
-  return [self proxyForClass:[MDCActionSheetController class]];
-}
-
-@end
-
 @implementation MDCActionSheetController (MaterialTheming)
+
++ (instancetype)themeForScheme:(MDCContainerScheme *)scheme {
+  return [scheme themeForClass:[self class]];
+}
 
 - (void)applyThemeWithScheme:(id<MDCContainerScheming>)scheme {
   id<MDCColorScheming> colorScheme = scheme.colorScheme;
@@ -43,7 +39,7 @@ static const CGFloat kInkAlpha = (CGFloat)0.16;
   }
   [self applyThemeWithTypographyScheme:typographyScheme];
 
-  [scheme applyProxyInvocationsToInstance:self];
+  [scheme applyThemeToObject:self];
 }
 
 - (void)applyThemeWithColorScheme:(id<MDCColorScheming>)colorScheme {

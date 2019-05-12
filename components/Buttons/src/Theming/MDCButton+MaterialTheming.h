@@ -15,11 +15,20 @@
 #import <MaterialComponents/MaterialButtons.h>
 #import "MaterialContainerScheme.h"
 
+typedef NSString * _Nonnull MDCButtonThemeName NS_TYPED_ENUM;
+
+FOUNDATION_EXTERN MDCButtonThemeName const MDCButtonThemeNameContained;
+FOUNDATION_EXTERN MDCButtonThemeName const MDCButtonThemeNameOutlined;
+FOUNDATION_EXTERN MDCButtonThemeName const MDCButtonThemeNameText;
+
 /**
  This category is used to style MDCButtons instances to a specific Material style which can be found
  within the [Material Guidelines](https://material.io/design/components/buttons.html).
  */
 @interface MDCButton (MaterialTheming)
+
++ (nonnull instancetype)themeNamed:(MDCButtonThemeName)name forScheme:(nonnull MDCContainerScheme *)scheme;
+- (void)applyThemeNamed:(MDCButtonThemeName)name withScheme:(nonnull id<MDCContainerScheming>)scheme;
 
 /**
  Applies the theme for a contained button to this instance.

@@ -19,7 +19,19 @@
 #import <MaterialComponents/MaterialButtons+TypographyThemer.h>
 #import <MaterialComponents/MaterialShadowElevations.h>
 
+MDCButtonThemeName const MDCButtonThemeNameContained = @"contained";
+MDCButtonThemeName const MDCButtonThemeNameOutlined = @"outlined";
+MDCButtonThemeName const MDCButtonThemeNameText = @"text";
+
 @implementation MDCButton (MaterialTheming)
+
++ (nonnull instancetype)themeNamed:(MDCButtonThemeName)name forScheme:(nonnull MDCContainerScheme *)scheme {
+  return [scheme themeNamed:name forClass:[self class]];
+}
+
+- (void)applyThemeNamed:(MDCButtonThemeName)name withScheme:(nonnull id<MDCContainerScheming>)scheme {
+  [scheme applyThemeNamed:name toObject:self];
+}
 
 #pragma mark - Contained Button Themers
 

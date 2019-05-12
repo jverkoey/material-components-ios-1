@@ -15,13 +15,9 @@
 #import "MaterialActionSheet.h"
 #import "MaterialContainerScheme.h"
 
-@interface MDCContainerScheme (MaterialActionSheet)
-
-@property(nonatomic, strong, readonly, nonnull) MDCActionSheetController *actionSheetController;
-
-@end
-
 @interface MDCActionSheetController (MaterialTheming)
+
++ (nonnull instancetype)themeForScheme:(nonnull MDCContainerScheme *)scheme;
 
 /**
  Applies the theme for a material action sheet to this instance.

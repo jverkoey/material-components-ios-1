@@ -88,11 +88,7 @@
   [actionSheet addAction:favoriteAction];
   [actionSheet addAction:emailAction];
 
-  MDCContainerScheme *containerScheme = [[MDCContainerScheme alloc] init];
-  containerScheme.actionSheetController.actionTextColor = [UIColor redColor];
-  containerScheme.actionSheetController.actionTintColor = [UIColor blueColor];
-
-  [actionSheet applyThemeWithScheme:containerScheme];
+  [actionSheet applyThemeWithScheme:self.containerScheme];
   [self presentViewController:actionSheet animated:YES completion:nil];
 }
 

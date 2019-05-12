@@ -70,5 +70,12 @@ func DefaultContainerScheme() -> MDCContainerScheme {
   let shapeScheme = MDCShapeScheme()
   containerScheme.shapeScheme = shapeScheme
 
+  MDCButton.themeNamed(.contained, for: containerScheme).applyContainedTheme(withScheme: containerScheme)
+  MDCButton.themeNamed(.text, for: containerScheme).applyTextTheme(withScheme: containerScheme)
+  MDCButton.themeNamed(.outlined, for: containerScheme).applyOutlinedTheme(withScheme: containerScheme)
+
+  MDCActionSheetController.theme(for: containerScheme).actionTextColor = .blue
+  MDCActionSheetController.theme(for: containerScheme).actionTintColor = .red
+
   return containerScheme
 }
