@@ -16,7 +16,7 @@
 #import "MaterialMath.h"
 #import "private/MDCSheetContainerView.h"
 
-static UIScrollView *MDCBottomSheetGetPrimaryScrollView(UIViewController *viewController) {
+static UIScrollView *GetPrimaryScrollView(UIViewController *viewController) {
   UIScrollView *scrollView = nil;
 
   // Ensure the view is loaded - occasionally during non-animated transitions the view may not be
@@ -103,7 +103,7 @@ static UIScrollView *MDCBottomSheetGetPrimaryScrollView(UIViewController *viewCo
 
   UIScrollView *scrollView = self.trackingScrollView;
   if (scrollView == nil) {
-    scrollView = MDCBottomSheetGetPrimaryScrollView(self.presentedViewController);
+    scrollView = GetPrimaryScrollView(self.presentedViewController);
   }
   CGRect sheetFrame = [self frameOfPresentedViewInContainerView];
   self.sheetView = [[MDCSheetContainerView alloc] initWithFrame:sheetFrame

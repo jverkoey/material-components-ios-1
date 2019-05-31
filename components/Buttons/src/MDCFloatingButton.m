@@ -19,10 +19,10 @@
 
 #import <MDFInternationalization/MDFInternationalization.h>
 
-static const CGFloat MDCFloatingButtonDefaultDimension = 56;
-static const CGFloat MDCFloatingButtonMiniDimension = 40;
-static const CGFloat MDCFloatingButtonDefaultImageTitleSpace = 8;
-static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
+static const CGFloat kDefaultDimension = 56;
+static const CGFloat kDefaultMiniDimension = 40;
+static const CGFloat kDefaultImageTitleSpace = 8;
+static const UIEdgeInsets kLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
 
 @interface MDCFloatingButton ()
 
@@ -56,11 +56,11 @@ static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
 }
 
 + (CGFloat)defaultDimension {
-  return MDCFloatingButtonDefaultDimension;
+  return kDefaultDimension;
 }
 
 + (CGFloat)miniDimension {
-  return MDCFloatingButtonMiniDimension;
+  return kDefaultMiniDimension;
 }
 
 + (instancetype)floatingButtonWithShape:(MDCFloatingButtonShape)shape {
@@ -107,12 +107,10 @@ static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
 }
 
 - (void)commonMDCFloatingButtonInit {
-  _imageTitleSpace = MDCFloatingButtonDefaultImageTitleSpace;
+  _imageTitleSpace = kDefaultImageTitleSpace;
 
-  const CGSize miniNormalSize =
-      CGSizeMake(MDCFloatingButtonMiniDimension, MDCFloatingButtonMiniDimension);
-  const CGSize defaultNormalSize =
-      CGSizeMake(MDCFloatingButtonDefaultDimension, MDCFloatingButtonDefaultDimension);
+  const CGSize miniNormalSize = CGSizeMake(kDefaultMiniDimension, kDefaultMiniDimension);
+  const CGSize defaultNormalSize = CGSizeMake(kDefaultDimension, kDefaultDimension);
   const CGSize defaultExpandedMinimumSize = CGSizeMake(0, 48);
   const CGSize defaultExpandedMaximumSize = CGSizeMake(328, 0);
 
@@ -169,9 +167,9 @@ static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
 - (CGSize)intrinsicContentSizeForModeNormal {
   switch (_shape) {
     case MDCFloatingButtonShapeDefault:
-      return CGSizeMake(MDCFloatingButtonDefaultDimension, MDCFloatingButtonDefaultDimension);
+      return CGSizeMake(kDefaultDimension, kDefaultDimension);
     case MDCFloatingButtonShapeMini:
-      return CGSizeMake(MDCFloatingButtonMiniDimension, MDCFloatingButtonMiniDimension);
+      return CGSizeMake(kDefaultMiniDimension, kDefaultMiniDimension);
   }
 }
 
@@ -181,12 +179,11 @@ static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
   const CGSize intrinsicImageSize =
       [self.imageView sizeThatFits:CGSizeMake(CGFLOAT_MAX, CGFLOAT_MAX)];
   CGFloat intrinsicWidth = intrinsicTitleSize.width + intrinsicImageSize.width +
-                           self.imageTitleSpace + internalLayoutInsets.left +
-                           internalLayoutInsets.right + self.contentEdgeInsets.left +
-                           self.contentEdgeInsets.right;
+                           self.imageTitleSpace + kLayoutInsets.left + kLayoutInsets.right +
+                           self.contentEdgeInsets.left + self.contentEdgeInsets.right;
   CGFloat intrinsicHeight = MAX(intrinsicTitleSize.height, intrinsicImageSize.height) +
                             self.contentEdgeInsets.top + self.contentEdgeInsets.bottom +
-                            internalLayoutInsets.top + internalLayoutInsets.bottom;
+                            kLayoutInsets.top + kLayoutInsets.bottom;
   return CGSizeMake(intrinsicWidth, intrinsicHeight);
 }
 
@@ -220,9 +217,9 @@ static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
  1. Inset the bounds by the value of `contentEdgeInsets` and use this as the layout bounds.
  2. Determine the intrinsic sizes of the imageView and titleLabel.
  3. Compute the space remaining for the titleLabel after accounting for the imageView and built-in
-    alignment guidelines (internalLayoutInsets).
+    alignment guidelines (kLayoutInsets).
  4. Position the imageView along the leading (or trailing) edge of the button, inset by
-    internalLayoutInsets.left (flipped for RTL).
+    kLayoutInsets.left (flipped for RTL).
  5. Position the titleLabel along the leading edge of its available space.
  6. Apply the imageEdgeInsets and titleEdgeInsets to their respective views.
  */
@@ -254,7 +251,7 @@ static const UIEdgeInsets internalLayoutInsets = (UIEdgeInsets){0, 16, 0, 24};
 
   BOOL isLeadingIcon = self.imageLocation == MDCFloatingButtonImageLocationLeading;
   UIEdgeInsets adjustedLayoutInsets =
-      isLeadingIcon ? internalLayoutInsets : MDFInsetsFlippedHorizontally(internalLayoutInsets);
+      isLeadingIcon ? kLayoutInsets : MDFInsetsFlippedHorizontally(kLayoutInsets);
 
   const CGRect insetBounds = UIEdgeInsetsInsetRect(
       UIEdgeInsetsInsetRect(self.bounds, adjustedLayoutInsets), self.contentEdgeInsets);

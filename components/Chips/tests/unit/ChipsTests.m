@@ -40,14 +40,14 @@
 
 @end
 
-static inline UIColor *MDCColorFromRGB(uint32_t rgbValue) {
+static inline UIColor *ColorFromRGB(uint32_t rgbValue) {
   return [UIColor colorWithRed:((CGFloat)((rgbValue & 0xFF0000) >> 16)) / 255
                          green:((CGFloat)((rgbValue & 0x00FF00) >> 8)) / 255
                           blue:((CGFloat)((rgbValue & 0x0000FF) >> 0)) / 255
                          alpha:1];
 }
 
-static inline UIColor *MDCColorDarken(UIColor *color, CGFloat percent) {
+static inline UIColor *DarkenedColor(UIColor *color, CGFloat percent) {
   CGFloat hue;
   CGFloat saturation;
   CGFloat brightness;
@@ -59,8 +59,8 @@ static inline UIColor *MDCColorDarken(UIColor *color, CGFloat percent) {
   return [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:alpha];
 }
 
-static inline UIColor *MDCColorLighten(UIColor *color, CGFloat percent) {
-  return MDCColorDarken(color, -percent);
+static inline UIColor *LightenedColor(UIColor *color, CGFloat percent) {
+  return DarkenedColor(color, -percent);
 }
 
 static inline UIImage *TestImage(CGSize size) {
@@ -113,9 +113,9 @@ static inline UIImage *TestImage(CGSize size) {
   XCTAssertNil(chip.shapeGenerator);
   // Background color
   XCTAssertEqualObjects([chip backgroundColorForState:UIControlStateDisabled],
-                        MDCColorLighten(MDCColorFromRGB(0xEBEBEB), (CGFloat)0.38));
+                        LightenedColor(ColorFromRGB(0xEBEBEB), (CGFloat)0.38));
   XCTAssertEqualObjects([chip backgroundColorForState:UIControlStateSelected],
-                        MDCColorDarken(MDCColorFromRGB(0xEBEBEB), (CGFloat)0.16));
+                        DarkenedColor(ColorFromRGB(0xEBEBEB), (CGFloat)0.16));
 
   // Elevation
   XCTAssertEqualWithAccuracy([chip elevationForState:UIControlStateHighlighted], 8, 0.001);
@@ -123,7 +123,7 @@ static inline UIImage *TestImage(CGSize size) {
   // Title color
   UIColor *normalTitleColor = [UIColor colorWithWhite:(CGFloat)0.13 alpha:1];
   XCTAssertEqualObjects([chip titleColorForState:UIControlStateDisabled],
-                        MDCColorLighten(normalTitleColor, (CGFloat)0.38));
+                        LightenedColor(normalTitleColor, (CGFloat)0.38));
 
   UIControlState maximumState =
       UIControlStateDisabled | UIControlStateSelected | UIControlStateHighlighted;
@@ -140,7 +140,7 @@ static inline UIImage *TestImage(CGSize size) {
     }
     if ((state != UIControlStateDisabled) && (state != UIControlStateSelected)) {
       XCTAssertEqualObjects([chip backgroundColorForState:UIControlStateNormal],
-                            MDCColorFromRGB(0xEBEBEB));
+                            ColorFromRGB(0xEBEBEB));
     }
   }
 }

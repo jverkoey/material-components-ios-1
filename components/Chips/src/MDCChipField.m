@@ -22,19 +22,18 @@
 NSString *const MDCEmptyTextString = @"";
 NSString *const MDCChipDelimiterSpace = @" ";
 
-static const CGFloat MDCChipFieldHorizontalInset = 15;
-static const CGFloat MDCChipFieldVerticalInset = 8;
-static const CGFloat MDCChipFieldIndent = 4;
-static const CGFloat MDCChipFieldHorizontalMargin = 4;
-static const CGFloat MDCChipFieldVerticalMargin = 5;
-static const CGFloat MDCChipFieldClearButtonSquareWidthHeight = 24;
-static const CGFloat MDCChipFieldClearImageSquareWidthHeight = 18;
-static const UIKeyboardType MDCChipFieldDefaultKeyboardType = UIKeyboardTypeEmailAddress;
+static const CGFloat kHorizontalInset = 15;
+static const CGFloat kVerticalInset = 8;
+static const CGFloat kIndent = 4;
+static const CGFloat kHorizontalMargin = 4;
+static const CGFloat kVerticalMargin = 5;
+static const CGFloat kClearButtonDimension = 24;
+static const CGFloat kClearImageDimension = 18;
+static const UIKeyboardType kDefaultKeyboardType = UIKeyboardTypeEmailAddress;
 
-const CGFloat MDCChipFieldDefaultMinTextFieldWidth = 60;
-const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
-    MDCChipFieldVerticalInset, MDCChipFieldHorizontalInset, MDCChipFieldVerticalInset,
-    MDCChipFieldHorizontalInset};
+const CGFloat kDefaultMinimumWidth = 60;
+const UIEdgeInsets kDefaultContentEdgeInsets = {kVerticalInset, kHorizontalInset, kVerticalInset,
+                                                kHorizontalInset};
 
 @protocol MDCChipFieldTextFieldDelegate <NSObject>
 
@@ -133,7 +132,7 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
     chipFieldTextField.accessibilityTraits = UIAccessibilityTraitNone;
     chipFieldTextField.autocorrectionType = UITextAutocorrectionTypeNo;
     chipFieldTextField.autocapitalizationType = UITextAutocapitalizationTypeNone;
-    chipFieldTextField.keyboardType = MDCChipFieldDefaultKeyboardType;
+    chipFieldTextField.keyboardType = kDefaultKeyboardType;
     // Listen for notifications posted when the text field is the first responder.
     [[NSNotificationCenter defaultCenter] addObserver:self
                                              selector:@selector(textFieldDidChange)
@@ -165,8 +164,8 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
 - (void)commonMDCChipFieldInit {
   _chips = [NSMutableArray array];
   _delimiter = MDCChipFieldDelimiterDefault;
-  _minTextFieldWidth = MDCChipFieldDefaultMinTextFieldWidth;
-  _contentEdgeInsets = MDCChipFieldDefaultContentEdgeInsets;
+  _minTextFieldWidth = kDefaultMinimumWidth;
+  _contentEdgeInsets = kDefaultContentEdgeInsets;
   _showPlaceholderWithChips = YES;
   _chipHeight = 32;
 }
@@ -384,13 +383,12 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
 
 - (void)addClearButtonToChip:(MDCChipView *)chip {
   UIControl *clearButton = [[UIControl alloc] init];
-  CGFloat clearButtonWidthAndHeight = MDCChipFieldClearButtonSquareWidthHeight;
+  CGFloat clearButtonWidthAndHeight = kClearButtonDimension;
   clearButton.frame = CGRectMake(0, 0, clearButtonWidthAndHeight, clearButtonWidthAndHeight);
   clearButton.layer.cornerRadius = clearButtonWidthAndHeight / 2;
   UIImageView *clearImageView = [[UIImageView alloc] initWithImage:[self drawClearButton]];
-  CGFloat widthAndHeight = MDCChipFieldClearImageSquareWidthHeight;
-  CGFloat padding =
-      (MDCChipFieldClearButtonSquareWidthHeight - MDCChipFieldClearImageSquareWidthHeight) / 2;
+  CGFloat widthAndHeight = kClearImageDimension;
+  CGFloat padding = (kClearButtonDimension - kClearImageDimension) / 2;
   clearImageView.frame = CGRectMake(padding, padding, widthAndHeight, widthAndHeight);
   clearButton.tintColor = [UIColor.blackColor colorWithAlphaComponent:(CGFloat)0.6];
   [clearButton addSubview:clearImageView];
@@ -401,13 +399,12 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
 }
 
 - (UIImage *)drawClearButton {
-  CGSize clearButtonSize =
-      CGSizeMake(MDCChipFieldClearImageSquareWidthHeight, MDCChipFieldClearImageSquareWidthHeight);
+  CGSize clearButtonSize = CGSizeMake(kClearImageDimension, kClearImageDimension);
 
   CGRect bounds = CGRectMake(0, 0, clearButtonSize.width, clearButtonSize.height);
   UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0);
   [UIColor.grayColor setFill];
-  [MDCPathForClearButtonImageFrame(bounds) fill];
+  [PathForClearButtonImageFrame(bounds) fill];
   UIImage *image = UIGraphicsGetImageFromCurrentImageContext();
   UIGraphicsEndImageContext();
 
@@ -415,7 +412,7 @@ const UIEdgeInsets MDCChipFieldDefaultContentEdgeInsets = {
   return image;
 }
 
-static inline UIBezierPath *MDCPathForClearButtonImageFrame(CGRect frame) {
+static inline UIBezierPath *PathForClearButtonImageFrame(CGRect frame) {
   // GENERATED CODE
 
   CGRect innerBounds =
@@ -682,10 +679,10 @@ static inline UIBezierPath *MDCPathForClearButtonImageFrame(CGRect frame) {
       currentOriginX = self.contentEdgeInsets.left;
     }
     CGFloat currentOriginY =
-        self.contentEdgeInsets.top + (row * (self.chipHeight + MDCChipFieldVerticalMargin));
+        self.contentEdgeInsets.top + (row * (self.chipHeight + kVerticalMargin));
     CGRect chipFrame = CGRectMake(currentOriginX, currentOriginY, chipSize.width, chipSize.height);
     [chipFrames addObject:[NSValue valueWithCGRect:chipFrame]];
-    currentOriginX = CGRectGetMaxX(chipFrame) + MDCChipFieldHorizontalMargin;
+    currentOriginX = CGRectGetMaxX(chipFrame) + kHorizontalMargin;
   }
   return [chipFrames copy];
 }
@@ -705,11 +702,11 @@ static inline UIBezierPath *MDCPathForClearButtonImageFrame(CGRect frame) {
   }
 
   CGFloat availableWidth = chipFieldSize.width - self.contentEdgeInsets.right -
-                           CGRectGetMaxX(lastChipFrame) - MDCChipFieldHorizontalMargin;
+                           CGRectGetMaxX(lastChipFrame) - kHorizontalMargin;
   CGFloat placeholderDesiredWidth = [self placeholderDesiredWidth];
   if (availableWidth < placeholderDesiredWidth) {
     // The text field doesn't fit on the line with the last chip.
-    originY += self.chipHeight + MDCChipFieldVerticalMargin;
+    originY += self.chipHeight + kVerticalMargin;
     return CGRectMake(self.contentEdgeInsets.left, originY, textFieldWidth, textFieldHeight);
   }
 
@@ -741,12 +738,11 @@ static inline UIBezierPath *MDCPathForClearButtonImageFrame(CGRect frame) {
   }
 
   CGFloat availableWidth = CGRectGetWidth(self.bounds) - self.contentEdgeInsets.right -
-                           CGRectGetMaxX(lastChipFrame) - MDCChipFieldHorizontalMargin;
+                           CGRectGetMaxX(lastChipFrame) - kHorizontalMargin;
 
-  CGFloat leftInset = MDCChipFieldIndent;
+  CGFloat leftInset = kIndent;
   if (!CGRectIsEmpty(lastChipFrame) && availableWidth >= [self placeholderDesiredWidth]) {
-    leftInset +=
-        CGRectGetMaxX(lastChipFrame) + MDCChipFieldHorizontalMargin - self.contentEdgeInsets.left;
+    leftInset += CGRectGetMaxX(lastChipFrame) + kHorizontalMargin - self.contentEdgeInsets.left;
   }
   defaultInsets.left = leftInset;
 

@@ -32,7 +32,7 @@ static const NSUInteger kLongPressNumberOfTouchesRequired = 1;
  * The transform of the large item view when it is in a transitional state (appearing or
  * dismissing).
  */
-static CGAffineTransform MDCLargeItemViewAnimationTransitionTransform() {
+static CGAffineTransform AnimationTransitionTransform() {
   return CGAffineTransformScale(CGAffineTransformIdentity, (CGFloat)0.97, (CGFloat)0.97);
 }
 
@@ -452,7 +452,7 @@ static CGAffineTransform MDCLargeItemViewAnimationTransitionTransform() {
   [self.largeItemDialog.centerYAnchor constraintEqualToAnchor:window.centerYAnchor].active = YES;
 
   self.largeItemDialog.layer.opacity = 0;
-  self.largeItemDialog.transform = MDCLargeItemViewAnimationTransitionTransform();
+  self.largeItemDialog.transform = AnimationTransitionTransform();
   [UIView animateWithDuration:kLargeItemViewAnimationDuration
                    animations:^{
                      self.largeItemDialog.layer.opacity = 1;
@@ -470,7 +470,7 @@ static CGAffineTransform MDCLargeItemViewAnimationTransitionTransform() {
   [UIView animateWithDuration:kLargeItemViewAnimationDuration
       animations:^{
         self.largeItemDialog.layer.opacity = 0;
-        self.largeItemDialog.transform = MDCLargeItemViewAnimationTransitionTransform();
+        self.largeItemDialog.transform = AnimationTransitionTransform();
       }
       completion:^(BOOL finished) {
         if (finished) {

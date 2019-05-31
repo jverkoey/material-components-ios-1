@@ -29,29 +29,30 @@
 #import "MaterialPalettes.h"
 #import "MaterialTypography.h"
 
-static NSString *const MDCTextInputUnderlineKVOKeyColor = @"color";
-static NSString *const MDCTextInputUnderlineKVOKeyLineHeight = @"lineHeight";
-
 const CGFloat MDCTextInputBorderRadius = 4;
-static const CGFloat MDCTextInputClearButtonImageSquareWidthHeight = 24;
-static const CGFloat MDCTextInputHintTextOpacity = (CGFloat)0.54;
-static const CGFloat MDCTextInputOverlayViewToEditingRectPadding = 2;
 const CGFloat MDCTextInputFullPadding = 16;
 const CGFloat MDCTextInputHalfPadding = 8;
+
+static NSString *const kColorKeyPath = @"color";
+static NSString *const kLineHeightKeyPath = @"lineHeight";
+
+static const CGFloat kClearButtonLength = 24;
+static const CGFloat MDCTextInputHintTextOpacity = (CGFloat)0.54;
+static const CGFloat MDCTextInputOverlayViewToEditingRectPadding = 2;
 
 UIColor *_Nonnull MDCTextInputCursorColor() {
   return [MDCPalette bluePalette].accent700;
 }
 
-static inline UIColor *MDCTextInputDefaultPlaceholderTextColor() {
+static inline UIColor *PlaceholderTextColor() {
   return [UIColor colorWithWhite:0 alpha:MDCTextInputHintTextOpacity];
 }
 
-static inline UIColor *MDCTextInputTextColor() {
+static inline UIColor *TextColor() {
   return [UIColor colorWithWhite:0 alpha:[MDCTypography body1FontOpacity]];
 }
 
-static inline UIColor *MDCTextInputUnderlineColor() {
+static inline UIColor *UnderlineColor() {
   return [UIColor lightGrayColor];
 }
 
@@ -184,7 +185,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
 }
 
 - (void)commonMDCTextInputCommonFundamentInit {
-  _textColor = MDCTextInputTextColor();
+  _textColor = TextColor();
   _textInsetsMode = MDCTextInputTextInsetsModeIfContent;
   _clearButtonMode = UITextFieldViewModeWhileEditing;
 }
@@ -217,14 +218,13 @@ static inline UIColor *MDCTextInputUnderlineColor() {
                                                              constant:0];
   height.priority = UILayoutPriorityDefaultLow;
 
-  self.clearButtonWidth =
-      [NSLayoutConstraint constraintWithItem:_clearButton
-                                   attribute:NSLayoutAttributeWidth
-                                   relatedBy:NSLayoutRelationEqual
-                                      toItem:nil
-                                   attribute:NSLayoutAttributeNotAnAttribute
-                                  multiplier:1
-                                    constant:MDCTextInputClearButtonImageSquareWidthHeight];
+  self.clearButtonWidth = [NSLayoutConstraint constraintWithItem:_clearButton
+                                                       attribute:NSLayoutAttributeWidth
+                                                       relatedBy:NSLayoutRelationEqual
+                                                          toItem:nil
+                                                       attribute:NSLayoutAttributeNotAnAttribute
+                                                      multiplier:1
+                                                        constant:kClearButtonLength];
   self.clearButtonWidth.priority = UILayoutPriorityDefaultLow;
 
   UIEdgeInsets insets = [self textInsets];
@@ -284,7 +284,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
   _placeholderLabel.userInteractionEnabled = NO;
   _placeholderLabel.opaque = NO;
 
-  _placeholderLabel.textColor = MDCTextInputDefaultPlaceholderTextColor();
+  _placeholderLabel.textColor = PlaceholderTextColor();
   _placeholderLabel.font = _textInput.font;
 
   [_textInput addSubview:_placeholderLabel];
@@ -298,7 +298,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
 - (void)setupUnderlineLabels {
   if (!_leadingUnderlineLabel) {
     _leadingUnderlineLabel = [[UILabel alloc] initWithFrame:CGRectZero];
-    _leadingUnderlineLabel.textColor = MDCTextInputDefaultPlaceholderTextColor();
+    _leadingUnderlineLabel.textColor = PlaceholderTextColor();
     _leadingUnderlineLabel.font = _textInput.font;
     _leadingUnderlineLabel.textAlignment = NSTextAlignmentNatural;
 
@@ -411,7 +411,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
   if (!_underline) {
     _underline = [[MDCTextInputUnderlineView alloc] initWithFrame:CGRectZero];
   }
-  _underline.color = MDCTextInputUnderlineColor();
+  _underline.color = UnderlineColor();
   _underline.translatesAutoresizingMaskIntoConstraints = NO;
 
   [self.textInput addSubview:_underline];
@@ -461,14 +461,8 @@ static inline UIColor *MDCTextInputUnderlineColor() {
   if (!_underline) {
     return;
   }
-  [self.underline addObserver:self
-                   forKeyPath:MDCTextInputUnderlineKVOKeyColor
-                      options:0
-                      context:nil];
-  [self.underline addObserver:self
-                   forKeyPath:MDCTextInputUnderlineKVOKeyLineHeight
-                      options:0
-                      context:nil];
+  [self.underline addObserver:self forKeyPath:kColorKeyPath options:0 context:nil];
+  [self.underline addObserver:self forKeyPath:kLineHeightKeyPath options:0 context:nil];
   _isRegisteredForKVO = YES;
 }
 
@@ -477,8 +471,8 @@ static inline UIColor *MDCTextInputUnderlineColor() {
     return;
   }
   @try {
-    [_underline removeObserver:self forKeyPath:MDCTextInputUnderlineKVOKeyColor];
-    [_underline removeObserver:self forKeyPath:MDCTextInputUnderlineKVOKeyLineHeight];
+    [_underline removeObserver:self forKeyPath:kColorKeyPath];
+    [_underline removeObserver:self forKeyPath:kLineHeightKeyPath];
   } @catch (__unused NSException *exception) {
     NSLog(@"Tried to unsubscribe from KVO in MDCTextInputCommonFundament but could not.");
   }
@@ -521,8 +515,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
   CGFloat clearButtonAlpha = [self clearButtonAlpha];
   self.clearButton.alpha = clearButtonAlpha;
 
-  if (self.clearButtonWidth.constant !=
-      MDCTextInputClearButtonImageSquareWidthHeight * clearButtonAlpha) {
+  if (self.clearButtonWidth.constant != kClearButtonLength * clearButtonAlpha) {
     [self.textInput setNeedsUpdateConstraints];
   }
 
@@ -531,7 +524,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
 
 - (void)updateClearButtonConstraints {
   BOOL shouldInvalidateSize = NO;
-  CGFloat widthConstant = MDCTextInputClearButtonImageSquareWidthHeight * [self clearButtonAlpha];
+  CGFloat widthConstant = kClearButtonLength * [self clearButtonAlpha];
   if (self.clearButtonWidth.constant != widthConstant) {
     self.clearButtonWidth.constant = widthConstant;
     shouldInvalidateSize = YES;
@@ -588,8 +581,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
 }
 
 - (UIImage *)drawnClearButtonImage {
-  CGSize clearButtonSize = CGSizeMake(MDCTextInputClearButtonImageSquareWidthHeight,
-                                      MDCTextInputClearButtonImageSquareWidthHeight);
+  CGSize clearButtonSize = CGSizeMake(kClearButtonLength, kClearButtonLength);
 
   CGRect bounds = CGRectMake(0, 0, clearButtonSize.width, clearButtonSize.height);
   UIGraphicsBeginImageContextWithOptions(bounds.size, false, 0);
@@ -738,7 +730,7 @@ static inline UIColor *MDCTextInputUnderlineColor() {
 
 - (void)setTextColor:(UIColor *)textColor {
   if (!textColor) {
-    textColor = MDCTextInputTextColor();
+    textColor = TextColor();
   }
 
   if (_textColor != textColor) {
@@ -997,11 +989,11 @@ static inline UIColor *MDCTextInputUnderlineColor() {
     return;
   }
 
-  if ([keyPath isEqualToString:MDCTextInputUnderlineKVOKeyColor]) {
+  if ([keyPath isEqualToString:kColorKeyPath]) {
     if (!self.underline.color) {
-      self.underline.color = MDCTextInputUnderlineColor();
+      self.underline.color = UnderlineColor();
     }
-  } else if ([keyPath isEqualToString:MDCTextInputUnderlineKVOKeyLineHeight]) {
+  } else if ([keyPath isEqualToString:kLineHeightKeyPath]) {
     [self.textInput setNeedsUpdateConstraints];
   } else {
     return;

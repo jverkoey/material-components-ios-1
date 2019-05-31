@@ -43,19 +43,19 @@ static const NSTimeInterval
     MDCTextInputControllerBaseDefaultFloatingPlaceholderUpAnimationDuration = (CGFloat)0.3;
 static const NSTimeInterval kDefaultErrorAnnouncementDelay = (CGFloat)0.500;
 
-static inline UIColor *MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault() {
+static inline UIColor *InlinePlaceholderTextColorDefault() {
   return [UIColor colorWithWhite:0 alpha:MDCTextInputControllerBaseDefaultHintTextOpacity];
 }
 
-static inline UIColor *MDCTextInputControllerBaseDefaultActiveColorDefault() {
+static inline UIColor *ActiveColorDefault() {
   return [MDCPalette bluePalette].accent700;
 }
 
-static inline UIColor *MDCTextInputControllerBaseDefaultNormalUnderlineColorDefault() {
+static inline UIColor *NormalUnderlineColorDefault() {
   return [UIColor lightGrayColor];
 }
 
-static inline UIColor *MDCTextInputControllerBaseDefaultTextErrorColorDefault() {
+static inline UIColor *TextErrorColorDefault() {
   return [MDCPalette redPalette].accent400;
 }
 
@@ -771,14 +771,13 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)activeColorDefault {
   if (!_activeColorDefault) {
-    _activeColorDefault = MDCTextInputControllerBaseDefaultActiveColorDefault();
+    _activeColorDefault = ActiveColorDefault();
   }
   return _activeColorDefault;
 }
 
 + (void)setActiveColorDefault:(UIColor *)activeColorDefault {
-  _activeColorDefault = activeColorDefault ? activeColorDefault
-                                           : MDCTextInputControllerBaseDefaultActiveColorDefault();
+  _activeColorDefault = activeColorDefault ? activeColorDefault : ActiveColorDefault();
 }
 
 - (UIColor *)borderFillColor {
@@ -830,15 +829,14 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)disabledColorDefault {
   if (!_disabledColorDefault) {
-    _disabledColorDefault = MDCTextInputControllerBaseDefaultNormalUnderlineColorDefault();
+    _disabledColorDefault = NormalUnderlineColorDefault();
   }
   return _disabledColorDefault;
 }
 
 + (void)setDisabledColorDefault:(UIColor *)disabledColorDefault {
-  _disabledColorDefault = disabledColorDefault
-                              ? disabledColorDefault
-                              : MDCTextInputControllerBaseDefaultNormalUnderlineColorDefault();
+  _disabledColorDefault =
+      disabledColorDefault ? disabledColorDefault : NormalUnderlineColorDefault();
 }
 
 // This is when the character count text is red because the inputted text has more characters than
@@ -883,14 +881,13 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)errorColorDefault {
   if (!_errorColorDefault) {
-    _errorColorDefault = MDCTextInputControllerBaseDefaultTextErrorColorDefault();
+    _errorColorDefault = TextErrorColorDefault();
   }
   return _errorColorDefault;
 }
 
 + (void)setErrorColorDefault:(UIColor *)errorColorDefault {
-  _errorColorDefault = errorColorDefault ? errorColorDefault
-                                         : MDCTextInputControllerBaseDefaultTextErrorColorDefault();
+  _errorColorDefault = errorColorDefault ? errorColorDefault : TextErrorColorDefault();
 }
 
 - (void)setErrorText:(NSString *)errorText {
@@ -1036,17 +1033,15 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)inlinePlaceholderColorDefault {
   if (!_inlinePlaceholderColorDefault) {
-    _inlinePlaceholderColorDefault =
-        MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault();
+    _inlinePlaceholderColorDefault = InlinePlaceholderTextColorDefault();
   }
   return _inlinePlaceholderColorDefault;
 }
 
 + (void)setInlinePlaceholderColorDefault:(UIColor *)inlinePlaceholderColorDefault {
-  _inlinePlaceholderColorDefault =
-      inlinePlaceholderColorDefault
-          ? inlinePlaceholderColorDefault
-          : MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault();
+  _inlinePlaceholderColorDefault = inlinePlaceholderColorDefault
+                                       ? inlinePlaceholderColorDefault
+                                       : InlinePlaceholderTextColorDefault();
 }
 
 - (UIFont *)inlinePlaceholderFont {
@@ -1104,17 +1099,15 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)leadingUnderlineLabelTextColorDefault {
   if (!_leadingUnderlineLabelTextColorDefault) {
-    _leadingUnderlineLabelTextColorDefault =
-        MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault();
+    _leadingUnderlineLabelTextColorDefault = InlinePlaceholderTextColorDefault();
   }
   return _leadingUnderlineLabelTextColorDefault;
 }
 
 + (void)setLeadingUnderlineLabelTextColorDefault:(UIColor *)leadingUnderlineLabelTextColorDefault {
-  _leadingUnderlineLabelTextColorDefault =
-      leadingUnderlineLabelTextColorDefault
-          ? leadingUnderlineLabelTextColorDefault
-          : MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault();
+  _leadingUnderlineLabelTextColorDefault = leadingUnderlineLabelTextColorDefault
+                                               ? leadingUnderlineLabelTextColorDefault
+                                               : InlinePlaceholderTextColorDefault();
 }
 
 - (void)setMinimumLines:(NSUInteger)minimumLines {
@@ -1140,15 +1133,13 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)normalColorDefault {
   if (!_normalColorDefault) {
-    _normalColorDefault = MDCTextInputControllerBaseDefaultNormalUnderlineColorDefault();
+    _normalColorDefault = NormalUnderlineColorDefault();
   }
   return _normalColorDefault;
 }
 
 + (void)setNormalColorDefault:(UIColor *)normalColorDefault {
-  _normalColorDefault = normalColorDefault
-                            ? normalColorDefault
-                            : MDCTextInputControllerBaseDefaultNormalUnderlineColorDefault();
+  _normalColorDefault = normalColorDefault ? normalColorDefault : NormalUnderlineColorDefault();
 }
 
 - (NSString *)placeholderText {
@@ -1272,18 +1263,16 @@ static UITextFieldViewMode _underlineViewModeDefault = UITextFieldViewModeWhileE
 
 + (UIColor *)trailingUnderlineLabelTextColorDefault {
   if (!_trailingUnderlineLabelTextColorDefault) {
-    _trailingUnderlineLabelTextColorDefault =
-        MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault();
+    _trailingUnderlineLabelTextColorDefault = InlinePlaceholderTextColorDefault();
   }
   return _trailingUnderlineLabelTextColorDefault;
 }
 
 + (void)setTrailingUnderlineLabelTextColorDefault:
     (UIColor *)trailingUnderlineLabelTextColorDefault {
-  _trailingUnderlineLabelTextColorDefault =
-      trailingUnderlineLabelTextColorDefault
-          ? trailingUnderlineLabelTextColorDefault
-          : MDCTextInputControllerBaseDefaultInlinePlaceholderTextColorDefault();
+  _trailingUnderlineLabelTextColorDefault = trailingUnderlineLabelTextColorDefault
+                                                ? trailingUnderlineLabelTextColorDefault
+                                                : InlinePlaceholderTextColorDefault();
 }
 
 - (void)setUnderlineHeightActive:(CGFloat)underlineHeightActive {

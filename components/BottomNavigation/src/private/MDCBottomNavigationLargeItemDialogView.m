@@ -26,7 +26,7 @@ static const CGFloat kImageHeight = 75;
  * this function will return that image, otherwise it returns the value of the item's image
  * property. This value may be nil.
  */
-static UIImage *_Nullable MDCImageForItem(UITabBarItem *_Nonnull item) {
+static UIImage *_Nullable ImageForItem(UITabBarItem *_Nonnull item) {
   UIImage *image;
   if (@available(iOS 11, *)) {
     image = item.largeContentSizeImage;
@@ -115,7 +115,7 @@ static UIImage *_Nullable MDCImageForItem(UITabBarItem *_Nonnull item) {
 }
 
 - (void)updateWithTabBarItem:(UITabBarItem *)item {
-  UIImage *image = MDCImageForItem(item);
+  UIImage *image = ImageForItem(item);
   self.imageView.image = [image imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
   self.titleLabel.text = item.title;
   [self setNeedsLayout];

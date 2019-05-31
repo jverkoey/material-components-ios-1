@@ -16,15 +16,15 @@
 
 #import "MDCDialogPresentationController.h"
 
-@implementation MDCDialogTransitionController
+static const NSTimeInterval kTransitionDuration = 0.27;
 
-static const NSTimeInterval MDCDialogTransitionDuration = 0.27;
+@implementation MDCDialogTransitionController
 
 #pragma mark - UIViewControllerAnimatedTransitioning
 
 - (NSTimeInterval)transitionDuration:
     (__unused id<UIViewControllerContextTransitioning>)transitionContext {
-  return MDCDialogTransitionDuration;
+  return kTransitionDuration;
 }
 
 - (void)animateTransition:(id<UIViewControllerContextTransitioning>)transitionContext {

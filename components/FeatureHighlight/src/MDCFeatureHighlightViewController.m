@@ -22,10 +22,10 @@
 #import "private/MDCFeatureHighlightView+Private.h"
 
 // The Bundle for string resources.
-static NSString *const kMaterialFeatureHighlightBundle = @"MaterialFeatureHighlight.bundle";
+static NSString *const kBundleFilename = @"MaterialFeatureHighlight.bundle";
 
-static const CGFloat kMDCFeatureHighlightLineSpacing = 1;
-static const CGFloat kMDCFeatureHighlightPulseAnimationInterval = (CGFloat)1.5;
+static const CGFloat kLineSpacing = 1;
+static const CGFloat kPulseAnimationInterval = (CGFloat)1.5;
 
 @interface MDCFeatureHighlightViewController () <UIViewControllerTransitioningDelegate>
 @property(nonatomic, nullable, weak) MDCFeatureHighlightView *featureHighlightView;
@@ -131,9 +131,9 @@ static const CGFloat kMDCFeatureHighlightPulseAnimationInterval = (CGFloat)1.5;
 
 - (void)viewWillLayoutSubviews {
   self.featureHighlightView.titleLabel.attributedText =
-      [self attributedStringForString:self.titleText lineSpacing:kMDCFeatureHighlightLineSpacing];
+      [self attributedStringForString:self.titleText lineSpacing:kLineSpacing];
   self.featureHighlightView.bodyLabel.attributedText =
-      [self attributedStringForString:self.bodyText lineSpacing:kMDCFeatureHighlightLineSpacing];
+      [self attributedStringForString:self.bodyText lineSpacing:kLineSpacing];
 }
 
 - (void)dealloc {
@@ -151,7 +151,7 @@ static const CGFloat kMDCFeatureHighlightPulseAnimationInterval = (CGFloat)1.5;
 - (void)viewDidAppear:(BOOL)animated {
   [super viewDidAppear:animated];
 
-  _pulseTimer = [NSTimer scheduledTimerWithTimeInterval:kMDCFeatureHighlightPulseAnimationInterval
+  _pulseTimer = [NSTimer scheduledTimerWithTimeInterval:kPulseAnimationInterval
                                                  target:self.featureHighlightView
                                                selector:@selector(animatePulse)
                                                userInfo:NULL
@@ -356,7 +356,7 @@ static const CGFloat kMDCFeatureHighlightPulseAnimationInterval = (CGFloat)1.5;
   static NSBundle *bundle = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    bundle = [NSBundle bundleWithPath:[self bundlePathWithName:kMaterialFeatureHighlightBundle]];
+    bundle = [NSBundle bundleWithPath:[self bundlePathWithName:kBundleFilename]];
   });
 
   return bundle;

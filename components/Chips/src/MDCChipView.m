@@ -26,17 +26,29 @@
 
 static const MDCFontTextStyle kTitleTextStyle = MDCFontTextStyleBody2;
 
-static const CGSize kMDCChipMinimumSizeDefault = (CGSize){(CGFloat)0, (CGFloat)32};
+static const CGSize kDefaultMinimumSize = (CGSize){(CGFloat)0, (CGFloat)32};
+
+static const uint32_t kDefaultBackgroundColor = 0xEBEBEB;
+static const CGFloat kDefaultSelectedDarkenPercent = (CGFloat)0.16;
+static const CGFloat kDefaultDisabledLightenPercent = (CGFloat)0.38;
+static const CGFloat kDefaultTitleColorWhite = (CGFloat)0.13;
+static const CGFloat kDefaultTitleColorDisabledLightenPercent = (CGFloat)0.38;
+static const CGFloat kDefaultRippleOpacity = (CGFloat)0.12;
+
+static const UIEdgeInsets kDefaultContentPadding = {4, 4, 4, 4};
+static const UIEdgeInsets kDefaultImagePadding = {0, 0, 0, 0};
+static const UIEdgeInsets kDefaultTitlePadding = {3, 8, 4, 8};
+static const UIEdgeInsets kDefaultAccessoryPadding = {0, 0, 0, 0};
 
 // Creates a UIColor from a 24-bit RGB color encoded as an integer.
-static inline UIColor *MDCColorFromRGB(uint32_t rgbValue) {
+static inline UIColor *ColorFromRGB(uint32_t rgbValue) {
   return [UIColor colorWithRed:((CGFloat)((rgbValue & 0xFF0000) >> 16)) / 255
                          green:((CGFloat)((rgbValue & 0x00FF00) >> 8)) / 255
                           blue:((CGFloat)((rgbValue & 0x0000FF) >> 0)) / 255
                          alpha:1];
 }
 
-static inline UIColor *MDCColorDarken(UIColor *color, CGFloat percent) {
+static inline UIColor *DarkenedColor(UIColor *color, CGFloat percent) {
   CGFloat hue;
   CGFloat saturation;
   CGFloat brightness;
@@ -48,55 +60,42 @@ static inline UIColor *MDCColorDarken(UIColor *color, CGFloat percent) {
   return [UIColor colorWithHue:hue saturation:saturation brightness:brightness alpha:alpha];
 }
 
-static inline UIColor *MDCColorLighten(UIColor *color, CGFloat percent) {
-  return MDCColorDarken(color, -percent);
+static inline UIColor *LightenedColor(UIColor *color, CGFloat percent) {
+  return DarkenedColor(color, -percent);
 }
 
-// TODO(samnm): Pull background color from MDCPalette
-static const uint32_t MDCChipBackgroundColor = 0xEBEBEB;
-static const CGFloat MDCChipSelectedDarkenPercent = (CGFloat)0.16;
-static const CGFloat MDCChipDisabledLightenPercent = (CGFloat)0.38;
-static const CGFloat MDCChipTitleColorWhite = (CGFloat)0.13;
-static const CGFloat MDCChipTitleColorDisabledLightenPercent = (CGFloat)0.38;
-static const CGFloat MDCChipViewRippleDefaultOpacity = (CGFloat)0.12;
-
-static const UIEdgeInsets MDCChipContentPadding = {4, 4, 4, 4};
-static const UIEdgeInsets MDCChipImagePadding = {0, 0, 0, 0};
-static const UIEdgeInsets MDCChipTitlePadding = {3, 8, 4, 8};
-static const UIEdgeInsets MDCChipAccessoryPadding = {0, 0, 0, 0};
-
-static CGRect CGRectVerticallyCentered(CGRect rect,
-                                       UIEdgeInsets padding,
-                                       CGFloat height,
-                                       CGFloat pixelScale) {
+static CGRect RectVerticallyCentered(CGRect rect,
+                                     UIEdgeInsets padding,
+                                     CGFloat height,
+                                     CGFloat pixelScale) {
   CGFloat viewHeight = CGRectGetHeight(rect) + padding.top + padding.bottom;
   CGFloat yValue = (height - viewHeight) / 2;
   yValue = MDCRound(yValue * pixelScale) / pixelScale;
   return CGRectOffset(rect, 0, yValue);
 }
 
-static inline CGRect MDCChipBuildFrame(
+static inline CGRect BuildFrame(
     UIEdgeInsets insets, CGSize size, CGFloat xOffset, CGFloat chipHeight, CGFloat pixelScale) {
   CGRect frame = CGRectMake(xOffset + insets.left, insets.top, size.width, size.height);
-  return CGRectVerticallyCentered(frame, insets, chipHeight, pixelScale);
+  return RectVerticallyCentered(frame, insets, chipHeight, pixelScale);
 }
 
-static inline CGFloat UIEdgeInsetsHorizontal(UIEdgeInsets insets) {
+static inline CGFloat EdgeInsetsHorizontal(UIEdgeInsets insets) {
   return insets.left + insets.right;
 }
 
-static inline CGFloat UIEdgeInsetsVertical(UIEdgeInsets insets) {
+static inline CGFloat EdgeInsetsVertical(UIEdgeInsets insets) {
   return insets.top + insets.bottom;
 }
 
-static inline CGSize CGSizeExpandWithInsets(CGSize size, UIEdgeInsets edgeInsets) {
-  return CGSizeMake(size.width + UIEdgeInsetsHorizontal(edgeInsets),
-                    size.height + UIEdgeInsetsVertical(edgeInsets));
+static inline CGSize SizeExpandedWithInsets(CGSize size, UIEdgeInsets edgeInsets) {
+  return CGSizeMake(size.width + EdgeInsetsHorizontal(edgeInsets),
+                    size.height + EdgeInsetsVertical(edgeInsets));
 }
 
-static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets) {
-  return CGSizeMake(size.width - UIEdgeInsetsHorizontal(edgeInsets),
-                    size.height - UIEdgeInsetsVertical(edgeInsets));
+static inline CGSize SizeShrunkWithInsets(CGSize size, UIEdgeInsets edgeInsets) {
+  return CGSizeMake(size.width - EdgeInsetsHorizontal(edgeInsets),
+                    size.height - EdgeInsetsVertical(edgeInsets));
 }
 
 @interface MDCChipView ()
@@ -132,7 +131,7 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
 }
 
 - (void)commonMDCChipViewInit {
-  _minimumSize = kMDCChipMinimumSizeDefault;
+  _minimumSize = kDefaultMinimumSize;
   self.isAccessibilityElement = YES;
   _adjustsFontForContentSizeCategoryWhenScaledFontIsUnavailable = YES;
 }
@@ -141,9 +140,9 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
   if (self = [super initWithFrame:frame]) {
     if (!_backgroundColors) {
       // _backgroundColors may have already been initialized by setting the backgroundColor setter.
-      UIColor *normal = MDCColorFromRGB(MDCChipBackgroundColor);
-      UIColor *disabled = MDCColorLighten(normal, MDCChipDisabledLightenPercent);
-      UIColor *selected = MDCColorDarken(normal, MDCChipSelectedDarkenPercent);
+      UIColor *normal = ColorFromRGB(kDefaultBackgroundColor);
+      UIColor *disabled = LightenedColor(normal, kDefaultDisabledLightenPercent);
+      UIColor *selected = DarkenedColor(normal, kDefaultSelectedDarkenPercent);
 
       _backgroundColors = [NSMutableDictionary dictionary];
       _backgroundColors[@(UIControlStateNormal)] = normal;
@@ -161,11 +160,11 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
 
     _inkColors = [NSMutableDictionary dictionary];
 
-    UIColor *titleColor = [UIColor colorWithWhite:MDCChipTitleColorWhite alpha:1];
+    UIColor *titleColor = [UIColor colorWithWhite:kDefaultTitleColorWhite alpha:1];
     _titleColors = [NSMutableDictionary dictionary];
     _titleColors[@(UIControlStateNormal)] = titleColor;
     _titleColors[@(UIControlStateDisabled)] =
-        MDCColorLighten(titleColor, MDCChipTitleColorDisabledLightenPercent);
+        LightenedColor(titleColor, kDefaultTitleColorDisabledLightenPercent);
 
     _shadowColors = [NSMutableDictionary dictionary];
     _shadowColors[@(UIControlStateNormal)] = [UIColor blackColor];
@@ -195,10 +194,10 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
     _titleLabel.textAlignment = NSTextAlignmentCenter;
     [self addSubview:_titleLabel];
 
-    _contentPadding = MDCChipContentPadding;
-    _imagePadding = MDCChipImagePadding;
-    _titlePadding = MDCChipTitlePadding;
-    _accessoryPadding = MDCChipAccessoryPadding;
+    _contentPadding = kDefaultContentPadding;
+    _imagePadding = kDefaultImagePadding;
+    _titlePadding = kDefaultTitlePadding;
+    _accessoryPadding = kDefaultAccessoryPadding;
 
     // UIControl has a drag enter/exit boundary that is outside of the frame of the button itself.
     // Because this is not exposed externally, we can't use -touchesMoved: to calculate when to
@@ -442,7 +441,7 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
   // ripple view's color to the requested color.
   if (![self rippleStateForControlState:self.state]) {
     self.rippleView.rippleColor =
-        rippleColor ?: [UIColor colorWithWhite:1 alpha:MDCChipViewRippleDefaultOpacity];
+        rippleColor ?: [UIColor colorWithWhite:1 alpha:kDefaultRippleOpacity];
   }
 }
 
@@ -663,17 +662,17 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
           MAX(maxImageWidth,
               [self sizeForImageView:self.selectedImageView maxSize:maxContentSize].width);
     }
-    neededContentWidth += maxImageWidth + UIEdgeInsetsHorizontal(self.imagePadding);
+    neededContentWidth += maxImageWidth + EdgeInsetsHorizontal(self.imagePadding);
   }
 
   // Always add the title and its padding.
   neededContentWidth += [_titleLabel sizeThatFits:maxContentSize].width;
-  neededContentWidth += UIEdgeInsetsHorizontal(_titlePadding);
+  neededContentWidth += EdgeInsetsHorizontal(_titlePadding);
 
   // If there's an accessoryView, add it and its padding.
   if (self.showAccessoryView) {
     neededContentWidth += [self sizeForAccessoryViewWithMaxSize:maxContentSize].width;
-    neededContentWidth += UIEdgeInsetsHorizontal(self.accessoryPadding);
+    neededContentWidth += EdgeInsetsHorizontal(self.accessoryPadding);
   }
 
   CGFloat difference = maxContentSize.width - neededContentWidth;
@@ -697,14 +696,14 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
   CGRect frame = CGRectMake(CGRectGetMinX(self.contentRect), CGRectGetMidY(self.contentRect), 0, 0);
   if (visible) {
     CGSize selectedSize = [self sizeForImageView:imageView maxSize:self.contentRect.size];
-    frame = MDCChipBuildFrame(_imagePadding, selectedSize, CGRectGetMinX(self.contentRect),
-                              CGRectGetHeight(self.frame), self.pixelScale);
+    frame = BuildFrame(_imagePadding, selectedSize, CGRectGetMinX(self.contentRect),
+                       CGRectGetHeight(self.frame), self.pixelScale);
   }
   return frame;
 }
 
 - (CGSize)sizeForImageView:(UIImageView *)imageView maxSize:(CGSize)maxSize {
-  CGSize availableSize = CGSizeShrinkWithInsets(maxSize, self.imagePadding);
+  CGSize availableSize = SizeShrunkWithInsets(maxSize, self.imagePadding);
   return [imageView sizeThatFits:availableSize];
 }
 
@@ -714,68 +713,67 @@ static inline CGSize CGSizeShrinkWithInsets(CGSize size, UIEdgeInsets edgeInsets
     size = [self sizeForAccessoryViewWithMaxSize:self.contentRect.size];
   }
   CGFloat xOffset = CGRectGetMaxX(self.contentRect) - size.width - _accessoryPadding.right;
-  return MDCChipBuildFrame(_accessoryPadding, size, xOffset, CGRectGetHeight(self.frame),
-                           self.pixelScale);
+  return BuildFrame(_accessoryPadding, size, xOffset, CGRectGetHeight(self.frame), self.pixelScale);
 }
 
 - (CGSize)sizeForAccessoryViewWithMaxSize:(CGSize)maxSize {
-  CGSize availableSize = CGSizeShrinkWithInsets(maxSize, self.accessoryPadding);
+  CGSize availableSize = SizeShrunkWithInsets(maxSize, self.accessoryPadding);
   return [_accessoryView sizeThatFits:availableSize];
 }
 
 - (CGRect)titleLabelFrame {
   CGRect imageFrame = CGRectUnion(_imageView.frame, _selectedImageView.frame);
   CGFloat maximumTitleWidth = CGRectGetWidth(self.contentRect) - CGRectGetWidth(imageFrame) -
-                              UIEdgeInsetsHorizontal(_titlePadding) +
-                              UIEdgeInsetsHorizontal(_imagePadding);
+                              EdgeInsetsHorizontal(_titlePadding) +
+                              EdgeInsetsHorizontal(_imagePadding);
   if (self.showAccessoryView) {
     maximumTitleWidth -=
-        CGRectGetWidth(_accessoryView.frame) + UIEdgeInsetsHorizontal(_accessoryPadding);
+        CGRectGetWidth(_accessoryView.frame) + EdgeInsetsHorizontal(_accessoryPadding);
   }
   CGFloat maximumTitleHeight =
-      CGRectGetHeight(self.contentRect) - UIEdgeInsetsVertical(_titlePadding);
+      CGRectGetHeight(self.contentRect) - EdgeInsetsVertical(_titlePadding);
   CGSize maximumSize = CGSizeMake(maximumTitleWidth, maximumTitleHeight);
   CGSize titleSize = [_titleLabel sizeThatFits:maximumSize];
   titleSize.width = MAX(0, maximumTitleWidth);
 
   CGFloat imageRightEdge = CGRectGetMaxX(imageFrame) + _imagePadding.right;
-  return MDCChipBuildFrame(_titlePadding, titleSize, imageRightEdge, CGRectGetHeight(self.frame),
-                           self.pixelScale);
+  return BuildFrame(_titlePadding, titleSize, imageRightEdge, CGRectGetHeight(self.frame),
+                    self.pixelScale);
 }
 
 - (CGSize)sizeThatFits:(CGSize)size {
-  CGSize contentPaddedSize = CGSizeShrinkWithInsets(size, self.contentPadding);
-  CGSize imagePaddedSize = CGSizeShrinkWithInsets(contentPaddedSize, self.imagePadding);
-  CGSize titlePaddedSize = CGSizeShrinkWithInsets(contentPaddedSize, self.titlePadding);
-  CGSize accessoryPaddedSize = CGSizeShrinkWithInsets(contentPaddedSize, self.accessoryPadding);
+  CGSize contentPaddedSize = SizeShrunkWithInsets(size, self.contentPadding);
+  CGSize imagePaddedSize = SizeShrunkWithInsets(contentPaddedSize, self.imagePadding);
+  CGSize titlePaddedSize = SizeShrunkWithInsets(contentPaddedSize, self.titlePadding);
+  CGSize accessoryPaddedSize = SizeShrunkWithInsets(contentPaddedSize, self.accessoryPadding);
 
   CGSize imageSize = CGSizeZero;
   CGSize selectedSize = CGSizeZero;
 
   if (self.showImageView) {
     imageSize =
-        CGSizeExpandWithInsets([_imageView sizeThatFits:imagePaddedSize], self.imagePadding);
+        SizeExpandedWithInsets([_imageView sizeThatFits:imagePaddedSize], self.imagePadding);
   }
   if (self.showSelectedImageView) {
-    selectedSize = CGSizeExpandWithInsets([_selectedImageView sizeThatFits:imagePaddedSize],
+    selectedSize = SizeExpandedWithInsets([_selectedImageView sizeThatFits:imagePaddedSize],
                                           self.imagePadding);
   }
   imageSize.width = MAX(imageSize.width, selectedSize.width);
   imageSize.height = MAX(imageSize.height, selectedSize.height);
 
   CGSize originalTitleSize = [_titleLabel sizeThatFits:titlePaddedSize];
-  CGSize titleSize = CGSizeExpandWithInsets(originalTitleSize, self.titlePadding);
+  CGSize titleSize = SizeExpandedWithInsets(originalTitleSize, self.titlePadding);
 
   CGSize accessorySize = CGSizeZero;
   if (_accessoryView) {
-    accessorySize = CGSizeExpandWithInsets([_accessoryView sizeThatFits:accessoryPaddedSize],
+    accessorySize = SizeExpandedWithInsets([_accessoryView sizeThatFits:accessoryPaddedSize],
                                            self.accessoryPadding);
   }
 
   CGSize contentSize =
       CGSizeMake(imageSize.width + titleSize.width + accessorySize.width,
                  MAX(imageSize.height, MAX(titleSize.height, accessorySize.height)));
-  CGSize chipSize = CGSizeExpandWithInsets(contentSize, self.contentPadding);
+  CGSize chipSize = SizeExpandedWithInsets(contentSize, self.contentPadding);
   if (self.minimumSize.width > 0) {
     chipSize.width = MAX(self.minimumSize.width, chipSize.width);
   }

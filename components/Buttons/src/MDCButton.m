@@ -28,27 +28,27 @@
 
 // Specified in Material Guidelines
 // https://material.io/guidelines/layout/metrics-keylines.html#metrics-keylines-touch-target-size
-static const CGFloat MDCButtonMinimumTouchTargetHeight = 48;
-static const CGFloat MDCButtonMinimumTouchTargetWidth = 48;
-static const CGFloat MDCButtonDefaultCornerRadius = 2.0;
+static const CGFloat kMinimumTouchHeight = 48;
+static const CGFloat kMinimumTouchWidth = 48;
 
-static const NSTimeInterval MDCButtonAnimationDuration = 0.2;
+static const NSTimeInterval kAnimationDuration = 0.2;
 
 // https://material.io/go/design-buttons#buttons-main-buttons
-static const CGFloat MDCButtonDisabledAlpha = (CGFloat)0.12;
+static const CGFloat kDefaultDisabledAlpha = (CGFloat)0.12;
+static const CGFloat kDefaultCornerRadius = 2.0;
 
 // Blue 500 from https://material.io/go/design-color-theming#color-color-palette .
-static const uint32_t MDCButtonDefaultBackgroundColor = 0x191919;
+static const uint32_t kDefaultBackgroundColor = 0x191919;
 
 // Creates a UIColor from a 24-bit RGB color encoded as an integer.
-static inline UIColor *MDCColorFromRGB(uint32_t rgbValue) {
+static inline UIColor *ColorFromRGB(uint32_t rgbValue) {
   return [UIColor colorWithRed:((CGFloat)((rgbValue & 0xFF0000) >> 16)) / 255
                          green:((CGFloat)((rgbValue & 0x00FF00) >> 8)) / 255
                           blue:((CGFloat)((rgbValue & 0x0000FF) >> 0)) / 255
                          alpha:1];
 }
 
-static NSAttributedString *uppercaseAttributedString(NSAttributedString *string) {
+static NSAttributedString *UppercaseAttributedString(NSAttributedString *string) {
   // Store the attributes.
   NSMutableArray<NSDictionary *> *attributes = [NSMutableArray array];
   [string enumerateAttributesInRange:NSMakeRange(0, [string length])
@@ -144,7 +144,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
 }
 
 - (void)commonMDCButtonInit {
-  _disabledAlpha = MDCButtonDisabledAlpha;
+  _disabledAlpha = kDefaultDisabledAlpha;
   _enabledAlpha = self.alpha;
   _shouldRaiseOnTouch = YES;
   _uppercaseTitle = YES;
@@ -160,7 +160,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   if (!_backgroundColors) {
     // _backgroundColors may have already been initialized by setting the backgroundColor setter.
     _backgroundColors = [NSMutableDictionary dictionary];
-    _backgroundColors[@(UIControlStateNormal)] = MDCColorFromRGB(MDCButtonDefaultBackgroundColor);
+    _backgroundColors[@(UIControlStateNormal)] = ColorFromRGB(kDefaultBackgroundColor);
   }
 
   // Disable default highlight state.
@@ -172,7 +172,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   _minimumSize = CGSizeZero;
   _maximumSize = CGSizeZero;
 
-  self.layer.cornerRadius = MDCButtonDefaultCornerRadius;
+  self.layer.cornerRadius = kDefaultCornerRadius;
   if (!self.layer.shapeGenerator) {
     self.layer.shadowPath = [self boundingPath].CGPath;
   }
@@ -278,13 +278,13 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   // If the bounds are smaller than the minimum touch target, produce a warning once
   CGFloat width = CGRectGetWidth(self.bounds);
   CGFloat height = CGRectGetHeight(self.bounds);
-  if (width < MDCButtonMinimumTouchTargetWidth || height < MDCButtonMinimumTouchTargetHeight) {
+  if (width < kMinimumTouchWidth || height < kMinimumTouchHeight) {
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
       NSLog(
           @"Button touch target does not meet minimum size guidlines of (%0.f, %0.f). Button: %@, "
           @"Touch Target: %@",
-          MDCButtonMinimumTouchTargetWidth, MDCButtonMinimumTouchTargetHeight, [self description],
+          kMinimumTouchWidth, kMinimumTouchHeight, [self description],
           NSStringFromCGSize(CGSizeMake(width, height)));
     });
   }
@@ -468,7 +468,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   }
 
   if (_uppercaseTitle) {
-    title = uppercaseAttributedString(title);
+    title = UppercaseAttributedString(title);
   }
   [super setAttributedTitle:title forState:state];
 }
@@ -567,7 +567,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
     return;
   }
   [CATransaction begin];
-  [CATransaction setAnimationDuration:MDCButtonAnimationDuration];
+  [CATransaction setAnimationDuration:kAnimationDuration];
   self.layer.elevation = newElevation;
   [CATransaction commit];
 }
@@ -827,7 +827,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   };
 
   if (animated) {
-    [UIView animateWithDuration:MDCButtonAnimationDuration animations:animations];
+    [UIView animateWithDuration:kAnimationDuration animations:animations];
   } else {
     animations();
   }

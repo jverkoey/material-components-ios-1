@@ -18,13 +18,14 @@
 #import "MaterialMath.h"
 #import "MaterialShapes.h"
 
-static const CGFloat MDCCardCellCornerRadiusDefault = 4;
-static const CGFloat MDCCardCellSelectedImagePadding = 8;
-static const CGFloat MDCCardCellShadowElevationHighlighted = 8;
-static const CGFloat MDCCardCellShadowElevationNormal = 1;
-static const CGFloat MDCCardCellShadowElevationSelected = 8;
-static const CGFloat MDCCardCellShadowElevationDragged = 8;
-static const BOOL MDCCardCellIsInteractableDefault = YES;
+static const CGFloat kSelectedImagePadding = 8;
+static const CGFloat kShadowElevationHighlighted = 8;
+static const CGFloat kShadowElevationNormal = 1;
+static const CGFloat kShadowElevationSelected = 8;
+static const CGFloat kShadowElevationDragged = 8;
+
+static const CGFloat kDefaultCornerRadius = 4;
+static const BOOL kDefaultInteractable = YES;
 
 @interface MDCCardCollectionCell ()
 @property(nonatomic, strong, nullable) UIImageView *selectedImageView;
@@ -54,8 +55,8 @@ static const BOOL MDCCardCellIsInteractableDefault = YES;
 - (instancetype)initWithCoder:(NSCoder *)coder {
   self = [super initWithCoder:coder];
   if (self) {
-    self.layer.cornerRadius = MDCCardCellCornerRadiusDefault;
-    _interactable = MDCCardCellIsInteractableDefault;
+    self.layer.cornerRadius = kDefaultCornerRadius;
+    _interactable = kDefaultInteractable;
     [self commonMDCCardCollectionCellInit];
   }
   return self;
@@ -64,8 +65,8 @@ static const BOOL MDCCardCellIsInteractableDefault = YES;
 - (instancetype)initWithFrame:(CGRect)frame {
   self = [super initWithFrame:frame];
   if (self) {
-    self.layer.cornerRadius = MDCCardCellCornerRadiusDefault;
-    _interactable = MDCCardCellIsInteractableDefault;
+    self.layer.cornerRadius = kDefaultCornerRadius;
+    _interactable = kDefaultInteractable;
     [self commonMDCCardCollectionCellInit];
   }
   return self;
@@ -93,10 +94,10 @@ static const BOOL MDCCardCellIsInteractableDefault = YES;
 
   if (_shadowElevations == nil) {
     _shadowElevations = [NSMutableDictionary dictionary];
-    _shadowElevations[@(MDCCardCellStateNormal)] = @(MDCCardCellShadowElevationNormal);
-    _shadowElevations[@(MDCCardCellStateHighlighted)] = @(MDCCardCellShadowElevationHighlighted);
-    _shadowElevations[@(MDCCardCellStateSelected)] = @(MDCCardCellShadowElevationSelected);
-    _shadowElevations[@(MDCCardCellStateDragged)] = @(MDCCardCellShadowElevationDragged);
+    _shadowElevations[@(MDCCardCellStateNormal)] = @(kShadowElevationNormal);
+    _shadowElevations[@(MDCCardCellStateHighlighted)] = @(kShadowElevationHighlighted);
+    _shadowElevations[@(MDCCardCellStateSelected)] = @(kShadowElevationSelected);
+    _shadowElevations[@(MDCCardCellStateDragged)] = @(kShadowElevationDragged);
   }
 
   if (_shadowColors == nil) {
@@ -436,28 +437,26 @@ static const BOOL MDCCardCellIsInteractableDefault = YES;
 
   switch (verticalImageAlignment) {
     case MDCCardCellVerticalImageAlignmentTop:
-      yAlignment =
-          MDCCardCellSelectedImagePadding + CGRectGetHeight(self.selectedImageView.frame) / 2;
+      yAlignment = kSelectedImagePadding + CGRectGetHeight(self.selectedImageView.frame) / 2;
       break;
     case MDCCardCellVerticalImageAlignmentCenter:
       yAlignment = CGRectGetHeight(self.bounds) / 2;
       break;
     case MDCCardCellVerticalImageAlignmentBottom:
-      yAlignment = CGRectGetHeight(self.bounds) - MDCCardCellSelectedImagePadding -
+      yAlignment = CGRectGetHeight(self.bounds) - kSelectedImagePadding -
                    CGRectGetHeight(self.selectedImageView.frame) / 2;
       break;
   }
 
   switch (horizontalImageAlignment) {
     case MDCCardCellHorizontalImageAlignmentLeft:
-      xAlignment =
-          MDCCardCellSelectedImagePadding + CGRectGetWidth(self.selectedImageView.frame) / 2;
+      xAlignment = kSelectedImagePadding + CGRectGetWidth(self.selectedImageView.frame) / 2;
       break;
     case MDCCardCellHorizontalImageAlignmentCenter:
       xAlignment = CGRectGetWidth(self.bounds) / 2;
       break;
     case MDCCardCellHorizontalImageAlignmentRight:
-      xAlignment = CGRectGetWidth(self.bounds) - MDCCardCellSelectedImagePadding -
+      xAlignment = CGRectGetWidth(self.bounds) - kSelectedImagePadding -
                    CGRectGetWidth(self.selectedImageView.frame) / 2;
       break;
   }

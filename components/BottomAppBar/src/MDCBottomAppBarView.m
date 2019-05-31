@@ -22,13 +22,14 @@
 #import "private/MDCBottomAppBarAttributes.h"
 #import "private/MDCBottomAppBarLayer.h"
 
-static NSString *kMDCBottomAppBarViewAnimKeyString = @"AnimKey";
-static NSString *kMDCBottomAppBarViewPathString = @"path";
-static NSString *kMDCBottomAppBarViewPositionString = @"position";
-static const CGFloat kMDCBottomAppBarViewFloatingButtonCenterToNavigationBarTopOffset = 0;
-static const CGFloat kMDCBottomAppBarViewFloatingButtonElevationPrimary = 6;
-static const CGFloat kMDCBottomAppBarViewFloatingButtonElevationSecondary = 4;
-static const int kMDCButtonAnimationDuration = 200;
+static const int kAnimationDuration = 200;
+static NSString *const kAnimationKey = @"AnimKey";
+static NSString *const kPathKeyPath = @"path";
+static NSString *const kPositionKeyPath = @"position";
+
+static const CGFloat kFloatingButtonCenterToNavigationBarTopOffset = 0;
+static const CGFloat kFloatingButtonElevationPrimary = 6;
+static const CGFloat kFloatingButtonElevationSecondary = 4;
 
 @interface MDCBottomAppBarCutView : UIView
 
@@ -73,8 +74,7 @@ static const int kMDCButtonAnimationDuration = 200;
 
 - (void)commonMDCBottomAppBarViewInit {
   self.cutView = [[MDCBottomAppBarCutView alloc] initWithFrame:self.bounds];
-  self.floatingButtonVerticalOffset =
-      kMDCBottomAppBarViewFloatingButtonCenterToNavigationBarTopOffset;
+  self.floatingButtonVerticalOffset = kFloatingButtonCenterToNavigationBarTopOffset;
   [self addSubview:self.cutView];
 
   self.autoresizingMask = (UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleLeftMargin |
@@ -161,17 +161,15 @@ static const int kMDCButtonAnimationDuration = 200;
                                          navigationBarFrame:self.navBar.frame
                                                   shouldCut:YES];
   if (animated) {
-    CABasicAnimation *pathAnimation =
-        [CABasicAnimation animationWithKeyPath:kMDCBottomAppBarViewPathString];
+    CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:kPathKeyPath];
     pathAnimation.duration = kMDCFloatingButtonExitDuration;
     pathAnimation.fromValue = (id)self.bottomBarLayer.presentationLayer.path;
     pathAnimation.toValue = (__bridge id _Nullable)(pathWithCut);
     pathAnimation.fillMode = kCAFillModeForwards;
     pathAnimation.removedOnCompletion = NO;
     pathAnimation.delegate = self;
-    [pathAnimation setValue:kMDCBottomAppBarViewPathString
-                     forKey:kMDCBottomAppBarViewAnimKeyString];
-    [self.bottomBarLayer addAnimation:pathAnimation forKey:kMDCBottomAppBarViewPathString];
+    [pathAnimation setValue:kPathKeyPath forKey:kAnimationKey];
+    [self.bottomBarLayer addAnimation:pathAnimation forKey:kPathKeyPath];
   } else {
     self.bottomBarLayer.path = pathWithCut;
   }
@@ -183,17 +181,15 @@ static const int kMDCButtonAnimationDuration = 200;
                                             navigationBarFrame:self.navBar.frame
                                                      shouldCut:NO];
   if (animated) {
-    CABasicAnimation *pathAnimation =
-        [CABasicAnimation animationWithKeyPath:kMDCBottomAppBarViewPathString];
+    CABasicAnimation *pathAnimation = [CABasicAnimation animationWithKeyPath:kPathKeyPath];
     pathAnimation.duration = kMDCFloatingButtonEnterDuration;
     pathAnimation.fromValue = (id)self.bottomBarLayer.presentationLayer.path;
     pathAnimation.toValue = (__bridge id _Nullable)(pathWithoutCut);
     pathAnimation.fillMode = kCAFillModeForwards;
     pathAnimation.removedOnCompletion = NO;
     pathAnimation.delegate = self;
-    [pathAnimation setValue:kMDCBottomAppBarViewPathString
-                     forKey:kMDCBottomAppBarViewAnimKeyString];
-    [self.bottomBarLayer addAnimation:pathAnimation forKey:kMDCBottomAppBarViewPathString];
+    [pathAnimation setValue:kPathKeyPath forKey:kAnimationKey];
+    [self.bottomBarLayer addAnimation:pathAnimation forKey:kPathKeyPath];
   } else {
     self.bottomBarLayer.path = pathWithoutCut;
   }
@@ -203,17 +199,15 @@ static const int kMDCButtonAnimationDuration = 200;
   CGPoint endPoint =
       [self getFloatingButtonCenterPositionForAppBarWidth:CGRectGetWidth(self.bounds)];
   if (animated) {
-    CABasicAnimation *animation =
-        [CABasicAnimation animationWithKeyPath:kMDCBottomAppBarViewPositionString];
+    CABasicAnimation *animation = [CABasicAnimation animationWithKeyPath:kPositionKeyPath];
     animation.duration = kMDCFloatingButtonExitDuration;
     animation.fromValue = [NSValue valueWithCGPoint:self.floatingButton.center];
     animation.toValue = [NSValue valueWithCGPoint:endPoint];
     animation.fillMode = kCAFillModeForwards;
     animation.removedOnCompletion = NO;
     animation.delegate = self;
-    [animation setValue:kMDCBottomAppBarViewPositionString
-                 forKey:kMDCBottomAppBarViewAnimKeyString];
-    [self.floatingButton.layer addAnimation:animation forKey:kMDCBottomAppBarViewPositionString];
+    [animation setValue:kPositionKeyPath forKey:kAnimationKey];
+    [self.floatingButton.layer addAnimation:animation forKey:kPositionKeyPath];
   }
   self.floatingButton.center = endPoint;
 }
@@ -285,11 +279,11 @@ static const int kMDCButtonAnimationDuration = 200;
 - (void)animationDidStop:(CAAnimation *)animation finished:(BOOL)flag {
   if (flag) {
     [self renderPathBasedOnFloatingButtonVisibitlityAnimated:NO];
-    NSString *animValueForKeyString = [animation valueForKey:kMDCBottomAppBarViewAnimKeyString];
-    if ([animValueForKeyString isEqualToString:kMDCBottomAppBarViewPathString]) {
-      [self.bottomBarLayer removeAnimationForKey:kMDCBottomAppBarViewPathString];
-    } else if ([animValueForKeyString isEqualToString:kMDCBottomAppBarViewPositionString]) {
-      [self.floatingButton.layer removeAnimationForKey:kMDCBottomAppBarViewPositionString];
+    NSString *animValueForKeyString = [animation valueForKey:kAnimationKey];
+    if ([animValueForKeyString isEqualToString:kPathKeyPath]) {
+      [self.bottomBarLayer removeAnimationForKey:kPathKeyPath];
+    } else if ([animValueForKeyString isEqualToString:kPositionKeyPath]) {
+      [self.floatingButton.layer removeAnimationForKey:kPositionKeyPath];
     }
   }
 }
@@ -317,15 +311,15 @@ static const int kMDCButtonAnimationDuration = 200;
   }
   _floatingButtonElevation = floatingButtonElevation;
 
-  CGFloat elevation = kMDCBottomAppBarViewFloatingButtonElevationPrimary;
+  CGFloat elevation = kFloatingButtonElevationPrimary;
   NSInteger subViewIndex = 1;
   if (floatingButtonElevation == MDCBottomAppBarFloatingButtonElevationSecondary) {
-    elevation = kMDCBottomAppBarViewFloatingButtonElevationSecondary;
+    elevation = kFloatingButtonElevationSecondary;
     subViewIndex = 0;
   }
   if (animated) {
     [_floatingButton setElevation:1 forState:UIControlStateNormal];
-    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kMDCButtonAnimationDuration * NSEC_PER_MSEC),
+    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, kAnimationDuration * NSEC_PER_MSEC),
                    dispatch_get_main_queue(), ^{
                      [self insertSubview:self.floatingButton atIndex:subViewIndex];
                      [self.floatingButton setElevation:elevation forState:UIControlStateNormal];

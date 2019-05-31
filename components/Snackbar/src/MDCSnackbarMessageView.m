@@ -31,7 +31,7 @@ NSString *const MDCSnackbarMessageTitleAutomationIdentifier =
 // The Bundle for string resources.
 static NSString *const kMaterialSnackbarBundle = @"MaterialSnackbar.bundle";
 
-static inline UIColor *MDCRGBAColor(uint8_t r, uint8_t g, uint8_t b, float a) {
+static inline UIColor *RGBAColor(uint8_t r, uint8_t g, uint8_t b, float a) {
   return [UIColor colorWithRed:(r) / (CGFloat)255
                          green:(g) / (CGFloat)255
                           blue:(b) / (CGFloat)255
@@ -223,12 +223,12 @@ static const MDCFontTextStyle kButtonTextStyle = MDCFontTextStyleButton;
   if (self) {
     _snackbarMessageViewShadowColor = manager.snackbarMessageViewShadowColor ?: UIColor.blackColor;
     _snackbarMessageViewBackgroundColor =
-        manager.snackbarMessageViewBackgroundColor ?: MDCRGBAColor(0x32, 0x32, 0x32, 1);
+        manager.snackbarMessageViewBackgroundColor ?: RGBAColor(0x32, 0x32, 0x32, 1);
     _messageTextColor = manager.messageTextColor ?: UIColor.whiteColor;
     _buttonTitleColors = [NSMutableDictionary dictionary];
     _buttonTitleColors[@(UIControlStateNormal)] =
         [manager buttonTitleColorForState:UIControlStateNormal]
-            ?: MDCRGBAColor(0xFF, 0xFF, 0xFF, (float)0.6);
+            ?: RGBAColor(0xFF, 0xFF, 0xFF, (float)0.6);
     _buttonTitleColors[@(UIControlStateHighlighted)] =
         [manager buttonTitleColorForState:UIControlStateHighlighted] ?: UIColor.whiteColor;
     _mdc_adjustsFontForContentSizeCategory = manager.mdc_adjustsFontForContentSizeCategory;
@@ -478,7 +478,7 @@ static const MDCFontTextStyle kButtonTextStyle = MDCFontTextStyleButton;
           break;
         case UIControlStateNormal:
         default:
-          defaultButtonTitleColor = MDCRGBAColor(0xFF, 0xFF, 0xFF, (float)0.6);
+          defaultButtonTitleColor = RGBAColor(0xFF, 0xFF, 0xFF, (float)0.6);
           break;
       }
       [button setTitleColor:defaultButtonTitleColor forState:state];

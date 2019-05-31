@@ -65,7 +65,7 @@ static const CGFloat kMaxAnchorLengthQuickSwipe = 25;
 static const CGFloat kMinimumVisibleProportion = 0.25;
 
 // KVO contexts
-static char *const kKVOContextMDCFlexibleHeaderView = "kKVOContextMDCFlexibleHeaderView";
+static void *kContext = &kContext;
 
 static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
     MDCFlexibleHeaderShiftBehavior intendedShiftBehavior) {
@@ -1257,7 +1257,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
                       ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context {
-  if (context == kKVOContextMDCFlexibleHeaderView) {
+  if (context == kContext) {
     void (^mainThreadWork)(void) = ^{
       if (object == self.trackingScrollView) {
         [self fhv_contentOffsetDidChange];
@@ -1282,13 +1282,13 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   [self.trackingScrollView addObserver:self
                             forKeyPath:NSStringFromSelector(@selector(contentOffset))
                                options:NSKeyValueObservingOptionNew
-                               context:kKVOContextMDCFlexibleHeaderView];
+                               context:kContext];
 }
 
 - (void)fhv_stopObservingContentOffset {
   [self.trackingScrollView removeObserver:self
                                forKeyPath:NSStringFromSelector(@selector(contentOffset))
-                                  context:kKVOContextMDCFlexibleHeaderView];
+                                  context:kContext];
 }
 
 - (void)setObservesTrackingScrollViewScrollEvents:(BOOL)observesTrackingScrollViewScrollEvents {

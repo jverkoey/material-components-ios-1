@@ -28,7 +28,7 @@ static const CGFloat MDCTextInputControllerLegacyDefaultUnderlineNormalHeight = 
 static const CGFloat MDCTextInputControllerLegacyDefaultVerticalHalfPadding = 8;
 static const CGFloat MDCTextInputControllerLegacyDefaultVerticalPadding = 16;
 
-static inline UIBezierPath *MDCTextInputControllerLegacyDefaultEmptyPath() {
+static inline UIBezierPath *DefaultEmptyPath() {
   return [UIBezierPath bezierPath];
 }
 
@@ -66,7 +66,7 @@ static CGFloat _underlineHeightNormalLegacyDefault =
 #pragma mark - Border Customization
 
 - (void)updateBorder {
-  self.textInput.borderPath = MDCTextInputControllerLegacyDefaultEmptyPath();
+  self.textInput.borderPath = DefaultEmptyPath();
 }
 
 #pragma mark - Clear Button Customization

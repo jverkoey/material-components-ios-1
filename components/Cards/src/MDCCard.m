@@ -17,10 +17,10 @@
 #import "MaterialMath.h"
 #import "MaterialShapes.h"
 
-static const CGFloat MDCCardShadowElevationNormal = 1;
-static const CGFloat MDCCardShadowElevationHighlighted = 8;
-static const CGFloat MDCCardCornerRadiusDefault = 4;
-static const BOOL MDCCardIsInteractableDefault = YES;
+static const CGFloat kDefaultShadowElevationNormal = 1;
+static const CGFloat kdDefaultShadowElevationHighlighted = 8;
+static const CGFloat kDefaultCornerRadius = 4;
+static const BOOL kDefaultInteractable = YES;
 
 @interface MDCCard ()
 @property(nonatomic, readonly, strong) MDCShapedShadowLayer *layer;
@@ -58,8 +58,8 @@ static const BOOL MDCCardIsInteractableDefault = YES;
 }
 
 - (void)commonMDCCardInit {
-  self.layer.cornerRadius = MDCCardCornerRadiusDefault;
-  _interactable = MDCCardIsInteractableDefault;
+  self.layer.cornerRadius = kDefaultCornerRadius;
+  _interactable = kDefaultInteractable;
 
   if (_inkView == nil) {
     _inkView = [[MDCInkView alloc] initWithFrame:self.bounds];
@@ -72,8 +72,8 @@ static const BOOL MDCCardIsInteractableDefault = YES;
 
   if (_shadowElevations == nil) {
     _shadowElevations = [NSMutableDictionary dictionary];
-    _shadowElevations[@(UIControlStateNormal)] = @(MDCCardShadowElevationNormal);
-    _shadowElevations[@(UIControlStateHighlighted)] = @(MDCCardShadowElevationHighlighted);
+    _shadowElevations[@(UIControlStateNormal)] = @(kDefaultShadowElevationNormal);
+    _shadowElevations[@(UIControlStateHighlighted)] = @(kdDefaultShadowElevationHighlighted);
   }
 
   if (_shadowColors == nil) {

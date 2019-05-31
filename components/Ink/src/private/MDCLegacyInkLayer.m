@@ -17,17 +17,15 @@
 
 #import <UIKit/UIKit.h>
 
-static inline CGPoint MDCLegacyInkLayerInterpolatePoint(CGPoint start,
-                                                        CGPoint end,
-                                                        CGFloat offsetPercent) {
+static inline CGPoint InterpolatePoint(CGPoint start, CGPoint end, CGFloat offsetPercent) {
   CGPoint centerOffsetPoint = CGPointMake(start.x + (end.x - start.x) * offsetPercent,
                                           start.y + (end.y - start.y) * offsetPercent);
   return centerOffsetPoint;
 }
 
-static inline CGFloat MDCLegacyInkLayerRadiusBounds(CGFloat maxRippleRadius,
-                                                    CGFloat inkLayerRectHypotenuse,
-                                                    __unused BOOL bounded) {
+static inline CGFloat RadiusBounds(CGFloat maxRippleRadius,
+                                   CGFloat inkLayerRectHypotenuse,
+                                   __unused BOOL bounded) {
   if (maxRippleRadius > 0) {
 #ifdef MDC_BOUNDED_INK_IGNORES_MAX_RIPPLE_RADIUS
     if (!bounded) {
@@ -50,16 +48,16 @@ static inline CGFloat MDCLegacyInkLayerRadiusBounds(CGFloat maxRippleRadius,
   }
 }
 
-static inline CGFloat MDCLegacyInkLayerRandom() {
+static inline CGFloat Random() {
   const uint32_t max_value = 10000;
   return (CGFloat)arc4random_uniform(max_value + 1) / max_value;
 }
 
-static inline CGPoint MDCLegacyInkLayerRectGetCenter(CGRect rect) {
+static inline CGPoint RectGetCenter(CGRect rect) {
   return CGPointMake(CGRectGetMidX(rect), CGRectGetMidY(rect));
 }
 
-static inline CGFloat MDCLegacyInkLayerRectHypotenuse(CGRect rect) {
+static inline CGFloat RectHypotenuse(CGRect rect) {
   return (CGFloat)hypot(CGRectGetWidth(rect), CGRectGetHeight(rect));
 }
 
@@ -198,7 +196,7 @@ static NSString *const kInkLayerForegroundScaleAnim = @"foregroundScaleAnim";
 @implementation MDCLegacyInkLayerForegroundRipple
 
 - (void)setupRipple {
-  CGFloat random = MDCLegacyInkLayerRandom();
+  CGFloat random = Random();
   self.radius =
       (CGFloat)((CGFloat)0.9 + random * (CGFloat)0.1) * kInkLayerForegroundRadiusGrowthMultiplier;
   [super setupRipple];
@@ -225,7 +223,7 @@ static NSString *const kInkLayerForegroundScaleAnim = @"foregroundScaleAnim";
 
     UIBezierPath *movePath = [UIBezierPath bezierPath];
     CGPoint startPoint = CGPointMake(self.point.x + xOffset, self.point.y + yOffset);
-    CGPoint endPoint = MDCLegacyInkLayerRectGetCenter(self.targetFrame);
+    CGPoint endPoint = RectGetCenter(self.targetFrame);
     if (self.useCustomInkCenter) {
       endPoint = self.customInkCenter;
     }
@@ -291,13 +289,12 @@ static NSString *const kInkLayerForegroundScaleAnim = @"foregroundScaleAnim";
     CGFloat yOffset = self.targetFrame.origin.y - self.inkLayer.frame.origin.y;
 
     CGPoint startPoint = CGPointMake(self.point.x + xOffset, self.point.y + yOffset);
-    CGPoint endPoint = MDCLegacyInkLayerRectGetCenter(self.targetFrame);
+    CGPoint endPoint = RectGetCenter(self.targetFrame);
     if (self.useCustomInkCenter) {
       endPoint = self.customInkCenter;
     }
     endPoint = CGPointMake(endPoint.x + xOffset, endPoint.y + yOffset);
-    CGPoint centerOffsetPoint =
-        MDCLegacyInkLayerInterpolatePoint(startPoint, endPoint, (CGFloat)0.3);
+    CGPoint centerOffsetPoint = InterpolatePoint(startPoint, endPoint, (CGFloat)0.3);
     UIBezierPath *movePath = [UIBezierPath bezierPath];
     [movePath moveToPoint:startPoint];
     [movePath addLineToPoint:centerOffsetPoint];
@@ -505,8 +502,7 @@ static NSString *const kInkLayerBackgroundOpacityAnim = @"backgroundOpacityAnim"
 
 - (void)layoutSublayers {
   [super layoutSublayers];
-  CGFloat radius = MDCLegacyInkLayerRadiusBounds(
-      _maxRippleRadius, MDCLegacyInkLayerRectHypotenuse(self.bounds) / 2, _bounded);
+  CGFloat radius = RadiusBounds(_maxRippleRadius, RectHypotenuse(self.bounds) / 2, _bounded);
 
   CGRect rippleFrame =
       CGRectMake(-(radius * 2 - self.bounds.size.width) / 2,
@@ -576,8 +572,7 @@ static NSString *const kInkLayerBackgroundOpacityAnim = @"backgroundOpacityAnim"
     self.mask = nil;
   }
 
-  CGFloat radius = MDCLegacyInkLayerRadiusBounds(
-      _maxRippleRadius, MDCLegacyInkLayerRectHypotenuse(self.bounds) / 2, _bounded);
+  CGFloat radius = RadiusBounds(_maxRippleRadius, RectHypotenuse(self.bounds) / 2, _bounded);
 
   MDCLegacyInkLayerBackgroundRipple *backgroundRipple =
       [[MDCLegacyInkLayerBackgroundRipple alloc] init];

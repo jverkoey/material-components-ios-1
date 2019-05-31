@@ -32,12 +32,12 @@ static const UIEdgeInsets kAccessoryInsetDefault = {0, 16, 0, 16};
 
 // Default editing icon colors.
 // Color is 0x626262
-static inline UIColor *MDCCollectionViewCellGreyColor(void) {
+static inline UIColor *CellGreyColor(void) {
   return MDCPalette.greyPalette.tint700;
 }
 
 // Color is 0xF44336
-static inline UIColor *MDCCollectionViewCellRedColor(void) {
+static inline UIColor *CellRedColor(void) {
   return MDCPalette.redPalette.tint500;
 }
 
@@ -98,7 +98,7 @@ NSString *const kDeselectedCellAccessibilityHintKey =
   // Accessory defaults.
   _accessoryType = MDCCollectionViewCellAccessoryNone;
   _accessoryInset = kAccessoryInsetDefault;
-  _editingSelectorColor = MDCCollectionViewCellRedColor();
+  _editingSelectorColor = CellRedColor();
 }
 
 #pragma mark - Layout
@@ -379,7 +379,7 @@ NSString *const kDeselectedCellAccessibilityHintKey =
         UIImage *reorderImage = [MDCIcons imageFor_ic_reorder];
         reorderImage = [reorderImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         _editingReorderImageView = [[UIImageView alloc] initWithImage:reorderImage];
-        _editingReorderImageView.tintColor = MDCCollectionViewCellGreyColor();
+        _editingReorderImageView.tintColor = CellGreyColor();
         _editingReorderImageView.autoresizingMask =
             MDFTrailingMarginAutoresizingMaskForLayoutDirection(
                 self.mdf_effectiveUserInterfaceLayoutDirection);
@@ -407,7 +407,7 @@ NSString *const kDeselectedCellAccessibilityHintKey =
         UIImage *selectorImage = [MDCIcons imageFor_ic_radio_button_unchecked];
         selectorImage = [selectorImage imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
         _editingSelectorImageView = [[UIImageView alloc] initWithImage:selectorImage];
-        _editingSelectorImageView.tintColor = MDCCollectionViewCellGreyColor();
+        _editingSelectorImageView.tintColor = CellGreyColor();
         _editingSelectorImageView.autoresizingMask =
             MDFLeadingMarginAutoresizingMaskForLayoutDirection(
                 self.mdf_effectiveUserInterfaceLayoutDirection);
@@ -458,7 +458,7 @@ NSString *const kDeselectedCellAccessibilityHintKey =
   } else {
     if (_editingSelectorImageView && previousSelectedState != selected) {
       _editingSelectorImageView.image = [MDCIcons imageFor_ic_radio_button_unchecked];
-      _editingSelectorImageView.tintColor = MDCCollectionViewCellGreyColor();
+      _editingSelectorImageView.tintColor = CellGreyColor();
       _editingSelectorImageView.image = [_editingSelectorImageView.image
           imageWithRenderingMode:UIImageRenderingModeAlwaysTemplate];
     }
@@ -468,7 +468,7 @@ NSString *const kDeselectedCellAccessibilityHintKey =
 
 - (void)setEditingSelectorColor:(UIColor *)editingSelectorColor {
   if (editingSelectorColor == nil) {
-    editingSelectorColor = MDCCollectionViewCellRedColor();
+    editingSelectorColor = CellRedColor();
   }
   _editingSelectorColor = editingSelectorColor;
 }

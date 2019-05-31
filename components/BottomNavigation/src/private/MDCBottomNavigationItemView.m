@@ -25,8 +25,8 @@
 // A number large enough to be larger than any reasonable screen dimension but small enough that
 // CGFloat doesn't lose precision.
 static const CGFloat kMaxSizeDimension = 1000000;
-static const CGFloat MDCBottomNavigationItemViewInkOpacity = (CGFloat)0.150;
-static const CGFloat MDCBottomNavigationItemViewTitleFontSize = 12;
+static const CGFloat kInkOpacity = (CGFloat)0.150;
+static const CGFloat kTitleFontSize = 12;
 
 /** The default value for @c numberOfLines for the title label. */
 static const NSInteger kDefaultTitleNumberOfLines = 1;
@@ -40,11 +40,11 @@ static const CGFloat kBadgeXOffsetFromIconEdgeWithTextLTR = -8;
 static const CGFloat kBadgeXOffsetFromIconEdgeEmptyLTR = -1;
 
 // The duration of the selection transition animation.
-static const NSTimeInterval kMDCBottomNavigationItemViewTransitionDuration = 0.180;
+static const NSTimeInterval kTransitionDuration = 0.180;
 
 // The Bundle for string resources.
-static NSString *const kMaterialBottomNavigationBundle = @"MaterialBottomNavigation.bundle";
-static NSString *const kMDCBottomNavigationItemViewTabString = @"tab";
+static NSString *const kBundleFilename = @"MaterialBottomNavigation.bundle";
+static NSString *const kTabLocalizationKey = @"tab";
 
 @interface MDCBottomNavigationItemView ()
 
@@ -132,7 +132,7 @@ static NSString *const kMDCBottomNavigationItemViewTabString = @"tab";
   if (!_label) {
     _label = [[UILabel alloc] initWithFrame:CGRectZero];
     _label.text = _title;
-    _label.font = [UIFont systemFontOfSize:MDCBottomNavigationItemViewTitleFontSize];
+    _label.font = [UIFont systemFontOfSize:kTitleFontSize];
     _label.textAlignment = NSTextAlignmentCenter;
     _label.textColor = _selectedItemTitleColor;
     _label.isAccessibilityElement = NO;
@@ -353,7 +353,7 @@ static NSString *const kMDCBottomNavigationItemViewTabString = @"tab";
 
   if (self.titleBelowIcon) {
     if (animated) {
-      [UIView animateWithDuration:kMDCBottomNavigationItemViewTransitionDuration
+      [UIView animateWithDuration:kTransitionDuration
                        animations:^(void) {
                          self.iconImageView.center = iconImageViewCenter;
                          self.badge.center =
@@ -415,8 +415,7 @@ static NSString *const kMDCBottomNavigationItemViewTabString = @"tab";
     NSString *key = kMaterialBottomNavigationStringTable
         [kStr_MaterialBottomNavigationTabElementAccessibilityLabel];
     NSString *tabString = NSLocalizedStringFromTableInBundle(
-        key, kMaterialBottomNavigationStringsTableName, [[self class] bundle],
-        kMDCBottomNavigationItemViewTabString);
+        key, kMaterialBottomNavigationStringsTableName, [[self class] bundle], kTabLocalizationKey);
     [labelComponents addObject:tabString];
   }
 
@@ -480,8 +479,7 @@ static NSString *const kMDCBottomNavigationItemViewTabString = @"tab";
     self.iconImageView.tintColor = self.selectedItemTintColor;
     self.label.textColor = self.selectedItemTitleColor;
   }
-  self.inkView.inkColor =
-      [self.selectedItemTintColor colorWithAlphaComponent:MDCBottomNavigationItemViewInkOpacity];
+  self.inkView.inkColor = [self.selectedItemTintColor colorWithAlphaComponent:kInkOpacity];
 }
 
 - (void)setUnselectedItemTintColor:(UIColor *)unselectedItemTintColor {
@@ -606,7 +604,7 @@ static NSString *const kMDCBottomNavigationItemViewTabString = @"tab";
   static NSBundle *bundle = nil;
   static dispatch_once_t onceToken;
   dispatch_once(&onceToken, ^{
-    bundle = [NSBundle bundleWithPath:[self bundlePathWithName:kMaterialBottomNavigationBundle]];
+    bundle = [NSBundle bundleWithPath:[self bundlePathWithName:kBundleFilename]];
   });
   return bundle;
 }

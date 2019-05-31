@@ -14,8 +14,6 @@
 
 #import "MDCCutCornerTreatment.h"
 
-static NSString *const MDCCutCornerTreatmentCutKey = @"MDCCutCornerTreatmentCutKey";
-
 @implementation MDCCutCornerTreatment
 
 - (instancetype)init {

@@ -27,7 +27,7 @@ static const CGFloat kSliderDefaultThumbRadius = 6;
 static const CGFloat kSliderAccessibilityIncrement = (CGFloat)0.1;
 static const CGFloat kSliderLightThemeTrackAlpha = (CGFloat)0.26;
 
-static inline UIColor *MDCThumbTrackDefaultColor(void) {
+static inline UIColor *DefaultColor(void) {
   return MDCPalette.bluePalette.tint500;
 }
 
@@ -59,8 +59,7 @@ static inline UIColor *MDCThumbTrackDefaultColor(void) {
 }
 
 - (void)commonMDCSliderInit {
-  _thumbTrack = [[MDCThumbTrack alloc] initWithFrame:self.bounds
-                                         onTintColor:MDCThumbTrackDefaultColor()];
+  _thumbTrack = [[MDCThumbTrack alloc] initWithFrame:self.bounds onTintColor:DefaultColor()];
   _thumbTrack.delegate = self;
   _thumbTrack.disabledTrackHasThumbGaps = YES;
   _thumbTrack.trackEndsAreInset = YES;
@@ -91,10 +90,10 @@ static inline UIColor *MDCThumbTrackDefaultColor(void) {
         forControlEvents:UIControlEventTouchCancel];
 
   _thumbColorsForState = [@{} mutableCopy];
-  _thumbColorsForState[@(UIControlStateNormal)] = MDCThumbTrackDefaultColor();
+  _thumbColorsForState[@(UIControlStateNormal)] = DefaultColor();
   _thumbColorsForState[@(UIControlStateDisabled)] = [[self class] defaultDisabledColor];
   _trackFillColorsForState = [@{} mutableCopy];
-  _trackFillColorsForState[@(UIControlStateNormal)] = MDCThumbTrackDefaultColor();
+  _trackFillColorsForState[@(UIControlStateNormal)] = DefaultColor();
   _trackBackgroundColorsForState = [@{} mutableCopy];
   _trackBackgroundColorsForState[@(UIControlStateNormal)] = [[self class] defaultTrackOffColor];
   _trackBackgroundColorsForState[@(UIControlStateDisabled)] = [[self class] defaultDisabledColor];
@@ -330,7 +329,7 @@ static inline UIColor *MDCThumbTrackDefaultColor(void) {
 }
 
 - (void)setValueLabelBackgroundColor:(UIColor *)valueLabelBackgroundColor {
-  _thumbTrack.valueLabelBackgroundColor = valueLabelBackgroundColor ?: MDCThumbTrackDefaultColor();
+  _thumbTrack.valueLabelBackgroundColor = valueLabelBackgroundColor ?: DefaultColor();
 }
 
 - (UIColor *)valueLabelBackgroundColor {
@@ -561,7 +560,7 @@ static inline UIColor *MDCThumbTrackDefaultColor(void) {
   if (self.isStatefulAPIEnabled) {
     return;
   }
-  _thumbTrack.primaryColor = color ? color : MDCThumbTrackDefaultColor();
+  _thumbTrack.primaryColor = color ? color : DefaultColor();
 }
 
 - (UIColor *)color {

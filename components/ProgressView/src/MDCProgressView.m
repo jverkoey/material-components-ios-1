@@ -20,14 +20,13 @@
 #import "MaterialMath.h"
 #import "MaterialPalettes.h"
 
-static inline UIColor *MDCProgressViewDefaultTintColor(void) {
+// The ratio by which to desaturate the progress tint color to obtain the default track tint color.
+static const CGFloat kTrackColorDesaturation = (CGFloat)0.3;
+static const NSTimeInterval kAnimationDuration = 0.25;
+
+static inline UIColor *DefaultTintColor(void) {
   return MDCPalette.bluePalette.tint500;
 }
-
-// The ratio by which to desaturate the progress tint color to obtain the default track tint color.
-static const CGFloat MDCProgressViewTrackColorDesaturation = (CGFloat)0.3;
-
-static const NSTimeInterval MDCProgressViewAnimationDuration = 0.25;
 
 @interface MDCProgressView ()
 @property(nonatomic, strong) UIView *progressView;
@@ -72,7 +71,7 @@ static const NSTimeInterval MDCProgressViewAnimationDuration = 0.25;
   _progressView = [[UIView alloc] initWithFrame:CGRectZero];
   [self addSubview:_progressView];
 
-  _progressView.backgroundColor = MDCProgressViewDefaultTintColor();
+  _progressView.backgroundColor = DefaultTintColor();
   _trackView.backgroundColor =
       [[self class] defaultTrackTintColorForProgressTintColor:_progressView.backgroundColor];
 }
@@ -98,7 +97,7 @@ static const NSTimeInterval MDCProgressViewAnimationDuration = 0.25;
 
 - (void)setProgressTintColor:(UIColor *)progressTintColor {
   if (progressTintColor == nil) {
-    progressTintColor = MDCProgressViewDefaultTintColor();
+    progressTintColor = DefaultTintColor();
   }
   self.progressView.backgroundColor = progressTintColor;
 }
@@ -249,7 +248,7 @@ static const NSTimeInterval MDCProgressViewAnimationDuration = 0.25;
 #pragma mark Private
 
 + (NSTimeInterval)animationDuration {
-  return MDCProgressViewAnimationDuration;
+  return kAnimationDuration;
 }
 
 + (UIViewAnimationOptions)animationOptions {
@@ -261,7 +260,7 @@ static const NSTimeInterval MDCProgressViewAnimationDuration = 0.25;
 + (UIColor *)defaultTrackTintColorForProgressTintColor:(UIColor *)progressTintColor {
   CGFloat hue, saturation, brightness, alpha;
   if ([progressTintColor getHue:&hue saturation:&saturation brightness:&brightness alpha:&alpha]) {
-    CGFloat newSaturation = MIN(saturation * MDCProgressViewTrackColorDesaturation, 1);
+    CGFloat newSaturation = MIN(saturation * kTrackColorDesaturation, 1);
     return [UIColor colorWithHue:hue saturation:newSaturation brightness:brightness alpha:alpha];
   }
   return [UIColor clearColor];

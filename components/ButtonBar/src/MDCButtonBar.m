@@ -24,7 +24,7 @@ static const CGFloat kButtonBarMaxHeight = 56;
 static const CGFloat kButtonBarMinHeight = 24;
 
 // KVO contexts
-static char *const kKVOContextMDCButtonBar = "kKVOContextMDCButtonBar";
+static void *kKVOContext = &kKVOContext;
 
 // This is required because @selector(enabled) throws a compiler warning of unrecognized selector.
 static NSString *const kEnabledSelector = @"enabled";
@@ -249,7 +249,7 @@ static NSString *const kEnabledSelector = @"enabled";
                       ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context {
-  if (context == kKVOContextMDCButtonBar) {
+  if (context == kKVOContext) {
     void (^mainThreadWork)(void) = ^{
       @synchronized(self->_buttonItemsLock) {
         NSUInteger itemIndex = [self.items indexOfObject:object];
@@ -405,7 +405,7 @@ static NSString *const kEnabledSelector = @"enabled";
     // Remove old observers
     for (UIBarButtonItem *item in _items) {
       for (NSString *keyPath in keyPaths) {
-        [item removeObserver:self forKeyPath:keyPath context:kKVOContextMDCButtonBar];
+        [item removeObserver:self forKeyPath:keyPath context:kKVOContext];
       }
     }
 
@@ -417,7 +417,7 @@ static NSString *const kEnabledSelector = @"enabled";
         [item addObserver:self
                forKeyPath:keyPath
                   options:NSKeyValueObservingOptionNew
-                  context:kKVOContextMDCButtonBar];
+                  context:kKVOContext];
       }
     }
 

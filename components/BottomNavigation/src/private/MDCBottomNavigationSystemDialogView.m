@@ -19,7 +19,7 @@
 static const CGFloat kCornerRadius = 10;
 static const CGFloat kMargins = 10;
 
-static UIVisualEffectView *MDCInitializeCompatibleBlurView() {
+static UIVisualEffectView *InitializeCompatibleBlurView() {
   if (@available(iOS 10, *)) {
     UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleProminent];
     UIVisualEffectView *blurView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
@@ -72,7 +72,7 @@ static UIVisualEffectView *MDCInitializeCompatibleBlurView() {
     self.backgroundColor = [UIColor colorWithWhite:(CGFloat)0.8 alpha:(CGFloat)1];
     self.layoutMargins = layoutMargins;
   } else {
-    _blurView = MDCInitializeCompatibleBlurView();
+    _blurView = InitializeCompatibleBlurView();
     _blurView.contentView.layoutMargins = layoutMargins;
     [self addSubview:_blurView];
   }

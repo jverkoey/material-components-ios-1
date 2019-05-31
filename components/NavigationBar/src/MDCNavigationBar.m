@@ -27,9 +27,9 @@ static const CGFloat kNavigationBarDefaultHeight = 56;
 static const CGFloat kNavigationBarMinHeight = 24;
 
 // KVO contexts
-static char *const kKVOContextMDCNavigationBar = "kKVOContextMDCNavigationBar";
+static void *kContext = &kContext;
 
-static NSArray<NSString *> *MDCNavigationBarNavigationItemKVOPaths(void) {
+static NSArray<NSString *> *NavigationItemKVOPaths(void) {
   static dispatch_once_t onceToken;
   static NSArray<NSString *> *forwardingKeyPaths = nil;
   dispatch_once(&onceToken, ^{
@@ -414,7 +414,7 @@ static NSArray<NSString *> *MDCNavigationBarNavigationItemKVOPaths(void) {
                       ofObject:(id)object
                         change:(NSDictionary *)change
                        context:(void *)context {
-  if (context == kKVOContextMDCNavigationBar) {
+  if (context == kContext) {
     void (^mainThreadWork)(void) = ^{
       @synchronized(self->_observedNavigationItemLock) {
         if (object != self->_observedNavigationItem) {
@@ -719,11 +719,9 @@ static NSArray<NSString *> *MDCNavigationBarNavigationItemKVOPaths(void) {
       return;
     }
 
-    NSArray<NSString *> *keyPaths = MDCNavigationBarNavigationItemKVOPaths();
+    NSArray<NSString *> *keyPaths = NavigationItemKVOPaths();
     for (NSString *keyPath in keyPaths) {
-      [_observedNavigationItem removeObserver:self
-                                   forKeyPath:keyPath
-                                      context:kKVOContextMDCNavigationBar];
+      [_observedNavigationItem removeObserver:self forKeyPath:keyPath context:kContext];
     }
 
     _observedNavigationItem = navigationItem;
@@ -734,7 +732,7 @@ static NSArray<NSString *> *MDCNavigationBarNavigationItemKVOPaths(void) {
       [_observedNavigationItem addObserver:self
                                 forKeyPath:keyPath
                                    options:options
-                                   context:kKVOContextMDCNavigationBar];
+                                   context:kContext];
     }
   }
 }

@@ -18,29 +18,28 @@
 float UIAnimationDragCoefficient(void);  // Private API for simulator animation speed
 #endif
 
-static NSString *const kMDCFloatingButtonTransformKey = @"kMDCFloatingButtonTransformKey";
-static NSString *const kMDCFloatingButtonOpacityKey = @"kMDCFloatingButtonOpacityKey";
+static NSString *const kTransformAnimationKey = @"MDCFloatingButton.transform";
+static NSString *const kOpacityAnimationKey = @"MDCFloatingButton.opacity";
 
 // By using a power of 2 (2^-12), we can reduce rounding errors during transform multiplication
-static const CGFloat kMDCFloatingButtonTransformScale = (CGFloat)0.000244140625;
+static const CGFloat kTransformScale = (CGFloat)0.000244140625;
 
-static const NSTimeInterval kMDCFloatingButtonEnterDuration = 0.270;
-static const NSTimeInterval kMDCFloatingButtonExitDuration = 0.180;
+static const NSTimeInterval kEnterDuration = 0.270;
+static const NSTimeInterval kExitDuration = 0.180;
 
-static const NSTimeInterval kMDCFloatingButtonEnterIconDuration = 0.180;
-static const NSTimeInterval kMDCFloatingButtonEnterIconOffset = 0.090;
-static const NSTimeInterval kMDCFloatingButtonExitIconDuration = 0.135;
-static const NSTimeInterval kMDCFloatingButtonExitIconOffset = 0;
+static const NSTimeInterval kEnterIconDuration = 0.180;
+static const NSTimeInterval kEnterIconOffset = 0.090;
+static const NSTimeInterval kExitIconDuration = 0.135;
+static const NSTimeInterval kExitIconOffset = 0;
 
-static const NSTimeInterval kMDCFloatingButtonOpacityDuration = 0.015;
-static const NSTimeInterval kMDCFloatingButtonOpacityEnterOffset = 0.030;
-static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
+static const NSTimeInterval kOpacityDuration = 0.015;
+static const NSTimeInterval kOpacityEnterOffset = 0.030;
+static const NSTimeInterval kOpacityExitOffset = 0.150;
 
 @implementation MDCFloatingButton (Animation)
 
 + (CATransform3D)collapseTransform {
-  return CATransform3DMakeScale(kMDCFloatingButtonTransformScale, kMDCFloatingButtonTransformScale,
-                                1);
+  return CATransform3DMakeScale(kTransformScale, kTransformScale, 1);
 }
 
 + (CATransform3D)expandTransform {
@@ -94,9 +93,9 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
     self.layer.opacity = 1;
     self.imageView.layer.transform =
         CATransform3DConcat(self.imageView.layer.transform, [MDCFloatingButton expandTransform]);
-    [self.layer removeAnimationForKey:kMDCFloatingButtonTransformKey];
-    [self.layer removeAnimationForKey:kMDCFloatingButtonOpacityKey];
-    [self.imageView.layer removeAnimationForKey:kMDCFloatingButtonTransformKey];
+    [self.layer removeAnimationForKey:kTransformAnimationKey];
+    [self.layer removeAnimationForKey:kOpacityAnimationKey];
+    [self.imageView.layer removeAnimationForKey:kTransformAnimationKey];
     if (completion) {
       completion();
     }
@@ -116,9 +115,9 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
                    fromValue:nil
               timingFunction:[[CAMediaTimingFunction alloc] initWithControlPoints:0:0:(float)0.2:1]
                     fillMode:kCAFillModeForwards
-                    duration:kMDCFloatingButtonEnterDuration
+                    duration:kEnterDuration
                  beginOffset:0];
-    [self.layer addAnimation:overallScaleAnimation forKey:kMDCFloatingButtonTransformKey];
+    [self.layer addAnimation:overallScaleAnimation forKey:kTransformAnimationKey];
 
     CALayer *iconPresentationLayer = self.imageView.layer.presentationLayer;
     if (iconPresentationLayer) {
@@ -140,10 +139,10 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
                      fromValue:fromValue
                 timingFunction:iconScaleTimingFunction
                       fillMode:kCAFillModeBoth
-                      duration:kMDCFloatingButtonEnterIconDuration
-                   beginOffset:kMDCFloatingButtonEnterIconOffset];
+                      duration:kEnterIconDuration
+                   beginOffset:kEnterIconOffset];
 
-      [self.imageView.layer addAnimation:iconScaleAnimation forKey:kMDCFloatingButtonTransformKey];
+      [self.imageView.layer addAnimation:iconScaleAnimation forKey:kTransformAnimationKey];
     }
 
     CABasicAnimation *opacityAnimation = [MDCFloatingButton
@@ -152,9 +151,9 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
                    fromValue:nil
               timingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]
                     fillMode:kCAFillModeForwards
-                    duration:kMDCFloatingButtonOpacityDuration
-                 beginOffset:kMDCFloatingButtonOpacityEnterOffset];
-    [self.layer addAnimation:opacityAnimation forKey:kMDCFloatingButtonOpacityKey];
+                    duration:kOpacityDuration
+                 beginOffset:kOpacityEnterOffset];
+    [self.layer addAnimation:opacityAnimation forKey:kOpacityAnimationKey];
 
     [CATransaction commit];
   } else {
@@ -169,9 +168,9 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
     self.layer.opacity = 0;
     self.imageView.layer.transform =
         CATransform3DConcat(self.imageView.layer.transform, [MDCFloatingButton collapseTransform]);
-    [self.layer removeAnimationForKey:kMDCFloatingButtonTransformKey];
-    [self.layer removeAnimationForKey:kMDCFloatingButtonOpacityKey];
-    [self.imageView.layer removeAnimationForKey:kMDCFloatingButtonTransformKey];
+    [self.layer removeAnimationForKey:kTransformAnimationKey];
+    [self.layer removeAnimationForKey:kOpacityAnimationKey];
+    [self.imageView.layer removeAnimationForKey:kTransformAnimationKey];
     if (completion) {
       completion();
     }
@@ -193,10 +192,10 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
               timingFunction:[[CAMediaTimingFunction alloc] initWithControlPoints:(float)0.4:0:1:1]
                     // clang-format on
                     fillMode:kCAFillModeForwards
-                    duration:kMDCFloatingButtonExitDuration
+                    duration:kExitDuration
                  beginOffset:0];
 
-    [self.layer addAnimation:overallScaleAnimation forKey:kMDCFloatingButtonTransformKey];
+    [self.layer addAnimation:overallScaleAnimation forKey:kTransformAnimationKey];
 
     // clang-format off
     CABasicAnimation *iconScaleAnimation = [MDCFloatingButton
@@ -210,9 +209,9 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
               timingFunction:[[CAMediaTimingFunction alloc] initWithControlPoints:(float)0.4:0:1:1]
                     // clang-format on
                     fillMode:kCAFillModeForwards
-                    duration:kMDCFloatingButtonExitIconDuration
-                 beginOffset:kMDCFloatingButtonExitIconOffset];
-    [self.imageView.layer addAnimation:iconScaleAnimation forKey:kMDCFloatingButtonTransformKey];
+                    duration:kExitIconDuration
+                 beginOffset:kExitIconOffset];
+    [self.imageView.layer addAnimation:iconScaleAnimation forKey:kTransformAnimationKey];
 
     CABasicAnimation *opacityAnimation = [MDCFloatingButton
         animationWithKeypath:@"opacity"
@@ -220,9 +219,9 @@ static const NSTimeInterval kMDCFloatingButtonOpacityExitOffset = 0.150;
                    fromValue:nil
               timingFunction:[CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionLinear]
                     fillMode:kCAFillModeForwards
-                    duration:kMDCFloatingButtonOpacityDuration
-                 beginOffset:kMDCFloatingButtonOpacityExitOffset];
-    [self.layer addAnimation:opacityAnimation forKey:kMDCFloatingButtonOpacityKey];
+                    duration:kOpacityDuration
+                 beginOffset:kOpacityExitOffset];
+    [self.layer addAnimation:opacityAnimation forKey:kOpacityAnimationKey];
 
     [CATransaction commit];
   } else {

@@ -14,7 +14,7 @@
 
 #import "MDCTextInputBorderView.h"
 
-static inline NSString *_Nullable MDCNSStringFromCGLineCap(CGLineCap lineCap) {
+static inline NSString *_Nullable StringFromLineCap(CGLineCap lineCap) {
   NSString *lineCapString;
   switch (lineCap) {
     case kCGLineCapButt:
@@ -30,7 +30,7 @@ static inline NSString *_Nullable MDCNSStringFromCGLineCap(CGLineCap lineCap) {
   return lineCapString;
 }
 
-static inline NSString *_Nullable MDCNSStringFromCGLineJoin(CGLineJoin lineJoin) {
+static inline NSString *_Nullable StringFromLineJoin(CGLineJoin lineJoin) {
   NSString *lineJoinString;
   switch (lineJoin) {
     case kCGLineJoinBevel:
@@ -97,8 +97,8 @@ static inline NSString *_Nullable MDCNSStringFromCGLineJoin(CGLineJoin lineJoin)
 - (void)updateBorder {
   self.borderLayer.fillColor = self.borderFillColor.CGColor;
   self.borderLayer.lineWidth = self.borderPath.lineWidth;
-  self.borderLayer.lineCap = MDCNSStringFromCGLineCap(self.borderPath.lineCapStyle);
-  self.borderLayer.lineJoin = MDCNSStringFromCGLineJoin(self.borderPath.lineJoinStyle);
+  self.borderLayer.lineCap = StringFromLineCap(self.borderPath.lineCapStyle);
+  self.borderLayer.lineJoin = StringFromLineJoin(self.borderPath.lineJoinStyle);
   self.borderLayer.miterLimit = self.borderPath.miterLimit;
   self.borderLayer.path = self.borderPath.CGPath;
   self.borderLayer.strokeColor = self.borderStrokeColor.CGColor;
