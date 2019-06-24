@@ -191,6 +191,220 @@
 
 @implementation MaterialScalableFontTests
 
+- (void)testUIKitDynamicTypeCurveValuesCanary {
+  if (@available(iOS 10.0, *)) {
+    // Given
+    NSMutableArray<UIFontTextStyle> *textStyles = [@[
+      UIFontTextStyleTitle1,
+      UIFontTextStyleTitle2,
+      UIFontTextStyleTitle3,
+      UIFontTextStyleHeadline,
+      UIFontTextStyleSubheadline,
+      UIFontTextStyleBody,
+      UIFontTextStyleCallout,
+      UIFontTextStyleFootnote,
+      UIFontTextStyleCaption1,
+      UIFontTextStyleCaption2,
+    ] mutableCopy];
+
+    NSArray<UIContentSizeCategory> *sizeCategories = @[
+      UIContentSizeCategoryExtraSmall,
+      UIContentSizeCategorySmall,
+      UIContentSizeCategoryMedium,
+      UIContentSizeCategoryLarge,
+      UIContentSizeCategoryExtraLarge,
+      UIContentSizeCategoryExtraExtraLarge,
+      UIContentSizeCategoryExtraExtraExtraLarge,
+      UIContentSizeCategoryAccessibilityMedium,
+      UIContentSizeCategoryAccessibilityLarge,
+      UIContentSizeCategoryAccessibilityExtraLarge,
+      UIContentSizeCategoryAccessibilityExtraExtraLarge,
+      UIContentSizeCategoryAccessibilityExtraExtraExtraLarge,
+    ];
+
+    NSMutableDictionary<UIFontTextStyle, NSDictionary<UIContentSizeCategory, NSNumber *> *>
+        *scaledFontSizes = [@{
+          UIFontTextStyleTitle1 : @{
+            UIContentSizeCategoryExtraSmall : @25,
+            UIContentSizeCategorySmall : @26,
+            UIContentSizeCategoryMedium : @27,
+            UIContentSizeCategoryLarge : @28,
+            UIContentSizeCategoryExtraLarge : @30,
+            UIContentSizeCategoryExtraExtraLarge : @32,
+            UIContentSizeCategoryExtraExtraExtraLarge : @34,
+            UIContentSizeCategoryAccessibilityMedium : @38,
+            UIContentSizeCategoryAccessibilityLarge : @43,
+            UIContentSizeCategoryAccessibilityExtraLarge : @48,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @53,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @58,
+          },
+          UIFontTextStyleTitle2 : @{
+            UIContentSizeCategoryExtraSmall : @19,
+            UIContentSizeCategorySmall : @20,
+            UIContentSizeCategoryMedium : @21,
+            UIContentSizeCategoryLarge : @22,
+            UIContentSizeCategoryExtraLarge : @24,
+            UIContentSizeCategoryExtraExtraLarge : @26,
+            UIContentSizeCategoryExtraExtraExtraLarge : @28,
+            UIContentSizeCategoryAccessibilityMedium : @34,
+            UIContentSizeCategoryAccessibilityLarge : @39,
+            UIContentSizeCategoryAccessibilityExtraLarge : @44,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @50,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @56,
+          },
+          UIFontTextStyleTitle3 : @{
+            UIContentSizeCategoryExtraSmall : @17,
+            UIContentSizeCategorySmall : @18,
+            UIContentSizeCategoryMedium : @19,
+            UIContentSizeCategoryLarge : @20,
+            UIContentSizeCategoryExtraLarge : @22,
+            UIContentSizeCategoryExtraExtraLarge : @24,
+            UIContentSizeCategoryExtraExtraExtraLarge : @26,
+            UIContentSizeCategoryAccessibilityMedium : @31,
+            UIContentSizeCategoryAccessibilityLarge : @37,
+            UIContentSizeCategoryAccessibilityExtraLarge : @43,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @49,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @55,
+          },
+          UIFontTextStyleHeadline : @{
+            UIContentSizeCategoryExtraSmall : @14,
+            UIContentSizeCategorySmall : @15,
+            UIContentSizeCategoryMedium : @16,
+            UIContentSizeCategoryLarge : @17,
+            UIContentSizeCategoryExtraLarge : @19,
+            UIContentSizeCategoryExtraExtraLarge : @21,
+            UIContentSizeCategoryExtraExtraExtraLarge : @23,
+            UIContentSizeCategoryAccessibilityMedium : @28,
+            UIContentSizeCategoryAccessibilityLarge : @33,
+            UIContentSizeCategoryAccessibilityExtraLarge : @40,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @47,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @53,
+          },
+          UIFontTextStyleSubheadline : @{
+            UIContentSizeCategoryExtraSmall : @12,
+            UIContentSizeCategorySmall : @13,
+            UIContentSizeCategoryMedium : @14,
+            UIContentSizeCategoryLarge : @15,
+            UIContentSizeCategoryExtraLarge : @17,
+            UIContentSizeCategoryExtraExtraLarge : @19,
+            UIContentSizeCategoryExtraExtraExtraLarge : @21,
+            UIContentSizeCategoryAccessibilityMedium : @25,
+            UIContentSizeCategoryAccessibilityLarge : @30,
+            UIContentSizeCategoryAccessibilityExtraLarge : @36,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @42,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @49,
+          },
+          UIFontTextStyleBody : @{
+            UIContentSizeCategoryExtraSmall : @14,
+            UIContentSizeCategorySmall : @15,
+            UIContentSizeCategoryMedium : @16,
+            UIContentSizeCategoryLarge : @17,
+            UIContentSizeCategoryExtraLarge : @19,
+            UIContentSizeCategoryExtraExtraLarge : @21,
+            UIContentSizeCategoryExtraExtraExtraLarge : @23,
+            UIContentSizeCategoryAccessibilityMedium : @28,
+            UIContentSizeCategoryAccessibilityLarge : @33,
+            UIContentSizeCategoryAccessibilityExtraLarge : @40,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @47,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @53,
+          },
+          UIFontTextStyleCallout : @{
+            UIContentSizeCategoryExtraSmall : @13,
+            UIContentSizeCategorySmall : @14,
+            UIContentSizeCategoryMedium : @15,
+            UIContentSizeCategoryLarge : @16,
+            UIContentSizeCategoryExtraLarge : @18,
+            UIContentSizeCategoryExtraExtraLarge : @20,
+            UIContentSizeCategoryExtraExtraExtraLarge : @22,
+            UIContentSizeCategoryAccessibilityMedium : @26,
+            UIContentSizeCategoryAccessibilityLarge : @32,
+            UIContentSizeCategoryAccessibilityExtraLarge : @38,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @44,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @51,
+          },
+          UIFontTextStyleFootnote : @{
+            UIContentSizeCategoryExtraSmall : @12,
+            UIContentSizeCategorySmall : @12,
+            UIContentSizeCategoryMedium : @12,
+            UIContentSizeCategoryLarge : @13,
+            UIContentSizeCategoryExtraLarge : @15,
+            UIContentSizeCategoryExtraExtraLarge : @17,
+            UIContentSizeCategoryExtraExtraExtraLarge : @19,
+            UIContentSizeCategoryAccessibilityMedium : @23,
+            UIContentSizeCategoryAccessibilityLarge : @27,
+            UIContentSizeCategoryAccessibilityExtraLarge : @33,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @38,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @44,
+          },
+          UIFontTextStyleCaption1 : @{
+            UIContentSizeCategoryExtraSmall : @11,
+            UIContentSizeCategorySmall : @11,
+            UIContentSizeCategoryMedium : @11,
+            UIContentSizeCategoryLarge : @12,
+            UIContentSizeCategoryExtraLarge : @14,
+            UIContentSizeCategoryExtraExtraLarge : @16,
+            UIContentSizeCategoryExtraExtraExtraLarge : @18,
+            UIContentSizeCategoryAccessibilityMedium : @22,
+            UIContentSizeCategoryAccessibilityLarge : @26,
+            UIContentSizeCategoryAccessibilityExtraLarge : @32,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @37,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @43,
+          },
+          UIFontTextStyleCaption2 : @{
+            UIContentSizeCategoryExtraSmall : @11,
+            UIContentSizeCategorySmall : @11,
+            UIContentSizeCategoryMedium : @11,
+            UIContentSizeCategoryLarge : @11,
+            UIContentSizeCategoryExtraLarge : @13,
+            UIContentSizeCategoryExtraExtraLarge : @15,
+            UIContentSizeCategoryExtraExtraExtraLarge : @17,
+            UIContentSizeCategoryAccessibilityMedium : @20,
+            UIContentSizeCategoryAccessibilityLarge : @24,
+            UIContentSizeCategoryAccessibilityExtraLarge : @29,
+            UIContentSizeCategoryAccessibilityExtraExtraLarge : @34,
+            UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @40,
+          },
+        } mutableCopy];
+
+    if (@available(iOS 11.0, *)) {
+      [textStyles addObject:UIFontTextStyleLargeTitle];
+      scaledFontSizes[UIFontTextStyleLargeTitle] = @{
+        UIContentSizeCategoryExtraSmall : @31,
+        UIContentSizeCategorySmall : @32,
+        UIContentSizeCategoryMedium : @33,
+        UIContentSizeCategoryLarge : @34,
+        UIContentSizeCategoryExtraLarge : @36,
+        UIContentSizeCategoryExtraExtraLarge : @38,
+        UIContentSizeCategoryExtraExtraExtraLarge : @40,
+        UIContentSizeCategoryAccessibilityMedium : @44,
+        UIContentSizeCategoryAccessibilityLarge : @48,
+        UIContentSizeCategoryAccessibilityExtraLarge : @52,
+        UIContentSizeCategoryAccessibilityExtraExtraLarge : @56,
+        UIContentSizeCategoryAccessibilityExtraExtraExtraLarge : @60,
+      };
+    }
+
+    for (UIFontTextStyle textStyle in textStyles) {
+      // When
+      for (UIContentSizeCategory contentSizeCategory in sizeCategories) {
+        UITraitCollection *traitCollection =
+            [UITraitCollection traitCollectionWithPreferredContentSizeCategory:contentSizeCategory];
+
+        UIFont *font = [UIFont preferredFontForTextStyle:textStyle
+                           compatibleWithTraitCollection:traitCollection];
+
+        CGFloat expectedFontSize =
+            (CGFloat)[scaledFontSizes[textStyle][contentSizeCategory] doubleValue];
+        XCTAssertEqualWithAccuracy(font.pointSize, expectedFontSize, 0.001,
+                                   @"Text style: %@ with size category %@ did not match expected"
+                                   @" value of %@, was %@ instead",
+                                   textStyle, contentSizeCategory, @(expectedFontSize),
+                                   @(font.pointSize));
+      }
+    }
+  }
+}
+
 - (void)testScalingCurvesIncrease {
   // Given
   NSArray<MDCTextStyle> *textStyles = @[
