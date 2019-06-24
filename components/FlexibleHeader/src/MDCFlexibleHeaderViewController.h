@@ -40,6 +40,15 @@
 /** The flexible header view instance that this controller manages. */
 @property(nonatomic, strong, nonnull, readonly) MDCFlexibleHeaderView *headerView;
 
+/**
+ Sets whether the header view is hidden.
+
+ @param hidden Specify YES to hide the header view or NO to show it.
+ @param animated Specify YES if you want to animate the change in visibility or NO if you want the
+ header view to appear immediately.
+ */
+- (void)setHeaderViewHidden:(BOOL)hidden animated:(BOOL)animated;
+
 /** The layout delegate will be notified of any changes to the flexible header view's frame. */
 @property(nonatomic, weak, nullable) id<MDCFlexibleHeaderViewLayoutDelegate> layoutDelegate;
 

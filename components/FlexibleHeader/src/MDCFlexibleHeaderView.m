@@ -391,6 +391,10 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
 - (void)didMoveToWindow {
   [super didMoveToWindow];
 
+  if (_wantsToBeHidden && !_shiftAccumulatorDisplayLink) {
+    _shiftAccumulator = self.fhv_accumulatorMax;
+    [self fhv_commitAccumulatorToFrame];
+  }
   [_statusBarShifter didMoveToWindow];
 }
 
@@ -887,10 +891,12 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
 - (void)fhv_accumulatorDidChange {
   if (!_trackingScrollView) {
     // Set the shadow opacity directly.
-    self.layer.shadowOpacity =
-        self.resetShadowAfterTrackingScrollViewIsReset && !self.isInFrontOfInfiniteContent
-            ? 0
-            : _visibleShadowOpacity;
+    if (_defaultShadowLayer.hidden && _customShadowLayer.hidden) {
+      self.layer.shadowOpacity =
+          self.resetShadowAfterTrackingScrollViewIsReset && !self.isInFrontOfInfiniteContent
+              ? 0
+              : _visibleShadowOpacity;
+    }
     return;
   }
 
@@ -1013,7 +1019,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
     [self fhv_stopDisplayLink];
   }
 
-  if (_shiftAccumulatorLastContentOffsetIsValid) {
+  if (_shiftAccumulatorLastContentOffsetIsValid && !_wantsToBeHidden) {
     // We track the last direction for our target offset behavior.
     CGFloat deltaY = [self fhv_boundedContentOffset].y - _shiftAccumulatorLastContentOffset.y;
 
@@ -1406,6 +1412,14 @@ static BOOL isRunningiOS10_3OrAbove() {
 }
 
 #pragma mark - Public
+
+- (void)setHidden:(BOOL)hidden animated:(BOOL)animated {
+  if (hidden) {
+    [self shiftHeaderOffScreenAnimated:animated];
+  } else {
+    [self shiftHeaderOnScreenAnimated:animated];
+  }
+}
 
 - (void)setTrackingScrollView:(UIScrollView *)trackingScrollView {
   if (_trackingScrollView == trackingScrollView) {

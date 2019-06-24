@@ -14,6 +14,15 @@
 
 @interface MDCFlexibleHeaderView ()
 
+/**
+ Sets whether the header view is hidden.
+
+ @param hidden Specify YES to hide the header view or NO to show it.
+ @param animated Specify YES if you want to animate the change in visibility or NO if you want the
+ header view to appear immediately.
+ */
+- (void)setHidden:(BOOL)hidden animated:(BOOL)animated;
+
 /*
  The view controller from which the top safe area insets should be extracted.
 

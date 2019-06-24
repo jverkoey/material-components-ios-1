@@ -39,6 +39,10 @@
 
 @end
 
+@interface MDCAppBarNavigationController ()
+@property(nonatomic) BOOL isNavigationBarHidden;
+@end
+
 @implementation MDCAppBarNavigationController
 
 // We're overriding UINavigationController's delegate solely to change its type (we don't provide
@@ -48,8 +52,8 @@
 - (instancetype)initWithNibName:(NSString *)nibNameOrNil bundle:(NSBundle *)nibBundleOrNil {
   self = [super initWithNibName:nibNameOrNil bundle:nibBundleOrNil];
   if (self) {
-    // We always want the navigation bar to be hidden.
-    [self setNavigationBarHidden:YES animated:NO];
+    // This class manages it's own "fake" navigation bar, so the default one is always hidden.
+    [super setNavigationBarHidden:YES animated:NO];
   }
   return self;
 }
@@ -67,6 +71,9 @@
 // Intercept status bar style inquiries and reroute them to our flexible header view controller.
 - (UIViewController *)childViewControllerForStatusBarStyle {
   UIViewController *child = [super childViewControllerForStatusBarStyle];
+  if (!child) {
+    child = self.visibleViewController;
+  }
   MDCAppBar *appBar = [self appBarForViewController:child];
   if (appBar) {
     return appBar.appBarViewController;
@@ -95,23 +102,45 @@
   [super setViewControllers:viewControllers animated:animated];
 }
 
-- (void)setNavigationBarHidden:(BOOL)navigationBarHidden {
-  // TODO: Consider using this API to hide the top view controller's flexible header.
-  NSAssert(navigationBarHidden, @"%@ requires that the system navigation bar remain hidden.",
-           NSStringFromClass([self class]));
+- (UIViewController *)childViewControllerForStatusBarHidden {
+  // Return nil to tell UIKit not to check our child controller.
+  return nil;
+}
 
-  [super setNavigationBarHidden:YES];
+- (BOOL)isNavigationBarHidden {
+  return _isNavigationBarHidden;
+}
+
+- (void)setNavigationBarHidden:(BOOL)navigationBarHidden {
+  [self setNavigationBarHidden:navigationBarHidden animated:NO];
 }
 
 - (void)setNavigationBarHidden:(BOOL)navigationBarHidden animated:(BOOL)animated {
-  // TODO: Consider using this API to hide the top view controller's flexible header.
-  NSAssert(navigationBarHidden, @"%@ requires that the system navigation bar remain hidden.",
-           NSStringFromClass([self class]));
+  self.isNavigationBarHidden = navigationBarHidden;
 
-  [super setNavigationBarHidden:YES animated:animated];
+  [self setAllAppBarsHidden:navigationBarHidden animated:animated];
 }
 
 #pragma mark - Private
+
+- (void)setAllAppBarsHidden:(BOOL)hidden animated:(BOOL)animated {
+  for (UIViewController *viewController in self.viewControllers) {
+    // Only animate the visible view controller's app bar.
+    BOOL shouldAnimate = animated && viewController == self.visibleViewController;
+    [self setAppBarForViewController:viewController hidden:hidden animated:shouldAnimate];
+  }
+}
+
+- (void)setAppBarForViewController:(UIViewController *)viewController
+                            hidden:(BOOL)hidden
+                          animated:(BOOL)animated {
+  MDCAppBarViewController *appBarViewController =
+      [self appBarViewControllerForViewController:viewController];
+  if (!appBarViewController) {
+    return;
+  }
+  [appBarViewController setHeaderViewHidden:hidden animated:animated];
+}
 
 - (void)injectAppBarIntoViewController:(UIViewController *)viewController {
   // Force the view to load immediately in case the view controller is using viewDidLoad to manage
@@ -167,6 +196,11 @@
   // to the flexible header. Enabling this means we cannot enable the shiftBehavior on the
   // flexible header. In those cases the client is expected to create their own App Bar.
   appBar.appBarViewController.headerView.observesTrackingScrollViewScrollEvents = YES;
+
+  [appBar.appBarViewController.headerView
+      hideViewWhenShifted:appBar.appBarViewController.navigationBar];
+
+  [appBar.appBarViewController setHeaderViewHidden:_isNavigationBarHidden animated:NO];
 
   appBar.appBarViewController.headerView.trackingScrollView = trackingScrollView;
 

@@ -544,6 +544,10 @@ static char *const kKVOContextMDCFlexibleHeaderViewController =
   return _headerView.useAdditionalSafeAreaInsetsForWebKitScrollViews;
 }
 
+- (void)setHeaderViewHidden:(BOOL)hidden animated:(BOOL)animated {
+  [self.headerView setHidden:hidden animated:animated];
+}
+
 #pragma mark - Top safe area inset extraction
 
 - (BOOL)fhv_isViewControllerDescendantOfTopLayoutGuideViewController:(UIViewController *)child {

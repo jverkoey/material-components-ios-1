@@ -209,7 +209,6 @@ class MDCCatalogComponentsController: UICollectionViewController, UICollectionVi
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     collectionView?.collectionViewLayout.invalidateLayout()
-    navigationController?.setNavigationBarHidden(true, animated: animated)
   }
 
   override func willAnimateRotation(

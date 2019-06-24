@@ -69,6 +69,8 @@
 }
 
 - (void)showActionSheet {
+  [self.navigationController setNavigationBarHidden:!self.navigationController.isNavigationBarHidden
+                                           animated:YES];/*
   MDCActionSheetController *actionSheet = [[MDCActionSheetController alloc] init];
   MDCActionSheetAction *homeAction =
       [MDCActionSheetAction actionWithTitle:@"Home" image:[UIImage imageNamed:@"Home"] handler:nil];
@@ -89,7 +91,7 @@
   [actionSheet addAction:emailAction];
   actionSheet.enableRippleBehavior = YES;
   [actionSheet applyThemeWithScheme:self.containerScheme];
-  [self presentViewController:actionSheet animated:YES completion:nil];
+  [self presentViewController:actionSheet animated:YES completion:nil];*/
 }
 
 @end
@@ -100,7 +102,7 @@
   return @{
     @"breadcrumbs" : @[ @"Action Sheet", @"Action Sheet" ],
     @"primaryDemo" : @YES,
-    @"presentable" : @NO
+    @"presentable" : @YES
   };
 }
 
