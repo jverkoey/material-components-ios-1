@@ -14,10 +14,11 @@
 
 import UIKit
 
+import CatalogByConvention
+import Nimbus
 import MaterialComponents.MaterialTypography
 
-class MDCCatalogCollectionViewCell: UICollectionViewCell {
-
+class MDCCatalogCollectionViewCell: UICollectionViewCell, NICollectionViewCell {
   fileprivate struct Constants {
     static let imageWidthHeight: CGFloat = 80
     static let padding: CGFloat = 16
@@ -26,30 +27,24 @@ class MDCCatalogCollectionViewCell: UICollectionViewCell {
   private let label = UILabel()
   private lazy var tile = MDCCatalogTileView(frame: CGRect.zero)
 
-  deinit {
-    NotificationCenter.default.removeObserver(self,
-                                              name: AppTheme.didChangeGlobalThemeNotificationName,
-                                              object: nil)
-  }
-
   override init(frame: CGRect) {
     super.init(frame: frame)
+
     contentView.addSubview(label)
-    contentView.clipsToBounds = true
     contentView.addSubview(tile)
+
     self.isAccessibilityElement = true
     let rawAccessibilityTraits =
       accessibilityTraits.rawValue | UIAccessibilityTraits.button.rawValue
     accessibilityTraits = UIAccessibilityTraits(rawValue: rawAccessibilityTraits)
     accessibilityHint = "Opens the example"
 
-    updateTheme()
+    label.font = UIFont.preferredFont(forTextStyle: .body)
+    if #available(iOS 13.0, *) {
+      label.textColor = .label
+    }
 
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(self.themeDidChange),
-      name: AppTheme.didChangeGlobalThemeNotificationName,
-      object: nil)
+    updateHighlightState()
   }
 
   @available(*, unavailable)
@@ -57,12 +52,9 @@ class MDCCatalogCollectionViewCell: UICollectionViewCell {
     super.init(coder: coder)!
   }
 
-  override func apply(_ layoutAttributes: UICollectionViewLayoutAttributes) {
-    super.apply(layoutAttributes)
-  }
-
   override func layoutSubviews() {
     super.layoutSubviews()
+
     label.sizeToFit()
     label.frame = CGRect(
       x: Constants.padding,
@@ -78,24 +70,33 @@ class MDCCatalogCollectionViewCell: UICollectionViewCell {
                           y: label.frame.minY / 2 )
   }
 
-  override func prepareForReuse() {
-    super.prepareForReuse()
-    label.text = ""
+  override var isHighlighted: Bool {
+    didSet {
+      updateHighlightState()
+    }
   }
 
-  func updateTheme() {
-    label.font = AppTheme.containerScheme.typographyScheme.button
-    label.textColor = AppTheme.containerScheme.colorScheme.onBackgroundColor
+  override var isSelected: Bool {
+    didSet {
+      updateHighlightState()
+    }
   }
 
-  @objc func themeDidChange(notification: NSNotification) {
-    updateTheme()
+  private func updateHighlightState() {
+    if #available(iOS 13.0, *) {
+      contentView.backgroundColor = (isSelected || isHighlighted) ? .systemGray5 : .systemBackground
+    }
   }
 
-  func populateView(_ componentName: String) {
+  func shouldUpdate(with object: Any!) -> Bool {
+    guard let node = object! as? CBCNode else {
+      return false
+    }
+    let componentName = node.title
     label.text = componentName
     tile.componentName = componentName
     accessibilityIdentifier = componentName
+    return true
   }
 
   override public var accessibilityLabel: String? {

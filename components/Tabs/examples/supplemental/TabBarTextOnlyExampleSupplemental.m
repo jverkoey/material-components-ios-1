@@ -18,48 +18,9 @@
 
 #import "TabBarTextOnlyExampleSupplemental.h"
 
-static CGFloat const kAppBarMinHeight = 56;
-static CGFloat const kTabBarHeight = 48;
-
 static NSString *const kReusableIdentifierItem = @"Cell";
 
 @implementation TabBarTextOnlyExample (Supplemental)
-
-- (UIViewController *)childViewControllerForStatusBarStyle {
-  return self.appBarViewController;
-}
-
-- (UIViewController *)childViewControllerForStatusBarHidden {
-  return self.appBarViewController;
-}
-
-- (void)setupExampleViews:(NSArray *)choices {
-  self.choices = choices;
-  self.title = @"Text Tabs";
-
-  self.appBarViewController = [[MDCAppBarViewController alloc] init];
-  [self addChildViewController:self.appBarViewController];
-
-  self.appBarViewController.headerView.trackingScrollView = self.collectionView;
-  self.appBarViewController.headerView.shiftBehavior =
-      MDCFlexibleHeaderShiftBehaviorEnabledWithStatusBar;
-
-  self.appBarViewController.navigationBar.tintColor = [UIColor whiteColor];
-  self.appBarViewController.headerView.tintColor = [UIColor whiteColor];
-  self.appBarViewController.headerView.minMaxHeightIncludesSafeArea = NO;
-  self.appBarViewController.headerView.minimumHeight = kTabBarHeight;
-  self.appBarViewController.headerView.maximumHeight = kAppBarMinHeight + kTabBarHeight;
-
-  UIFont *font = [UIFont monospacedDigitSystemFontOfSize:14 weight:UIFontWeightRegular];
-
-  self.appBarViewController.navigationBar.titleTextAttributes =
-      @{NSForegroundColorAttributeName : [UIColor whiteColor], NSFontAttributeName : font};
-  [self.view addSubview:self.appBarViewController.view];
-  [self.appBarViewController didMoveToParentViewController:self];
-
-  [self.collectionView registerClass:[MDCCollectionViewTextCell class]
-          forCellWithReuseIdentifier:kReusableIdentifierItem];
-}
 
 #pragma mark - UICollectionView
 
@@ -75,37 +36,6 @@ static NSString *const kReusableIdentifierItem = @"Cell";
                                                 forIndexPath:indexPath];
   cell.textLabel.text = self.choices[indexPath.row];
   return cell;
-}
-
-#pragma mark - UIScrollViewDelegate Forwarding.
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView trackingScrollViewDidScroll];
-  }
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView trackingScrollViewDidEndDecelerating];
-  }
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView
-        trackingScrollViewDidEndDraggingWillDecelerate:decelerate];
-  }
-}
-
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
-                     withVelocity:(CGPoint)velocity
-              targetContentOffset:(inout CGPoint *)targetContentOffset {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView
-        trackingScrollViewWillEndDraggingWithVelocity:velocity
-                                  targetContentOffset:targetContentOffset];
-  }
 }
 
 @end

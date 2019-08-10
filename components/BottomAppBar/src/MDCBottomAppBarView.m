@@ -19,7 +19,6 @@
 #import <MDFInternationalization/MDFInternationalization.h>
 
 #import "MaterialMath.h"
-#import "MaterialNavigationBar.h"
 #import "private/MDCBottomAppBarAttributes.h"
 #import "private/MDCBottomAppBarLayer.h"
 
@@ -50,7 +49,6 @@ static const int kMDCButtonAnimationDuration = 200;
 @property(nonatomic, assign) CGFloat bottomBarHeight;
 @property(nonatomic, strong) MDCBottomAppBarCutView *cutView;
 @property(nonatomic, strong) MDCBottomAppBarLayer *bottomBarLayer;
-@property(nonatomic, strong) MDCNavigationBar *navBar;
 
 @end
 
@@ -86,7 +84,6 @@ static const int kMDCButtonAnimationDuration = 200;
 
   [self addFloatingButton];
   [self addBottomBarLayer];
-  [self addNavBar];
 
   self.barTintColor = UIColor.whiteColor;
   self.shadowColor = UIColor.blackColor;
@@ -100,16 +97,6 @@ static const int kMDCButtonAnimationDuration = 200;
   [self setFloatingButtonPosition:MDCBottomAppBarFloatingButtonPositionCenter];
   [self setFloatingButtonElevation:MDCBottomAppBarFloatingButtonElevationPrimary];
   [self setFloatingButtonHidden:NO];
-}
-
-- (void)addNavBar {
-  _navBar = [[MDCNavigationBar alloc] initWithFrame:CGRectZero];
-  [self addSubview:_navBar];
-
-  _navBar.backgroundColor = [UIColor clearColor];
-  _navBar.tintColor = [UIColor blackColor];
-  _navBar.leadingBarItemsTintColor = UIColor.blackColor;
-  _navBar.trailingBarItemsTintColor = UIColor.blackColor;
 }
 
 - (void)addBottomBarLayer {
@@ -130,7 +117,7 @@ static const int kMDCButtonAnimationDuration = 200;
 
 - (CGPoint)getFloatingButtonCenterPositionForAppBarWidth:(CGFloat)appBarWidth {
   CGPoint floatingButtonPoint = CGPointZero;
-  CGFloat navigationBarTopEdgeYOffset = CGRectGetMinY(self.navBar.frame);
+  CGFloat navigationBarTopEdgeYOffset = CGRectGetMinY(CGRectZero);
   CGFloat midX = appBarWidth / 2;
 
   floatingButtonPoint.y = MAX(0, navigationBarTopEdgeYOffset - self.floatingButtonVerticalOffset);
@@ -167,7 +154,7 @@ static const int kMDCButtonAnimationDuration = 200;
 - (void)cutBottomAppBarViewAnimated:(BOOL)animated {
   CGPathRef pathWithCut = [self.bottomBarLayer pathFromRect:self.bounds
                                              floatingButton:self.floatingButton
-                                         navigationBarFrame:self.navBar.frame
+                                         navigationBarFrame:CGRectZero
                                                   shouldCut:YES];
   if (animated) {
     CABasicAnimation *pathAnimation =
@@ -189,7 +176,7 @@ static const int kMDCButtonAnimationDuration = 200;
 - (void)healBottomAppBarViewAnimated:(BOOL)animated {
   CGPathRef pathWithoutCut = [self.bottomBarLayer pathFromRect:self.bounds
                                                 floatingButton:self.floatingButton
-                                            navigationBarFrame:self.navBar.frame
+                                            navigationBarFrame:CGRectZero
                                                      shouldCut:NO];
   if (animated) {
     CABasicAnimation *pathAnimation =
@@ -229,33 +216,12 @@ static const int kMDCButtonAnimationDuration = 200;
 
 - (void)showBarButtonItemsWithFloatingButtonPosition:
     (MDCBottomAppBarFloatingButtonPosition)floatingButtonPosition {
-  switch (floatingButtonPosition) {
-    case MDCBottomAppBarFloatingButtonPositionCenter:
-      [self.navBar setLeadingBarButtonItems:_leadingBarButtonItems];
-      [self.navBar setTrailingBarButtonItems:_trailingBarButtonItems];
-      break;
-    case MDCBottomAppBarFloatingButtonPositionLeading:
-      [self.navBar setLeadingBarButtonItems:nil];
-      [self.navBar setTrailingBarButtonItems:_trailingBarButtonItems];
-      break;
-    case MDCBottomAppBarFloatingButtonPositionTrailing:
-      [self.navBar setLeadingBarButtonItems:_leadingBarButtonItems];
-      [self.navBar setTrailingBarButtonItems:nil];
-      break;
-    default:
-      break;
-  }
 }
 
 #pragma mark - UIView overrides
 
 - (void)layoutSubviews {
   [super layoutSubviews];
-
-  CGRect navBarFrame =
-      CGRectMake(0, kMDCBottomAppBarNavigationViewYOffset, CGRectGetWidth(self.bounds),
-                 kMDCBottomAppBarHeight - kMDCBottomAppBarNavigationViewYOffset);
-  self.navBar.frame = navBarFrame;
 
   self.floatingButton.center =
       [self getFloatingButtonCenterPositionForAppBarWidth:CGRectGetWidth(self.bounds)];
@@ -413,23 +379,17 @@ static const int kMDCButtonAnimationDuration = 200;
   if (!leadingBarItemsTintColor) {
     leadingBarItemsTintColor = UIColor.blackColor;
   }
-  self.navBar.leadingBarItemsTintColor = leadingBarItemsTintColor;
 }
 
 - (UIColor *)leadingBarItemsTintColor {
-  return self.navBar.leadingBarItemsTintColor;
+  return nil;
 }
 
 - (void)setTrailingBarItemsTintColor:(UIColor *)trailingBarItemsTintColor {
-  NSParameterAssert(trailingBarItemsTintColor);
-  if (!trailingBarItemsTintColor) {
-    trailingBarItemsTintColor = UIColor.blackColor;
-  }
-  self.navBar.trailingBarItemsTintColor = trailingBarItemsTintColor;
 }
 
 - (UIColor *)trailingBarItemsTintColor {
-  return self.navBar.trailingBarItemsTintColor;
+  return nil;
 }
 
 - (void)setShadowColor:(UIColor *)shadowColor {

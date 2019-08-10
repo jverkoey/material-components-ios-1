@@ -18,6 +18,8 @@
 #import "MaterialButtons+ButtonThemer.h"
 #import "MaterialButtons.h"
 
+#import <objc/runtime.h>
+
 static const CGFloat kActivityIndicatorExampleArrowHeadSize = 5;
 static const CGFloat kActivityIndicatorExampleStrokeWidth = 2;
 
@@ -29,9 +31,64 @@ static const NSTimeInterval kActivityIndicatorExampleAnimationDuration = 2.0 / 3
 @property(nonatomic, strong) MDCTypographyScheme *typographyScheme;
 @end
 
+@interface UIControl (StatefulExtensions)
+@end
+
+@implementation UIControl (StatefulExtensions)
+
+- (NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *)mdc_states {
+  return objc_getAssociatedObject(self, _cmd);
+}
+
+- (void)mdc_setValue:(id)value forState:(UIControlState)state onKeyPath:(NSString *)keyPath {
+  NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *states =
+      objc_getAssociatedObject(self, @selector(mdc_states));
+  if (!states) {
+    [self addTarget:self
+             action:@selector(mdc_stateDidChange:arg2:)
+   forControlEvents:UIControlEventAllTouchEvents];
+
+    states = [NSMutableDictionary dictionary];
+    objc_setAssociatedObject(self, @selector(mdc_states), states, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+  }
+
+  NSMutableDictionary<NSString *, NSNumber *> *keyPathStates = states[@(state)];
+  if (!keyPathStates) {
+    keyPathStates = [NSMutableDictionary dictionary];
+    states[@(state)] = keyPathStates;
+  }
+  keyPathStates[keyPath] = value;
+
+  if (state == self.state) {
+    [self setValue:value forKeyPath:keyPath];
+  }
+}
+
+- (void)mdc_stateDidChange:(id)sender arg2:(UIEvent *)event {
+  NSMutableDictionary<NSNumber *, NSMutableDictionary<NSString *, NSNumber *> *> *states =
+      objc_getAssociatedObject(self, @selector(mdc_states));
+  if (!states) {
+    [self removeTarget:self action:_cmd forControlEvents:UIControlEventAllTouchEvents];
+    return;
+  }
+  UIControlState state = self.state;
+
+  // If the `.highlighted` flag is set, turn off the `.disabled` flag
+  if ((state & UIControlStateHighlighted) == UIControlStateHighlighted) {
+    state = state & ~UIControlStateDisabled;
+  }
+
+  NSMutableDictionary<NSString *, NSNumber *> *keyPathStates = states[@(state)] ?: states[@((UIControlStateNormal))];
+  for (NSString *keyPath in keyPathStates) {
+    [self setValue:keyPathStates[keyPath] forKeyPath:keyPath];
+  }
+}
+
+@end
+
 @implementation ActivityIndicatorTransitionExampleViewController {
   MDCActivityIndicator *_activityIndicator;
-  MDCButton *_button;
+  UIButton *_button;
 
   CALayer *_rotationContainer;
   CALayer *_refreshArrowContainer;
@@ -63,15 +120,29 @@ static const NSTimeInterval kActivityIndicatorExampleAnimationDuration = 2.0 / 3
   _activityIndicator.delegate = self;
   [self.view addSubview:_activityIndicator];
 
-  _button = [[MDCButton alloc] init];
-  MDCButtonScheme *buttonScheme = [[MDCButtonScheme alloc] init];
-  buttonScheme.colorScheme = self.colorScheme;
-  buttonScheme.typographyScheme = self.typographyScheme;
-  [MDCContainedButtonThemer applyScheme:buttonScheme toButton:_button];
+  _button = [UIButton buttonWithType:UIButtonTypeCustom];
+  [_button setTitleColor:self.colorScheme.onPrimaryColor forState:UIControlStateNormal];
+  _button.contentEdgeInsets = UIEdgeInsetsMake(9, 16, 9, 16);
+  _button.layer.shadowColor = [UIColor blackColor].CGColor;
+  _button.layer.shadowOpacity = (float)0.26;
+  _button.layer.shadowOffset = CGSizeMake(0, (CGFloat)1.23118 * 2.0 - (CGFloat)0.03933);
+  _button.layer.shadowRadius = (CGFloat)0.666920 * 2.0 - (CGFloat)0.001648;
+  _button.layer.cornerRadius = 4;
+  _button.titleLabel.font = self.typographyScheme.button;
+
+  // Buttons can get suuuuuper close to not needing subclassing, but we get stuck on needing
+  // to show a highlighting state.
+  [_button mdc_setValue:self.colorScheme.primaryColor
+               forState:UIControlStateNormal
+              onKeyPath:@"backgroundColor"];
+  [_button mdc_setValue:[UIColor colorWithWhite:1.0 alpha:0.25]
+               forState:UIControlStateHighlighted
+              onKeyPath:@"backgroundColor"];
+
   [_button addTarget:self
                 action:@selector(startRefreshing)
       forControlEvents:UIControlEventTouchUpInside];
-  [_button setTitle:@"Refresh" forState:UIControlStateNormal];
+  [_button setTitle:[@"Refresh" uppercaseString] forState:UIControlStateNormal];
   [_button sizeToFit];
   _button.center = CGPointMake(self.view.bounds.size.width / 2, 200);
   _button.autoresizingMask =

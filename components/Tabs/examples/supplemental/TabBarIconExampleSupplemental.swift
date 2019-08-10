@@ -17,9 +17,6 @@
 
 import UIKit
 
-import MaterialComponents.MaterialAppBar
-import MaterialComponents.MaterialAppBar_ColorThemer
-import MaterialComponents.MaterialAppBar_TypographyThemer
 import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialButtons_ButtonThemer
 import MaterialComponents.MaterialPalettes
@@ -58,26 +55,8 @@ extension TabBarIconSwiftExample {
     return alignmentButton
   }
 
-  func setupAppBar() -> MDCAppBarViewController {
-    let appBarViewController = MDCAppBarViewController()
-
-    self.addChild(appBarViewController)
-    appBarViewController.headerView.minMaxHeightIncludesSafeArea = false
-    appBarViewController.headerView.minimumHeight = 56 + 72
-    appBarViewController.headerView.tintColor = MDCPalette.blue.tint500
-    MDCAppBarColorThemer.applyColorScheme(colorScheme, to: appBarViewController)
-    MDCAppBarTypographyThemer.applyTypographyScheme(typographyScheme, to: appBarViewController)
-
-    appBarViewController.headerStackView.bottomBar = self.tabBar
-    appBarViewController.headerStackView.setNeedsLayout()
-    return appBarViewController
-  }
-
   func setupExampleViews() {
     view.backgroundColor = UIColor.white
-
-    view.addSubview(appBarViewController.view)
-    appBarViewController.didMove(toParent: self)
 
     let badgeIncrementItem = UIBarButtonItem(title: "Add",
                                              style: .plain,
@@ -99,8 +78,7 @@ extension TabBarIconSwiftExample {
     scrollView.backgroundColor = UIColor.red
 
     let views: [String: UIView] = [
-      "scrollView": scrollView,
-      "header": self.appBarViewController.headerStackView
+      "scrollView": scrollView
     ]
     NSLayoutConstraint.activate(NSLayoutConstraint.constraints(withVisualFormat: "V:[header][scrollView]|",
                                                                options: [],
@@ -233,10 +211,6 @@ extension TabBarIconSwiftExample {
 }
 
 extension TabBarIconSwiftExample {
-  override var childForStatusBarStyle: UIViewController? {
-    return appBarViewController
-  }
-
   override func viewWillTransition(to size: CGSize, with coordinator: UIViewControllerTransitionCoordinator) {
     coordinator.animate(alongsideTransition: { (_) in
       if let selectedItem = self.tabBar.selectedItem {

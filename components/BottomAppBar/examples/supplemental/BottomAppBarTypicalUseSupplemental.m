@@ -14,15 +14,10 @@
 
 #import "BottomAppBarTypicalUseSupplemental.h"
 
-#import "MaterialAppBar+ColorThemer.h"
-#import "MaterialAppBar+TypographyThemer.h"
-#import "MaterialAppBar.h"
-
 static NSString *const kCellIdentifier = @"cell";
 
 @interface BottomAppBarExampleTableViewController ()
 @property(nonatomic, strong) UISwitch *fabVisibilitySwitch;
-@property(nonatomic, strong) MDCAppBarViewController *appBarViewController;
 @property(nonatomic, strong) MDCSemanticColorScheme *colorScheme;
 @property(nonatomic, strong) MDCTypographyScheme *typographyScheme;
 @end
@@ -79,25 +74,12 @@ static NSString *const kCellIdentifier = @"cell";
     _listItems = listItems;
 
     self.title = @"Bottom App Bar";
-
-    _appBarViewController = [[MDCAppBarViewController alloc] init];
-    [self addChildViewController:_appBarViewController];
   }
   return self;
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-
-  [MDCAppBarTypographyThemer applyTypographyScheme:self.typographyScheme
-                            toAppBarViewController:_appBarViewController];
-  [MDCAppBarColorThemer applyColorScheme:self.colorScheme
-                  toAppBarViewController:self.appBarViewController];
-
-  self.appBarViewController.headerView.trackingScrollView = self.tableView;
-
-  [self.view addSubview:self.appBarViewController.view];
-  [self.appBarViewController didMoveToParentViewController:self];
 
   self.fabVisibilitySwitch = [[UISwitch alloc] init];
   self.fabVisibilitySwitch.on = !self.bottomBarView.floatingButtonHidden;
@@ -117,10 +99,6 @@ static NSString *const kCellIdentifier = @"cell";
   UIEdgeInsets contentInset = self.tableView.contentInset;
   contentInset.bottom = bottomAppBarFrame.size.height;
   self.tableView.contentInset = contentInset;
-}
-
-- (UIViewController *)childViewControllerForStatusBarStyle {
-  return self.appBarViewController;
 }
 
 #pragma mark - Table view data source
@@ -179,37 +157,6 @@ static NSString *const kCellIdentifier = @"cell";
       break;
     default:
       break;
-  }
-}
-
-#pragma mark - UIScrollViewDelegate
-
-- (void)scrollViewDidScroll:(UIScrollView *)scrollView {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView trackingScrollViewDidScroll];
-  }
-}
-
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView trackingScrollViewDidEndDecelerating];
-  }
-}
-
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView
-        trackingScrollViewDidEndDraggingWillDecelerate:decelerate];
-  }
-}
-
-- (void)scrollViewWillEndDragging:(UIScrollView *)scrollView
-                     withVelocity:(CGPoint)velocity
-              targetContentOffset:(inout CGPoint *)targetContentOffset {
-  if (scrollView == self.appBarViewController.headerView.trackingScrollView) {
-    [self.appBarViewController.headerView
-        trackingScrollViewWillEndDraggingWithVelocity:velocity
-                                  targetContentOffset:targetContentOffset];
   }
 }
 

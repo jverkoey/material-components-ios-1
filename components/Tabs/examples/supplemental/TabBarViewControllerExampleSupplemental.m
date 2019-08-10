@@ -18,9 +18,6 @@
 
 #import "TabBarViewControllerExampleSupplemental.h"
 
-#import "MaterialAppBar+ColorThemer.h"
-#import "MaterialAppBar+TypographyThemer.h"
-#import "MaterialAppBar.h"
 #import "MaterialButtons.h"
 #import "MaterialPalettes.h"
 
@@ -46,7 +43,6 @@
 
 @interface TBVCSampleViewController ()
 
-@property(nonatomic) MDCAppBarViewController *appBarViewController;
 @property(nonatomic) UILabel *titleLabel;
 @property(nonatomic) CGRect buttonFrame;  // The desired frame of the button
 @property(nonatomic) MDCButton *button;
@@ -58,25 +54,6 @@
 
 - (void)loadView {
   self.view = [[TBVCSampleView alloc] initWithFrame:[[UIScreen mainScreen] bounds]];
-}
-
-- (void)viewDidLoad {
-  [super viewDidLoad];
-
-  self.appBarViewController = [[MDCAppBarViewController alloc] init];
-
-  [self addChildViewController:self.appBarViewController];
-  [self.view addSubview:self.appBarViewController.view];
-  [self.appBarViewController didMoveToParentViewController:self];
-}
-
-- (void)viewWillAppear:(BOOL)animated {
-  [super viewWillAppear:animated];
-
-  [MDCAppBarColorThemer applyColorScheme:self.colorScheme
-                  toAppBarViewController:self.appBarViewController];
-  [MDCAppBarTypographyThemer applyTypographyScheme:self.typographyScheme
-                            toAppBarViewController:self.appBarViewController];
 }
 
 - (void)viewDidLayoutSubviews {
@@ -91,10 +68,6 @@
   [self.button sizeToFit];
 
   [self.view setNeedsDisplay];
-}
-
-- (UIViewController *)childViewControllerForStatusBarStyle {
-  return self.appBarViewController;
 }
 
 + (nonnull instancetype)sampleWithTitle:(nonnull NSString *)title color:(nonnull UIColor *)color {

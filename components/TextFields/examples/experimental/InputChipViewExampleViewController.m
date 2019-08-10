@@ -20,8 +20,6 @@
 #import "MaterialColorScheme.h"
 #import "supplemental/InputChipView.h"
 
-#import "MaterialAppBar+ColorThemer.h"
-#import "MaterialAppBar+TypographyThemer.h"
 #import "MaterialButtons+ButtonThemer.h"
 #import "MaterialChips.h"
 

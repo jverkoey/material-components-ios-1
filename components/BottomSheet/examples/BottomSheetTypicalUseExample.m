@@ -14,9 +14,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "MaterialAppBar+ColorThemer.h"
-#import "MaterialAppBar+TypographyThemer.h"
-#import "MaterialAppBar.h"
 #import "MaterialBottomSheet+ShapeThemer.h"
 #import "MaterialBottomSheet.h"
 #import "supplemental/BottomSheetDummyCollectionViewController.h"
@@ -41,16 +38,9 @@
       [[BottomSheetDummyCollectionViewController alloc] initWithNumItems:102];
   viewController.title = @"Bottom sheet example";
 
-  MDCAppBarContainerViewController *container =
-      [[MDCAppBarContainerViewController alloc] initWithContentViewController:viewController];
+  UINavigationController *container =
+      [[UINavigationController alloc] initWithRootViewController:viewController];
   container.preferredContentSize = CGSizeMake(500, 200);
-  container.appBarViewController.headerView.trackingScrollView = viewController.collectionView;
-  container.topLayoutGuideAdjustmentEnabled = YES;
-
-  [MDCAppBarColorThemer applyColorScheme:self.colorScheme
-                  toAppBarViewController:container.appBarViewController];
-  [MDCAppBarTypographyThemer applyTypographyScheme:self.typographyScheme
-                            toAppBarViewController:container.appBarViewController];
 
   MDCBottomSheetController *bottomSheet =
       [[MDCBottomSheetController alloc] initWithContentViewController:container];

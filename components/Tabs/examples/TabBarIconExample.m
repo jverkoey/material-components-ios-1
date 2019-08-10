@@ -14,7 +14,6 @@
 
 #import "supplemental/TabBarIconExampleSupplemental.h"
 
-#import "MaterialAppBar.h"
 #import "MaterialColorScheme.h"
 #import "MaterialTabs+ColorThemer.h"
 #import "MaterialTabs.h"
@@ -98,8 +97,6 @@
   tabBar.itemAppearance = MDCTabBarItemAppearanceTitledImages;
 
   self.tabBar = tabBar;
-  self.appBarViewController.headerStackView.bottomBar = self.tabBar;
-  [self.appBarViewController.headerStackView setNeedsLayout];
 }
 
 - (void)changeAlignment:(id)sender {

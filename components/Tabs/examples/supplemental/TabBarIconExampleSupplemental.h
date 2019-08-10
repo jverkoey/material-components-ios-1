@@ -19,7 +19,6 @@
 
 #import <UIKit/UIKit.h>
 
-#import "MaterialAppBar.h"
 #import "MaterialButtons.h"
 #import "MaterialColorScheme.h"
 #import "MaterialTabs.h"
@@ -29,7 +28,6 @@
 
 @property(nonatomic, nullable) MDCTabBar *tabBar;
 @property(nonatomic, nullable) MDCButton *alignmentButton;
-@property(nonatomic, nullable) MDCAppBarViewController *appBarViewController;
 @property(nonatomic, nullable) MDCSemanticColorScheme *colorScheme;
 @property(nonatomic, nullable) MDCTypographyScheme *typographyScheme;
 @property(nonatomic, nullable) UIScrollView *scrollView;

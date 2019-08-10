@@ -104,11 +104,6 @@ class BottomNavigationExplicitlySetColorExample: UIViewController {
     bottomNavBar.backgroundColor = MDCPalette.grey.tint700
   }
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    self.navigationController?.setNavigationBarHidden(true, animated: animated)
-  }
-
   @objc func redTheme(_ button: UIButton) {
     bottomNavBar.selectedItemTintColor = MDCPalette.red.tint300
     bottomNavBar.unselectedItemTintColor = MDCPalette.green.tint300

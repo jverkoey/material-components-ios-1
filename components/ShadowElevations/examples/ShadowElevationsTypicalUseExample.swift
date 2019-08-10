@@ -14,7 +14,6 @@
 
 import UIKit
 import Foundation
-import MaterialComponents.MaterialAppBar
 import MaterialComponents.MaterialShadowElevations
 import MaterialComponents.MaterialShadowLayer
 
@@ -40,20 +39,12 @@ class ShadowElevationsPointsLabelSwift: UILabel {
 
 class ShadowElevationsTypicalUseExample: UIViewController {
 
-  let appBarViewController = MDCAppBarViewController()
   let paper = ShadowElevationsPointsLabelSwift()
 
   init() {
     super.init(nibName: nil, bundle: nil)
 
     self.title = "Shadow Elevations (Swift)"
-    self.addChild(appBarViewController)
-
-    let color = UIColor(white: 0.2, alpha:1)
-    appBarViewController.headerView.backgroundColor = color
-    appBarViewController.navigationBar.tintColor = .white
-    appBarViewController.navigationBar.titleTextAttributes =
-      [NSAttributedString.Key.foregroundColor : UIColor.white]
 
     let paperDim = CGFloat(200)
     paper.frame =
@@ -66,21 +57,6 @@ class ShadowElevationsTypicalUseExample: UIViewController {
   required init?(coder aDecoder: NSCoder) {
     super.init(coder: aDecoder)
   }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    view.addSubview(appBarViewController.view)
-    appBarViewController.didMove(toParent: self)
-  }
-
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    self.view.backgroundColor = .white
-
-    self.navigationController?.setNavigationBarHidden(true, animated: animated)
-  }
-
 }
 
 // MARK: Catalog by convention

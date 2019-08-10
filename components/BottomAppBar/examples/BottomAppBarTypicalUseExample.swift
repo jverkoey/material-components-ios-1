@@ -15,7 +15,6 @@
 import Foundation
 import UIKit
 
-import MaterialComponents.MaterialAppBar
 import MaterialComponents.MaterialBottomAppBar
 import MaterialComponents.MaterialBottomAppBar_ColorThemer
 import MaterialComponents.MaterialButtons
@@ -26,7 +25,6 @@ import MaterialComponents.MaterialTypographyScheme
 
 class BottomAppBarTypicalUseSwiftExample: UIViewController {
 
-  let appBarViewController = MDCAppBarViewController()
   let bottomBarView = MDCBottomAppBarView()
   @objc var containerScheme = MDCContainerScheme()
 
@@ -34,26 +32,13 @@ class BottomAppBarTypicalUseSwiftExample: UIViewController {
     super.init(nibName: nil, bundle: nil)
 
     self.title = "Bottom App Bar (Swift)"
-    self.addChild(appBarViewController)
 
-    let color = UIColor(white: 0.2, alpha:1)
-    appBarViewController.headerView.backgroundColor = color
-    appBarViewController.navigationBar.tintColor = .white
-    appBarViewController.navigationBar.titleTextAttributes =
-      [NSAttributedString.Key.foregroundColor : UIColor.white]
     commonInitBottomAppBarTypicalUseSwiftExample()
   }
 
   required init?(coder aDecoder: NSCoder) {
     super.init(coder: aDecoder)
     commonInitBottomAppBarTypicalUseSwiftExample()
-  }
-
-  override func viewDidLoad() {
-    super.viewDidLoad()
-
-    view.addSubview(appBarViewController.view)
-    appBarViewController.didMove(toParent: self)
   }
 
   func commonInitBottomAppBarTypicalUseSwiftExample() {
@@ -119,8 +104,6 @@ class BottomAppBarTypicalUseSwiftExample: UIViewController {
   override func viewWillAppear(_ animated: Bool) {
     super.viewWillAppear(animated)
     self.view.backgroundColor = .white
-
-    self.navigationController?.setNavigationBarHidden(true, animated: animated)
   }
 
   override func viewWillLayoutSubviews() {

@@ -15,7 +15,6 @@
 #import <UIKit/UIKit.h>
 
 #import "MDCTabBarDisplayDelegate.h"
-#import "MaterialAppBar.h"
 #import "MaterialButtons.h"
 #import "MaterialCollections.h"
 #import "MaterialColorScheme.h"
@@ -28,7 +27,6 @@
 - (id)initWithCollectionViewLayout:(UICollectionViewLayout *)layout {
   self = [super initWithCollectionViewLayout:layout];
   if (self) {
-    [self setupExampleViews:@[ @"Change Alignment", @"Toggle Case", @"Clear Selection" ]];
     self.colorScheme =
         [[MDCSemanticColorScheme alloc] initWithDefaults:MDCColorSchemeDefaultsMaterial201804];
   }
@@ -38,7 +36,6 @@
 - (void)viewDidLoad {
   [super viewDidLoad];
   [self loadTabBar];
-  self.appBarViewController.headerStackView.bottomBar = self.tabBar;
 }
 
 #pragma mark - Action

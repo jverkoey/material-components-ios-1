@@ -14,7 +14,6 @@
 
 import UIKit
 
-import MaterialComponents.MaterialAppBar
 import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialColorScheme
 import MaterialComponents.MaterialPalettes
@@ -35,7 +34,6 @@ class TabBarIconSwiftExample: UIViewController {
   }
 
   lazy var alignmentButton: MDCButton = self.setupAlignmentButton()
-  lazy var appBarViewController: MDCAppBarViewController = self.setupAppBar()
   lazy var scrollView: UIScrollView = self.setupScrollView()
   lazy var starPage: UIView = self.setupStarPage()
   @objc var colorScheme = MDCSemanticColorScheme()

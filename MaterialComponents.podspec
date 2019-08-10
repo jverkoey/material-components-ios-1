@@ -153,88 +153,6 @@ Pod::Spec.new do |mdc|
     end
   end
 
-  # AppBar
-
-  mdc.subspec "AppBar" do |component|
-    component.ios.deployment_target = '9.0'
-    component.public_header_files = "components/#{component.base_name}/src/*.h"
-    component.source_files = [
-      "components/#{component.base_name}/src/*.{h,m}",
-      "components/#{component.base_name}/src/private/*.{h,m}"
-    ]
-    component.resources = [
-      "components/#{component.base_name}/src/Material#{component.base_name}.bundle"
-    ]
-
-    # Navigation bar contents
-    component.dependency "MaterialComponents/HeaderStackView"
-    component.dependency "MaterialComponents/NavigationBar"
-    component.dependency "MaterialComponents/Typography"
-    component.dependency "MaterialComponents/private/Application"
-    # Flexible header + shadow
-    component.dependency "MaterialComponents/FlexibleHeader"
-    component.dependency "MaterialComponents/ShadowElevations"
-    component.dependency "MaterialComponents/ShadowLayer"
-
-    component.dependency "MDFInternationalization"
-    component.dependency "MaterialComponents/private/Icons/ic_arrow_back"
-    component.dependency "MaterialComponents/private/UIMetrics"
-
-    component.test_spec 'UnitTests' do |unit_tests|
-      unit_tests.source_files = [
-        "components/#{component.base_name}/tests/unit/*.{h,m,swift}",
-        "components/#{component.base_name}/tests/unit/supplemental/*.{h,m,swift}"
-      ]
-      unit_tests.resources = "components/#{component.base_name}/tests/unit/resources/*"
-      unit_tests.dependency "MaterialComponents/AppBar+ColorThemer"
-      unit_tests.dependency "MaterialComponents/AppBar+TypographyThemer"
-    end
-  end
-
-  mdc.subspec "AppBar+Theming" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    extension.source_files = "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}", "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/private/*.{h,m}"
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/schemes/Container"
-
-    extension.test_spec 'UnitTests' do |unit_tests|
-      unit_tests.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/tests/unit/#{extension.base_name.split('+')[1]}/*.{h,m,swift}",
-      "components/#{extension.base_name.split('+')[0]}/tests/unit/#{extension.base_name.split('+')[1]}/supplemental/*.{h,m,swift}"
-      ]
-      unit_tests.resources = "components/#{extension.base_name.split('+')[0]}/tests/unit/#{extension.base_name.split('+')[1]}/resources/*"
-    end
-  end
-
-  mdc.subspec "AppBar+ColorThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}",
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/private/*.{h,m}"
-    ]
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/FlexibleHeader+ColorThemer"
-    extension.dependency "MaterialComponents/NavigationBar+ColorThemer"
-    extension.dependency "MaterialComponents/Themes"
-  end
-
-  mdc.subspec "AppBar+TypographyThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}",
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/private/*.{h,m}"
-    ]
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/NavigationBar+TypographyThemer"
-  end
-
   # BottomAppBar
 
   mdc.subspec "BottomAppBar" do |component|
@@ -247,7 +165,6 @@ Pod::Spec.new do |mdc|
 
     component.dependency "MDFInternationalization"
     component.dependency "MaterialComponents/Buttons"
-    component.dependency "MaterialComponents/NavigationBar"
     component.dependency "MaterialComponents/private/Math"
 
     component.test_spec 'UnitTests' do |unit_tests|
@@ -524,56 +441,6 @@ Pod::Spec.new do |mdc|
       ]
       unit_tests.resources = "components/#{extension.base_name.split('+')[0]}/tests/unit/#{extension.base_name.split('+')[1]}/resources/*"
     end
-  end
-
-  # ButtonBar
-
-  mdc.subspec "ButtonBar" do |component|
-    component.ios.deployment_target = '9.0'
-    component.public_header_files = "components/#{component.base_name}/src/*.h"
-    component.source_files = [
-      "components/#{component.base_name}/src/*.{h,m}",
-      "components/#{component.base_name}/src/private/*.{h,m}"
-    ]
-
-    component.dependency "MDFInternationalization"
-    component.dependency "MaterialComponents/Buttons"
-    component.dependency "MaterialComponents/private/Application"
-
-    component.test_spec 'UnitTests' do |unit_tests|
-      unit_tests.source_files = [
-        "components/#{component.base_name}/tests/unit/*.{h,m,swift}",
-        "components/#{component.base_name}/tests/unit/supplemental/*.{h,m,swift}"
-      ]
-      unit_tests.resources = "components/#{component.base_name}/tests/unit/resources/*"
-      unit_tests.dependency "MaterialComponents/ButtonBar+TypographyThemer"
-    end
-  end
-
-  mdc.subspec "ButtonBar+ColorThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/Themes"
-  end
-
-  mdc.subspec "ButtonBar+TypographyThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/schemes/Typography"
   end
 
   # Cards
@@ -1068,89 +935,6 @@ Pod::Spec.new do |mdc|
     extension.dependency 'MDFTextAccessibility'
   end
 
-  # FlexibleHeader
-
-  mdc.subspec "FlexibleHeader" do |component|
-    component.ios.deployment_target = '9.0'
-    component.public_header_files = "components/#{component.base_name}/src/*.h"
-    component.source_files = [
-      "components/#{component.base_name}/src/*.{h,m}",
-      "components/#{component.base_name}/src/private/*.{h,m}"
-    ]
-
-    component.dependency 'MDFTextAccessibility'
-    component.dependency "MaterialComponents/Elevation"
-    component.dependency "MaterialComponents/ShadowElevations"
-    component.dependency "MaterialComponents/ShadowLayer"
-    component.dependency "MaterialComponents/private/Application"
-    component.dependency "MaterialComponents/private/Math"
-    component.dependency "MaterialComponents/private/UIMetrics"
-
-    component.test_spec 'UnitTests' do |unit_tests|
-      unit_tests.source_files = [
-        "components/#{component.base_name}/tests/unit/*.{h,m,swift}",
-        "components/#{component.base_name}/tests/unit/supplemental/*.{h,m,swift}"
-      ]
-      unit_tests.resources = "components/#{component.base_name}/tests/unit/resources/*"
-      unit_tests.dependency "MaterialComponents/FlexibleHeader+ColorThemer"
-      unit_tests.dependency "MaterialComponents/ShadowLayer"
-    end
-  end
-
-  mdc.subspec "FlexibleHeader+CanAlwaysExpandToMaximumHeight" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-  end
-
-  mdc.subspec "FlexibleHeader+ColorThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/schemes/Color"
-  end
-
-  # HeaderStackView
-
-  mdc.subspec "HeaderStackView" do |component|
-    component.ios.deployment_target = '9.0'
-    component.public_header_files = "components/#{component.base_name}/src/*.h"
-    component.source_files = "components/#{component.base_name}/src/*.{h,m}"
-
-    component.test_spec 'UnitTests' do |unit_tests|
-      unit_tests.source_files = [
-        "components/#{component.base_name}/tests/unit/*.{h,m,swift}",
-        "components/#{component.base_name}/tests/unit/supplemental/*.{h,m,swift}"
-      ]
-      unit_tests.resources = "components/#{component.base_name}/tests/unit/resources/*"
-    end
-  end
-
-  mdc.subspec "HeaderStackView+ColorThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/Themes"
-  end
-
   # Ink
 
   mdc.subspec "Ink" do |component|
@@ -1318,59 +1102,6 @@ Pod::Spec.new do |mdc|
       ]
       unit_tests.resources = "components/#{component.base_name}/tests/unit/resources/*"
     end
-  end
-
-  # NavigationBar
-
-  mdc.subspec "NavigationBar" do |component|
-    component.ios.deployment_target = '9.0'
-    component.public_header_files = "components/#{component.base_name}/src/*.h"
-    component.source_files = "components/#{component.base_name}/src/*.{h,m}"
-
-    # Accessibility Configurator
-    component.dependency "MDFTextAccessibility"
-
-    component.dependency "MaterialComponents/ButtonBar"
-    component.dependency "MaterialComponents/Elevation"
-    component.dependency "MaterialComponents/Typography"
-    component.dependency "MDFInternationalization"
-    component.dependency "MaterialComponents/private/Math"
-
-    component.test_spec 'UnitTests' do |unit_tests|
-      unit_tests.source_files = [
-        "components/#{component.base_name}/tests/unit/*.{h,m,swift}",
-        "components/#{component.base_name}/tests/unit/supplemental/*.{h,m,swift}"
-      ]
-      unit_tests.resources = "components/#{component.base_name}/tests/unit/resources/*"
-      unit_tests.dependency "MaterialComponents/NavigationBar+ColorThemer"
-      unit_tests.dependency "MaterialComponents/NavigationBar+TypographyThemer"
-    end
-  end
-
-  mdc.subspec "NavigationBar+ColorThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/schemes/Color"
-  end
-
-  mdc.subspec "NavigationBar+TypographyThemer" do |extension|
-    extension.ios.deployment_target = '9.0'
-    extension.public_header_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.h"
-    ]
-    extension.source_files = [
-      "components/#{extension.base_name.split('+')[0]}/src/#{extension.base_name.split('+')[1]}/*.{h,m}"
-    ]
-
-    extension.dependency "MaterialComponents/#{extension.base_name.split('+')[0]}"
-    extension.dependency "MaterialComponents/schemes/Typography"
   end
 
   # NavigationDrawer

@@ -14,7 +14,6 @@
 
 import UIKit
 
-import MaterialComponents.MaterialAppBar
 import MaterialComponents.MaterialButtons
 import MaterialComponents.MaterialButtons_ButtonThemer
 
@@ -41,24 +40,8 @@ extension TabBarIndicatorTemplateExample {
     return button
   }
 
-  func makeAppBar() -> MDCAppBarViewController {
-    let appBarViewController = MDCAppBarViewController()
-
-    self.addChild(appBarViewController)
-
-    // Give the tab bar enough height to accomodate all possible item appearances.
-    appBarViewController.headerView.minMaxHeightIncludesSafeArea = false
-    appBarViewController.headerView.minimumHeight = 128
-
-    appBarViewController.headerStackView.bottomBar = self.tabBar
-    appBarViewController.headerStackView.setNeedsLayout()
-    return appBarViewController
-  }
-
   func setupExampleViews() {
     view.backgroundColor = UIColor.white
-    view.addSubview(appBarViewController.view)
-    appBarViewController.didMove(toParent: self)
 
     // Set up buttons
     alignmentButton.translatesAutoresizingMaskIntoConstraints = false
@@ -109,12 +92,6 @@ extension TabBarIndicatorTemplateExample {
     ])
 
     self.title = "Custom Selection Indicator"
-  }
-}
-
-extension TabBarIndicatorTemplateExample {
-  override var childForStatusBarStyle: UIViewController? {
-    return appBarViewController
   }
 }
 

@@ -12,119 +12,58 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import CatalogByConvention
-import MaterialCatalog
-
-import MaterialComponents.MaterialFlexibleHeader
-import MaterialComponents.MaterialFlexibleHeader_ColorThemer
-import MaterialComponents.MaterialIcons_ic_arrow_back
-import MaterialComponents.MaterialInk
-import MaterialComponents.MaterialLibraryInfo
-import MaterialComponents.MaterialShadowElevations
-import MaterialComponents.MaterialShadowLayer
-import MaterialComponents.MaterialThemes
-import MaterialComponents.MaterialTypography
-
 import UIKit
 
-class MDCCatalogComponentsController: UICollectionViewController, UICollectionViewDelegateFlowLayout, MDCInkTouchControllerDelegate {
+import CatalogByConvention
+import MaterialCatalog
+import Nimbus
 
-  fileprivate struct Constants {
-    static let headerScrollThreshold: CGFloat = 30
-    static let inset: CGFloat = 16
-    static let menuTopVerticalSpacing: CGFloat = 38
-    static let logoWidthHeight: CGFloat = 30
-    static let menuButtonWidthHeight: CGFloat = 24
-    static let spacing: CGFloat = 1
-  }
+import MaterialComponents.MaterialTypography
 
-  fileprivate lazy var headerViewController = MDCFlexibleHeaderViewController()
+private let inset: CGFloat = 16
+private let logoWidthHeight: CGFloat = 30
+private let spacing: CGFloat = 1
 
-  private lazy var inkController: MDCInkTouchController = {
-    let controller = MDCInkTouchController(view: self.collectionView!)
-    controller.delaysInkSpread = true
-    controller.delegate = self
-    return controller
-  }()
-
-  private lazy var logo: UIImageView = {
-    let imageView = UIImageView()
-    imageView.translatesAutoresizingMaskIntoConstraints = false
-    imageView.contentMode = .scaleAspectFit
-    return imageView
-  }()
-
-  private lazy var menuButton: UIButton = {
-    let button = UIButton()
-    button.translatesAutoresizingMaskIntoConstraints = false
-    let dotsImage = MDCIcons.imageFor_ic_more_horiz()?.withRenderingMode(.alwaysTemplate)
-    button.setImage(dotsImage, for: .normal)
-    button.adjustsImageWhenHighlighted = false
-    button.accessibilityLabel = "Menu"
-    button.accessibilityHint = "Opens catalog configuration options."
-    return button
-  }()
-
+class MDCCatalogComponentsController: UICollectionViewController, UICollectionViewDelegateFlowLayout {
 
   private let node: CBCNode
-  private lazy var titleLabel: UILabel = {
-    let titleLabel = UILabel()
-    titleLabel.translatesAutoresizingMaskIntoConstraints = false
-    titleLabel.adjustsFontSizeToFitWidth = true
-    return titleLabel
-  }()
-
-  private var logoLeftPaddingConstraint: NSLayoutConstraint?
-  private var menuButtonRightPaddingConstraint: NSLayoutConstraint?
-  private var menuTopPaddingConstraint: NSLayoutConstraint?
+  private let model: NICollectionViewModel?
+  private let factory = NICollectionViewCellFactory()
 
   init(collectionViewLayout ignoredLayout: UICollectionViewLayout, node: CBCNode) {
     self.node = node
+    self.model = NICollectionViewModel(listArray: node.children, delegate: factory)
+
+    factory.mapObjectClass(CBCNode.self, toCellClass: MDCCatalogCollectionViewCell.self)
 
     let layout = UICollectionViewFlowLayout()
-    let sectionInset: CGFloat = Constants.spacing
+    let sectionInset: CGFloat = spacing
     layout.sectionInset = UIEdgeInsets(top: sectionInset,
                                        left: sectionInset,
                                        bottom: sectionInset,
                                        right: sectionInset)
-    layout.minimumInteritemSpacing = Constants.spacing
-    layout.minimumLineSpacing = Constants.spacing
+    layout.minimumInteritemSpacing = spacing
+    layout.minimumLineSpacing = spacing
 
     super.init(collectionViewLayout: layout)
 
     title = "Material Components for iOS"
+    if #available(iOS 11.0, *) {
+      navigationItem.largeTitleDisplayMode = .always
+    }
 
-    addChild(headerViewController)
+    let logo = MDCDrawImage(CGRect(x:0, y:0, width: logoWidthHeight, height: logoWidthHeight), {
+      MDCCatalogDrawMDCLogoLight($0, $1)
+    }, AppTheme.containerScheme.colorScheme)
+    let logoImageView = UIImageView(image: logo)
+    let logoItem = UIBarButtonItem(customView: logoImageView)
+    logoItem.isEnabled = false
+    navigationItem.leftBarButtonItem = logoItem
 
-    headerViewController.isTopLayoutGuideAdjustmentEnabled = true
-    headerViewController.inferTopSafeAreaInsetFromViewController = true
-    headerViewController.headerView.minMaxHeightIncludesSafeArea = false
-    headerViewController.headerView.maximumHeight = 128
-    headerViewController.headerView.minimumHeight = 56
-
-    collectionView?.register(MDCCatalogCollectionViewCell.self,
-      forCellWithReuseIdentifier: "MDCCatalogCollectionViewCell")
-    collectionView?.backgroundColor = AppTheme.containerScheme.colorScheme.backgroundColor
-
-    MDCIcons.ic_arrow_backUseNewStyle(true)
-
-    NotificationCenter.default.addObserver(
-      self,
-      selector: #selector(self.themeDidChange),
-      name: AppTheme.didChangeGlobalThemeNotificationName,
-      object: nil)
-  }
-
-  @objc func themeDidChange(notification: NSNotification) {
-    let colorScheme = AppTheme.containerScheme.colorScheme
-    MDCFlexibleHeaderColorThemer.applySemanticColorScheme(colorScheme,
-                                                          to: headerViewController.headerView)
-    setNeedsStatusBarAppearanceUpdate()
-
-    titleLabel.textColor = colorScheme.onPrimaryColor
-    menuButton.tintColor = colorScheme.onPrimaryColor
-    collectionView?.collectionViewLayout.invalidateLayout()
-    collectionView?.reloadData()
+    navigationItem.rightBarButtonItem =
+      UIBarButtonItem(barButtonSystemItem: .action,
+      target: self,
+      action: #selector(presentMenu))
   }
 
   convenience init(node: CBCNode) {
@@ -138,225 +77,18 @@ class MDCCatalogComponentsController: UICollectionViewController, UICollectionVi
   override func viewDidLoad() {
     super.viewDidLoad()
 
-    inkController.addInkView()
-
-    let containerView = UIView(frame: headerViewController.headerView.bounds)
-    containerView.autoresizingMask = [.flexibleWidth, .flexibleHeight]
-
-    titleLabel.text = title!
-    titleLabel.textColor = AppTheme.containerScheme.colorScheme.onPrimaryColor
-    titleLabel.textAlignment = .center
-    titleLabel.font = AppTheme.containerScheme.typographyScheme.headline1
-    titleLabel.sizeToFit()
-
-    let titleInsets = UIEdgeInsets(top: 0,
-                                   left: Constants.inset,
-                                   bottom: Constants.inset,
-                                   right: Constants.inset)
-    let titleSize = titleLabel.sizeThatFits(containerView.bounds.size)
-
-    containerView.addSubview(titleLabel)
-
-    headerViewController.headerView.addSubview(containerView)
-    headerViewController.headerView.forwardTouchEvents(for: containerView)
-
-    containerView.addSubview(logo)
-
-    let colorScheme = AppTheme.containerScheme.colorScheme
-
-    let image = MDCDrawImage(CGRect(x:0,
-                                    y:0,
-                                    width: Constants.logoWidthHeight,
-                                    height: Constants.logoWidthHeight),
-                             { MDCCatalogDrawMDCLogoLight($0, $1) },
-                             colorScheme)
-    logo.image = image
-
-    menuButton.addTarget(self.navigationController,
-                         action: #selector(navigationController?.presentMenu),
-                         for: .touchUpInside)
-    menuButton.tintColor = colorScheme.onPrimaryColor
-    containerView.addSubview(menuButton)
-
-    setupFlexibleHeaderContentConstraints()
-    constrainLabel(label: titleLabel,
-                   containerView: containerView,
-                   insets: titleInsets,
-                   height: titleSize.height)
-
-    MDCFlexibleHeaderColorThemer.applySemanticColorScheme(colorScheme,
-                                                          to: headerViewController.headerView)
-
-    headerViewController.headerView.trackingScrollView = collectionView
-
-    headerViewController.headerView.setShadowLayer(MDCShadowLayer()) { (layer, intensity) in
-      let shadowLayer = layer as? MDCShadowLayer
-      CATransaction.begin()
-      CATransaction.setDisableActions(true)
-      shadowLayer!.elevation = ShadowElevation(intensity * ShadowElevation.appBar.rawValue)
-      CATransaction.commit()
-    }
-
-    view.addSubview(headerViewController.view)
-    headerViewController.didMove(toParent: self)
+    collectionView?.backgroundColor = AppTheme.containerScheme.colorScheme.backgroundColor
+    view.backgroundColor = AppTheme.containerScheme.colorScheme.backgroundColor
 
     collectionView?.accessibilityIdentifier = "collectionView"
-    if #available(iOS 11.0, *) {
-      collectionView?.contentInsetAdjustmentBehavior = .always
-    }
+
+    collectionView.dataSource = model
   }
 
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    collectionView?.collectionViewLayout.invalidateLayout()
-    navigationController?.setNavigationBarHidden(true, animated: animated)
-  }
+  override func viewDidLayoutSubviews() {
+    super.viewDidLayoutSubviews()
 
-  override func willAnimateRotation(
-    to toInterfaceOrientation: UIInterfaceOrientation, duration: TimeInterval) {
-    collectionView?.collectionViewLayout.invalidateLayout()
-  }
-
-  override var childForStatusBarStyle: UIViewController? {
-    return headerViewController
-  }
-
-  override var childForStatusBarHidden: UIViewController? {
-    return headerViewController
-  }
-
-  @available(iOS 11, *)
-  override func viewSafeAreaInsetsDidChange() {
-    // Re-constraint the title label to account for changes in safeAreaInsets's left and right.
-    logoLeftPaddingConstraint?.constant = Constants.inset + view.safeAreaInsets.left
-    menuButtonRightPaddingConstraint?.constant = -1 * (Constants.inset + view.safeAreaInsets.right)
-    menuTopPaddingConstraint?.constant = Constants.inset + view.safeAreaInsets.top
-  }
-
-  func setupFlexibleHeaderContentConstraints() {
-
-    logoLeftPaddingConstraint = NSLayoutConstraint(item: logo,
-                                                   attribute: .leading,
-                                                   relatedBy: .equal,
-                                                   toItem: logo.superview,
-                                                   attribute: .leading,
-                                                   multiplier: 1,
-                                                   constant: Constants.inset)
-    logoLeftPaddingConstraint?.isActive = true
-
-    menuButtonRightPaddingConstraint = NSLayoutConstraint(item: menuButton,
-                                                          attribute: .trailing,
-                                                          relatedBy: .equal,
-                                                          toItem: menuButton.superview,
-                                                          attribute: .trailing,
-                                                          multiplier: 1,
-                                                          constant: -1 * Constants.inset)
-    menuButtonRightPaddingConstraint?.isActive = true
-
-    menuTopPaddingConstraint = NSLayoutConstraint(item: menuButton,
-                                                  attribute: .top,
-                                                  relatedBy: .equal,
-                                                  toItem: menuButton.superview,
-                                                  attribute: .top,
-                                                  multiplier: 1,
-                                                  constant: Constants.menuTopVerticalSpacing)
-    menuTopPaddingConstraint?.isActive = true
-
-    NSLayoutConstraint(item: logo,
-                       attribute: .centerY,
-                       relatedBy: .equal,
-                       toItem: menuButton,
-                       attribute: .centerY,
-                       multiplier: 1,
-                       constant: 0).isActive = true
-    NSLayoutConstraint(item: logo,
-                       attribute: .width,
-                       relatedBy: .equal,
-                       toItem: logo,
-                       attribute: .height,
-                       multiplier: 1,
-                       constant: 0).isActive = true
-    NSLayoutConstraint(item: logo,
-                       attribute: .width,
-                       relatedBy: .equal,
-                       toItem: nil,
-                       attribute: .notAnAttribute,
-                       multiplier: 1,
-                       constant: Constants.logoWidthHeight).isActive = true
-
-    NSLayoutConstraint(item: menuButton,
-                       attribute: .width,
-                       relatedBy: .equal,
-                       toItem: menuButton,
-                       attribute: .height,
-                       multiplier: 1,
-                       constant: 0).isActive = true
-    NSLayoutConstraint(item: menuButton,
-                       attribute: .width,
-                       relatedBy: .equal,
-                       toItem: nil,
-                       attribute: .notAnAttribute,
-                       multiplier: 1,
-                       constant: Constants.menuButtonWidthHeight).isActive = true
-  }
-
-  // MARK: UICollectionViewDataSource
-
-  override func numberOfSections(in collectionView: UICollectionView) -> Int {
-    return 1
-  }
-
-  override func collectionView(_ collectionView: UICollectionView,
-                               numberOfItemsInSection section: Int) -> Int {
-    return node.children.count
-  }
-
-  func inkViewForView(_ view: UIView) -> MDCInkView {
-    let foundInkView = MDCInkView.injectedInkView(for: view)
-    foundInkView.inkStyle = .bounded
-    foundInkView.inkColor = UIColor(white:0.957, alpha: 0.2)
-    return foundInkView
-  }
-
-  // MARK: MDCInkTouchControllerDelegate
-
-  func inkTouchController(_ inkTouchController: MDCInkTouchController,
-                          shouldProcessInkTouchesAtTouchLocation location: CGPoint) -> Bool {
-    return self.collectionView!.indexPathForItem(at: location) != nil
-  }
-
-  func inkTouchController(_ inkTouchController: MDCInkTouchController,
-                          inkViewAtTouchLocation location: CGPoint) -> MDCInkView? {
-    if let indexPath = self.collectionView!.indexPathForItem(at: location) {
-      let cell = self.collectionView!.cellForItem(at: indexPath)
-      return inkViewForView(cell!)
-    }
-    return MDCInkView()
-  }
-
-  // MARK: UICollectionViewDelegate
-
-  override func collectionView(_ collectionView: UICollectionView,
-                               cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-    let cell =
-        collectionView.dequeueReusableCell(withReuseIdentifier: "MDCCatalogCollectionViewCell",
-                                           for: indexPath)
-    cell.backgroundColor = AppTheme.containerScheme.colorScheme.backgroundColor
-
-    let componentName = node.children[indexPath.row].title
-    if let catalogCell = cell as? MDCCatalogCollectionViewCell {
-      catalogCell.populateView(componentName)
-    }
-
-    // Ensure that ink animations aren't recycled.
-    MDCInkView.injectedInkView(for: view).cancelAllAnimations(animated: false)
-
-    return cell
-  }
-
-  func collectionView(_ collectionView: UICollectionView,
-                      layout collectionViewLayout: UICollectionViewLayout,
-                      sizeForItemAt indexPath: IndexPath) -> CGSize {
+    let layout = collectionView.collectionViewLayout as! UICollectionViewFlowLayout
     let dividerWidth: CGFloat = 1
     var safeInsets: CGFloat = 0
     if #available(iOS 11, *) {
@@ -374,7 +106,12 @@ class MDCCatalogComponentsController: UICollectionViewController, UICollectionVi
       // iPads have 4 columns
       cellWidthHeight = (view.frame.size.width - 5 * dividerWidth - safeInsets) / 4
     }
-    return CGSize(width: cellWidthHeight, height: cellWidthHeight)
+    layout.itemSize = CGSize(width: cellWidthHeight, height: cellWidthHeight)
+  }
+
+  override func willAnimateRotation(to toInterfaceOrientation: UIInterfaceOrientation,
+                                    duration: TimeInterval) {
+    collectionView?.collectionViewLayout.invalidateLayout()
   }
 
   override func collectionView(_ collectionView: UICollectionView,
@@ -386,84 +123,12 @@ class MDCCatalogComponentsController: UICollectionViewController, UICollectionVi
     } else {
       vc = MDCNodeListViewController(node: node)
     }
-    self.navigationController?.setMenuBarButton(for: vc)
+
+    vc.navigationItem.rightBarButtonItem =
+      UIBarButtonItem(barButtonSystemItem: .action,
+      target: vc,
+      action: #selector(presentMenu))
+
     self.navigationController?.pushViewController(vc, animated: true)
   }
-
-  // MARK: Private
-  func constrainLabel(label: UILabel,
-                      containerView: UIView,
-                      insets: UIEdgeInsets,
-                      height: CGFloat) {
-
-    NSLayoutConstraint(item: label,
-                       attribute: .leading,
-                       relatedBy: .equal,
-                       toItem: logo,
-                       attribute: .trailing,
-                       multiplier: 1.0,
-                       constant: insets.left).isActive = true
-
-    NSLayoutConstraint(item: label,
-                       attribute: .trailing,
-                       relatedBy: .equal,
-                       toItem: menuButton,
-                       attribute: .leading,
-                       multiplier: 1.0,
-                       constant: -insets.right).isActive = true
-
-    NSLayoutConstraint(item: label,
-                       attribute: .bottom,
-                       relatedBy: .equal,
-                       toItem: containerView,
-                       attribute: .bottom,
-                       multiplier: 1.0,
-                       constant: -insets.bottom).isActive = true
-
-    NSLayoutConstraint(item: label,
-                       attribute: .height,
-                       relatedBy: .equal,
-                       toItem: nil,
-                       attribute: .notAnAttribute,
-                       multiplier: 1.0,
-                       constant: height).isActive = true
-  }
-}
-
-// UIScrollViewDelegate
-extension MDCCatalogComponentsController {
-
-  override func scrollViewDidScroll(_ scrollView: UIScrollView) {
-    if scrollView == headerViewController.headerView.trackingScrollView {
-      self.headerViewController.headerView.trackingScrollDidScroll()
-    }
-  }
-
-  override func scrollViewDidEndDragging(
-      _ scrollView: UIScrollView,
-      willDecelerate decelerate: Bool) {
-    let headerView = headerViewController.headerView
-    if scrollView == headerView.trackingScrollView {
-      headerView.trackingScrollDidEndDraggingWillDecelerate(decelerate)
-    }
-  }
-
-  override func scrollViewDidEndDecelerating(_ scrollView: UIScrollView) {
-    if scrollView == headerViewController.headerView.trackingScrollView {
-      self.headerViewController.headerView.trackingScrollDidEndDecelerating()
-    }
-  }
-
-  override func scrollViewWillEndDragging(
-      _ scrollView: UIScrollView,
-      withVelocity velocity: CGPoint,
-      targetContentOffset: UnsafeMutablePointer<CGPoint>) {
-    let headerView = headerViewController.headerView
-    if scrollView == headerView.trackingScrollView {
-      headerView.trackingScrollWillEndDragging(
-        withVelocity: velocity,
-        targetContentOffset: targetContentOffset)
-    }
-  }
-
 }

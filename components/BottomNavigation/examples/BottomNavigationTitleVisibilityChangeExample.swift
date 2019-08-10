@@ -97,11 +97,6 @@ class BottomNavigationTitleVisibilityChangeExample: UIViewController, MDCBottomN
     layoutBottomNavBar()
   }
   
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    self.navigationController?.setNavigationBarHidden(true, animated: animated)
-  }
-  
   func bottomNavigationBar(_ bottomNavigationBar: MDCBottomNavigationBar, didSelect item: UITabBarItem) {
     if item == bottomNavigationBar.items[0] {
       bottomNavigationBar.titleVisibility = .never

@@ -86,11 +86,6 @@ class BottomNavigationNilBadges : UIViewController {
     super.viewSafeAreaInsetsDidChange()
     layoutBottomNavBar()
   }
-
-  override func viewWillAppear(_ animated: Bool) {
-    super.viewWillAppear(animated)
-    self.navigationController?.setNavigationBarHidden(true, animated: animated)
-  }
 }
 
 // MARK: Catalog by convention

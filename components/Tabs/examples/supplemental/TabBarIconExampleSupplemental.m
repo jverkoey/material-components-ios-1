@@ -18,8 +18,6 @@
 
 #import "TabBarIconExampleSupplemental.h"
 
-#import "MaterialAppBar+ColorThemer.h"
-#import "MaterialAppBar+TypographyThemer.h"
 #import "MaterialButtons+ButtonThemer.h"
 #import "MaterialPalettes.h"
 #import "MaterialTabs+TypographyThemer.h"
@@ -33,8 +31,6 @@
 @implementation TabBarIconExample (Supplemental)
 
 - (void)setupExampleViews {
-  [self setupAppBar];
-
   [self setupScrollView];
   [self setupScrollingContent];
 
@@ -77,25 +73,6 @@
                  forControlEvents:UIControlEventTouchUpInside];
 }
 
-- (void)setupAppBar {
-  self.view.backgroundColor = [UIColor whiteColor];
-
-  self.appBarViewController = [[MDCAppBarViewController alloc] init];
-  [self addChildViewController:self.appBarViewController];
-
-  self.appBarViewController.headerView.tintColor = [UIColor whiteColor];
-  self.appBarViewController.headerView.minMaxHeightIncludesSafeArea = NO;
-  self.appBarViewController.headerView.minimumHeight = 56 + 72;
-
-  [self.view addSubview:self.appBarViewController.view];
-  [self.appBarViewController didMoveToParentViewController:self];
-
-  [MDCAppBarColorThemer applyColorScheme:self.colorScheme
-                  toAppBarViewController:self.appBarViewController];
-  [MDCAppBarTypographyThemer applyTypographyScheme:self.typographyScheme
-                            toAppBarViewController:self.appBarViewController];
-}
-
 - (void)setupScrollView {
   self.scrollView = [[UIScrollView alloc] initWithFrame:CGRectZero];
   self.scrollView.translatesAutoresizingMaskIntoConstraints = NO;
@@ -104,7 +81,7 @@
   [self.view addSubview:self.scrollView];
 
   NSDictionary *viewsScrollView =
-      @{@"scrollView" : self.scrollView, @"header" : self.appBarViewController.headerStackView};
+      @{@"scrollView" : self.scrollView};
   [NSLayoutConstraint
       activateConstraints:[NSLayoutConstraint constraintsWithVisualFormat:@"V:[header][scrollView]|"
                                                                   options:0
@@ -241,10 +218,6 @@
                               multiplier:y
                                 constant:0]
       .active = YES;
-}
-
-- (UIViewController *)childViewControllerForStatusBarStyle {
-  return self.appBarViewController;
 }
 
 - (UIStatusBarStyle)preferredStatusBarStyle {
