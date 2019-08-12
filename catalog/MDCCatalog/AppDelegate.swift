@@ -18,6 +18,7 @@ import CatalogByConvention
 import MaterialComponents.MaterialBottomSheet
 import MaterialComponents.MaterialCollections
 import MaterialComponents.MaterialIcons_ic_more_horiz
+import MaterialComponents.MaterialTheming_UINavigationController
 
 @UIApplicationMain
 class AppDelegate: UIResponder, UIApplicationDelegate {
@@ -35,40 +36,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     let rootNodeViewController = MDCCatalogComponentsController(node: tree)
     let navigationController = UINavigationController(rootViewController: rootNodeViewController)
-
-    if #available(iOS 11.0, *) {
-      navigationController.navigationBar.prefersLargeTitles = true
-      navigationController.navigationBar.largeTitleTextAttributes = [
-        .font: AppTheme.containerScheme.typographyScheme.headline5
-      ]
-    }
-    if #available(iOS 13.0, *) {
-      let appearance = navigationController.navigationBar.standardAppearance
-
-      // Bar background
-      appearance.backgroundColor = AppTheme.containerScheme.colorScheme.primaryColor
-
-      // Collapsed state
-      appearance.titleTextAttributes = [
-        .foregroundColor: AppTheme.containerScheme.colorScheme.onPrimaryColor,
-        .font: AppTheme.containerScheme.typographyScheme.headline6
-      ]
-      // Expanded state
-      appearance.largeTitleTextAttributes = [
-        .foregroundColor: AppTheme.containerScheme.colorScheme.onPrimaryColor,
-        .font: AppTheme.containerScheme.typographyScheme.headline5
-      ]
-      // Icoon color
-      navigationController.navigationBar.tintColor = AppTheme.containerScheme.colorScheme.onPrimaryColor
-
-      navigationController.navigationBar.scrollEdgeAppearance = appearance
-      navigationController.navigationBar.isTranslucent = false
-    } else {
-      navigationController.navigationBar.barStyle = .black
-      navigationController.navigationBar.isTranslucent = false
-      navigationController.navigationBar.barTintColor = AppTheme.containerScheme.colorScheme.primaryColor
-      navigationController.navigationBar.tintColor = AppTheme.containerScheme.colorScheme.onPrimaryColor
-    }
+    navigationController.mdc_applyTheme(withScheme: AppTheme.containerScheme)
     self.navigationController = navigationController
 
     navigationController.view.backgroundColor = AppTheme.containerScheme.colorScheme.backgroundColor
