@@ -134,8 +134,7 @@ class MDCThemePickerViewController: UIViewController, UICollectionViewDataSource
     super.traitCollectionDidChange(previousTraitCollection)
 
     colorSchemeConfigurations.forEach { config in
-      config.scheme.typographyScheme = MDCTypographyScheme.resolve(config.scheme.typographyScheme,
-                                                                   for: traitCollection)
+      config.scheme.typographyScheme.adjust(for: traitCollection)
     }
   }
 

@@ -170,17 +170,8 @@
   return self;
 }
 
-+ (MDCTypographyScheme *)resolveScheme:(id<MDCTypographyScheming>)scheme
-                    forTraitCollection:(UITraitCollection *)traitCollection {
-  MDCTypographyScheme *resolved;
-  if ([scheme respondsToSelector:@selector(mutableCopyWithZone:)]) {
-    resolved = [scheme mutableCopy];
-  } else {
-    resolved =
-        [[MDCTypographyScheme alloc] initWithDefaults:MDCTypographySchemeDefaultsMaterial201902];
-  }
-  [self mutateScheme:resolved forTraitCollection:traitCollection];
-  return resolved;
+- (void)adjustForTraitCollection:(nonnull UITraitCollection *)traitCollection {
+  [MDCTypographyScheme mutateScheme:self forTraitCollection:traitCollection];
 }
 
 #pragma mark Private
@@ -200,6 +191,329 @@
   scheme.caption = [scheme.caption mdc_scaledFontForTraitCollection:traitCollection];
   scheme.button = [scheme.button mdc_scaledFontForTraitCollection:traitCollection];
   scheme.overline = [scheme.overline mdc_scaledFontForTraitCollection:traitCollection];
+}
+
+@end
+
+@protocol GMDCTypographySchemingAdditions <NSObject>
+
+@property(nonatomic, nonnull, readonly) UIFont *subhead1;
+@property(nonatomic, nonnull, readonly) UIFont *subhead2;
+@property(nonatomic, nonnull, readonly) UIFont *display1;
+@property(nonatomic, nonnull, readonly) UIFont *display2;
+@property(nonatomic, nonnull, readonly) UIFont *display3;
+@property(nonatomic, nonnull, readonly) UIFont *altButton;
+
+@end
+
+
+@interface GMDCTypographyScheme ()
+
+@property(nonatomic, readonly, nonnull) id<MDCTypographyScheming> mdcTypographyScheme;
+@property(nonatomic, readonly, nonnull) id<GMDCTypographySchemingAdditions>
+    typographySchemingAdditions;
+
+@end
+
+/**
+ Provides Google Material defaults from 201808, with the addition that fonts will have
+ appropriate scalingCurves attached, which can be used to support Dynamic Type.
+ */
+__attribute__((objc_subclassing_restricted)) @interface GMDCMaterialTypographyScheme201905
+    : NSObject<MDCTypographyScheming>
+@end
+
+/**
+ Provides additional Google Material defaults from 201808, with the addition that fonts will
+ have appropriate scalingCurves attached, which can be used to support Dynamic Type.
+ */
+__attribute__((objc_subclassing_restricted)) @interface GMDCMaterialTypographySchemeAdditions201905
+    : NSObject<GMDCTypographySchemingAdditions>
+@end
+
+
+
+@implementation GMDCMaterialTypographyScheme201905 {
+  UIFont *_headline1;
+  UIFont *_headline2;
+  UIFont *_headline3;
+  UIFont *_headline4;
+  UIFont *_headline5;
+  UIFont *_headline6;
+  UIFont *_subtitle1;
+  UIFont *_subtitle2;
+  UIFont *_body1;
+  UIFont *_body2;
+  UIFont *_caption;
+  UIFont *_button;
+  UIFont *_overline;
+}
+
+- (BOOL)useCurrentContentSizeCategoryWhenApplied {
+  return NO;
+}
+
+// TODO(b/135471973): This method will eventually be removed and replaced by
+// useCurrentContentSizeCategoryWhenApplied.
+- (BOOL)mdc_adjustsFontForContentSizeCategory {
+  return self.useCurrentContentSizeCategoryWhenApplied;
+}
+
+- (UIFont *)headline1 {
+  if (_headline1 == nil) {
+    // lazy load
+  }
+  return _headline1;
+}
+
+- (UIFont *)headline2 {
+  if (_headline2 == nil) {
+    // lazy load
+  }
+  return _headline2;
+}
+
+- (UIFont *)headline3 {
+  if (_headline3 == nil) {
+    // lazy load
+  }
+  return _headline3;
+}
+
+- (UIFont *)headline4 {
+  if (_headline4 == nil) {
+    // lazy load
+  }
+  return _headline4;
+}
+
+- (UIFont *)headline5 {
+  if (_headline5 == nil) {
+    // lazy load
+  }
+  return _headline5;
+}
+
+- (UIFont *)headline6 {
+  if (_headline6 == nil) {
+    // lazy load
+  }
+  return _headline6;
+}
+
+- (UIFont *)subtitle1 {
+  if (_subtitle1 == nil) {
+    // lazy load
+  }
+  return _subtitle1;
+}
+
+- (UIFont *)subtitle2 {
+  if (_subtitle2 == nil) {
+    // lazy load
+  }
+  return _subtitle2;
+}
+
+- (UIFont *)body1 {
+  if (_body1 == nil) {
+    // lazy load
+  }
+  return _body1;
+}
+
+- (UIFont *)body2 {
+  if (_body2 == nil) {
+    // lazy load
+  }
+  return _body2;
+}
+
+- (UIFont *)caption {
+  if (_caption == nil) {
+    // lazy load
+  }
+  return _caption;
+}
+
+- (UIFont *)button {
+  if (_button == nil) {
+    // lazy load
+  }
+  return _button;
+}
+
+- (UIFont *)overline {
+  if (_overline == nil) {
+    // lazy load
+  }
+  return _overline;
+}
+
+@end
+
+@implementation GMDCMaterialTypographySchemeAdditions201905 {
+  UIFont *_subhead1;
+  UIFont *_subhead2;
+  UIFont *_display1;
+  UIFont *_display2;
+  UIFont *_display3;
+  UIFont *_altButton;
+}
+
+- (UIFont *)subhead1 {
+  if (_subhead1 == nil) {
+    // lazy load
+  }
+  return _subhead1;
+}
+
+- (UIFont *)subhead2 {
+  if (_subhead2 == nil) {
+    // lazy load
+  }
+  return _subhead2;
+}
+
+- (UIFont *)display1 {
+  if (_display1 == nil) {
+    // lazy load
+  }
+  return _display1;
+}
+
+- (UIFont *)display2 {
+  if (_display2 == nil) {
+    // lazy load
+  }
+  return _display2;
+}
+
+- (UIFont *)display3 {
+  if (_display3 == nil) {
+    // lazy load
+  }
+  return _display3;
+}
+
+// TODO (b/131772342): To be deprecated.
+- (UIFont *)altButton {
+  if (_altButton == nil) {
+    UIFont *altButtonFont = [UIFont systemFontOfSize:14 weight:UIFontWeightMedium];
+    // There is no scaling curve available for altButton in http://go/gmdc-dynamic-type,
+    // MDCTextStyleButton is used for altButton here because they use the same font.
+    MDCFontScaler *fontScaler = [MDCFontScaler scalerForMaterialTextStyle:MDCTextStyleButton];
+    altButtonFont = [fontScaler scaledFontWithFont:altButtonFont];
+    _altButton = [altButtonFont mdc_scaledFontAtDefaultSize];
+  }
+  return _altButton;
+}
+
+@end
+
+@implementation GMDCTypographyScheme
+
+- (instancetype)init {
+  return [self initWithDefaults:GMDCTypographySchemeDefaultsGoogleMaterial201808];
+}
+
+- (instancetype)initWithDefaults:(GMDCTypographySchemeDefaults)defaults {
+  self = [super init];
+  if (self) {
+    _useCurrentContentSizeCategoryWhenApplied = NO;
+
+    _mdcTypographyScheme = [[GMDCMaterialTypographyScheme201905 alloc] init];
+    _typographySchemingAdditions = [[GMDCMaterialTypographySchemeAdditions201905 alloc] init];
+  }
+  return self;
+}
+
+- (BOOL)mdc_adjustsFontForContentSizeCategory {
+  return self.useCurrentContentSizeCategoryWhenApplied;
+}
+
+- (void)setMdc_adjustsFontForContentSizeCategory:(BOOL)mdc_adjustsFontForContentSizeCategory {
+  self.useCurrentContentSizeCategoryWhenApplied = mdc_adjustsFontForContentSizeCategory;
+}
+
+#pragma mark - MDC fonts
+
+- (UIFont *)headline1 {
+  return _mdcTypographyScheme.headline1;
+}
+
+- (UIFont *)headline2 {
+  return _mdcTypographyScheme.headline2;
+}
+
+- (UIFont *)headline3 {
+  return _mdcTypographyScheme.headline3;
+}
+
+- (UIFont *)headline4 {
+  return _mdcTypographyScheme.headline4;
+}
+
+- (UIFont *)headline5 {
+  return _mdcTypographyScheme.headline5;
+}
+
+- (UIFont *)headline6 {
+  return _mdcTypographyScheme.headline6;
+}
+
+- (UIFont *)subtitle1 {
+  return _mdcTypographyScheme.subtitle1;
+}
+
+- (UIFont *)subtitle2 {
+  return _mdcTypographyScheme.subtitle2;
+}
+
+- (UIFont *)body1 {
+  return _mdcTypographyScheme.body1;
+}
+
+- (UIFont *)body2 {
+  return _mdcTypographyScheme.body2;
+}
+
+- (UIFont *)caption {
+  return _mdcTypographyScheme.caption;
+}
+
+- (UIFont *)button {
+  return _mdcTypographyScheme.button;
+}
+
+- (UIFont *)overline {
+  return _mdcTypographyScheme.overline;
+}
+
+#pragma mark - GMDC fonts
+
+- (UIFont *)subhead1 {
+  return _typographySchemingAdditions.subhead1;
+}
+
+- (UIFont *)subhead2 {
+  return _typographySchemingAdditions.subhead2;
+}
+
+- (UIFont *)display1 {
+  return _typographySchemingAdditions.display1;
+}
+
+- (UIFont *)display2 {
+  return _typographySchemingAdditions.display2;
+}
+
+- (UIFont *)display3 {
+  return _typographySchemingAdditions.display3;
+}
+
+- (UIFont *)altButton {
+  return _typographySchemingAdditions.altButton;
 }
 
 @end

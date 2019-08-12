@@ -30,8 +30,7 @@ final class AppTheme {
 
   static func containerScheme(resolvedWith traitCollection: UITraitCollection) -> MDCContainerScheming {
     let resolved = DefaultContainerScheme()
-    resolved.typographyScheme = MDCTypographyScheme.resolve(resolved.typographyScheme,
-                                                            for: traitCollection)
+    resolved.typographyScheme.adjust(for: traitCollection)
     return resolved
   }
 

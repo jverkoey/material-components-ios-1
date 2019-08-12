@@ -30,8 +30,7 @@
 + (MDCContainerScheme *)resolveScheme:(id<MDCContainerScheming>)scheme
                    forTraitCollection:(UITraitCollection *)traitCollection {
   MDCContainerScheme *containerScheme = [[MDCContainerScheme alloc] init];
-  containerScheme.typographyScheme = [MDCTypographyScheme resolveScheme:scheme.typographyScheme
-                                                     forTraitCollection:traitCollection];
+  [containerScheme.typographyScheme adjustForTraitCollection:traitCollection];
   return containerScheme;
 }
 
@@ -52,8 +51,7 @@
 + (MDCContainerScheme *)resolveScheme:(id<MDCContainerScheming>)scheme
                    forTraitCollection:(UITraitCollection *)traitCollection {
   MDCContainerScheme *copy = [scheme mutableCopy];
-  copy.typographyScheme = [MDCTypographyScheme resolveScheme:copy.typographyScheme
-                                          forTraitCollection:traitCollection];
+  [copy.typographyScheme adjustForTraitCollection:traitCollection];
   return copy;
 }
 

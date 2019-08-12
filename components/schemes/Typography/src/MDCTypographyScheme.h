@@ -118,7 +118,7 @@
  @note This protocol will eventually require conformance to NSMutableCopying and this method will
  become required.
  */
-- (nonnull MDCTypographyScheme *)mutableCopy;
+- (nonnull id)mutableCopy;
 
 /**
  Returns a mutable copy of the receiver with the given zone.
@@ -224,13 +224,9 @@ typedef NS_ENUM(NSInteger, MDCTypographySchemeDefaults) {
  ignored and the returned font will be scaled with UIContentSizeCategoryLarge.
 
  @param traitCollection The trait collection that should be used to resolve the fonts.
- @return A copy of this instance where each font's point size is determined by its
- @c mdc_scalingCurve for the @c traitCollection's corresponding content size category, or if the
- font has no @c mdc_scalingCurve then the font will not be modified.
  @seealso MDCFontScaler
  */
-+ (nonnull MDCTypographyScheme *)resolveScheme:(nonnull id<MDCTypographyScheming>)scheme
-                            forTraitCollection:(nonnull UITraitCollection *)traitCollection;
+- (void)adjustForTraitCollection:(nonnull UITraitCollection *)traitCollection;
 
 @end
 
@@ -243,5 +239,177 @@ typedef NS_ENUM(NSInteger, MDCTypographySchemeDefaults) {
  Modifying this property will also modify useCurrentContentSizeCategoryWhenApplied, and vice-versa.
  */
 @property(nonatomic, assign, readwrite) BOOL mdc_adjustsFontForContentSizeCategory;
+
+@end
+
+/**
+ An enum of default typography schemes that are supported.
+ */
+typedef NS_ENUM(NSInteger, GMDCTypographySchemeDefaults) {
+  /**
+   The Google Material defaults, circa August 2018.
+   */
+  GMDCTypographySchemeDefaultsGoogleMaterial201808,
+
+  /**
+   The legacy Google Material defaults, circa December 2015.
+   */
+  GMDCTypographySchemeDefaultsLegacyGoogleMaterial201512,
+
+  /**
+   The Material defaults, circa August 2018, but with support for scalable fonts.
+
+   Identical to GMDCTypographySchemeDefaultsMaterial201808 with the addition that fonts will have
+   appropriate scalingCurves attached. These curves can be used by components that support
+   MDC Dynamic Type curves.
+   */
+  GMDCTypographySchemeDefaultsGoogleMaterial201905,
+};
+
+/**
+ Wrapper around MDCTypographyScheming which adds Google Material brand fonts.
+
+ @see http://go/gm-spec-applying-typography
+ */
+@protocol GMDCTypographyScheming <NSObject, MDCTypographyScheming>
+
+/**
+ The headline 1 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *headline1;
+
+/**
+ The headline 2 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *headline2;
+
+/**
+ The headline 3 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *headline3;
+
+/**
+ The headline 4 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *headline4;
+
+/**
+ The headline 5 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *headline5;
+
+/**
+ The headline 6 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *headline6;
+
+/**
+ The subtitle 1 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *subtitle1;
+
+/**
+ The subtitle 2 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *subtitle2;
+
+/**
+ The body 1 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *body1;
+
+/**
+ The body 2 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *body2;
+
+/**
+ The caption font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *caption;
+
+/**
+ The button font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *button;
+
+/**
+ The overline font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *overline;
+
+/**
+ The subhead1 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *subhead1;
+
+/**
+ The subhead2 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *subhead2;
+
+/**
+ The display1 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *display1;
+
+/**
+ The display2 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *display2;
+
+/**
+ The display3 font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *display3;
+
+/**
+ The altButton font.
+ */
+@property(nonatomic, nonnull, readonly, copy) UIFont *altButton;
+
+@end
+
+/**
+ The Google Material brand typography scheme for Google apps.
+ */
+@interface GMDCTypographyScheme : NSObject <GMDCTypographyScheming>
+
+/**
+ Initializes the typography scheme with the latest Google Material defaults.
+ */
+- (nonnull instancetype)init;
+
+/**
+ Initializes the typography scheme with the values associated with the given defaults.
+ */
+- (nonnull instancetype)initWithDefaults:(GMDCTypographySchemeDefaults)defaults;
+
+/**
+ A hint for how fonts in this scheme should be applied to components in relation to Dynamic Type.
+
+ @note Enabling this flag only has an effect if the fonts stored on this scheme are scalable. See
+ MDCTypographySchemeDefaults for default versions that are scalable. Alternatively, you can specify
+ custom scalable fonts using the MDCFontScaler API.
+
+ When fonts are applied to components:
+
+ - If this flag is disabled, make no changes to the font.
+ - If this flag is enabled, adjust the font with respect to the current content size category.
+
+ Default value is NO.
+ */
+@property(nonatomic, assign, readwrite) BOOL useCurrentContentSizeCategoryWhenApplied;
+
+/**
+ Whether user interface elements themed with this scheme should automatically resize their
+ typography based on the device's setting.
+
+ @warning Will eventually be deprecated and removed. Please use
+ useCurrentContentSizeCategoryWhenApplied instead
+
+ Modifying this property will also modify useCurrentContentSizeCategoryWhenApplied, and vice-versa.
+*/
+@property(nonatomic) BOOL mdc_adjustsFontForContentSizeCategory;
 
 @end
