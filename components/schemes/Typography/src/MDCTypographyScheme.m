@@ -44,6 +44,7 @@
         _overline = [UIFont systemFontOfSize:12.0 weight:UIFontWeightMedium];
         break;
       case MDCTypographySchemeDefaultsMaterial201902:
+      case MDCTypographySchemeDefaultsMaterial201804Scalable:
         _headline1 = [UIFont systemFontOfSize:96.0 weight:UIFontWeightLight];
         _headline2 = [UIFont systemFontOfSize:60.0 weight:UIFontWeightLight];
         _headline3 = [UIFont systemFontOfSize:48.0 weight:UIFontWeightRegular];

@@ -119,7 +119,7 @@ typedef NS_ENUM(NSInteger, MDCTypographySchemeDefaults) {
   /**
    The Material defaults, circa April 2018.
    */
-  MDCTypographySchemeDefaultsMaterial201804,
+  MDCTypographySchemeDefaultsMaterial201804 = 0,
 
   /**
    The Material defaults, circa February 2019.
@@ -128,7 +128,15 @@ typedef NS_ENUM(NSInteger, MDCTypographySchemeDefaults) {
    MDCTypographySchemeDefaultsMaterial201804 with the addition that vended fonts will have
    appropriate scalingCurves attached.
    */
-  MDCTypographySchemeDefaultsMaterial201902,
+  MDCTypographySchemeDefaultsMaterial201902 = 1,
+
+  /**
+   The Material defaults, circa April 2018.
+
+   The fonts will have Dynamic Type-compatible scaling curves and are initialized with the user's
+   current Dynamic Type setting.
+   */
+  MDCTypographySchemeDefaultsMaterial201804Scalable = 2,
 };
 
 /**

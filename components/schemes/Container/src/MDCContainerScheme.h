@@ -58,6 +58,11 @@ __attribute__((objc_subclassing_restricted)) @interface MDCContainerScheme
 @property(nonatomic, nonnull, readwrite) MDCTypographyScheme *typographyScheme;
 
 /**
+ Defaults to @c MDCTypographySchemeDefaultsMaterial201902
+ */
+@property(nonatomic, nonnull, readwrite) MDCTypographyScheme *scalableTypographyScheme;
+
+/**
  Defaults to @c nil
  */
 @property(nonatomic, nullable, readwrite) MDCShapeScheme *shapeScheme;
