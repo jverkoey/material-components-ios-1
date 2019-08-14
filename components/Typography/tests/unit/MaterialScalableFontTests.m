@@ -402,6 +402,28 @@
                                    @(font.pointSize));
       }
     }
+
+
+    if (@available(iOS 11.0, *)) {
+      for (UIFontTextStyle textStyle in textStyles) {
+        NSLog(@"%@", textStyle);
+        for (UIContentSizeCategory contentSizeCategory in sizeCategories) {
+          UITraitCollection *traitCollection =
+              [UITraitCollection traitCollectionWithPreferredContentSizeCategory:contentSizeCategory];
+
+          NSMutableArray *line = [@[contentSizeCategory] mutableCopy];
+          UILabel *label = [[UILabel alloc] init];
+          for (CGFloat fontSize = 10; fontSize < 100; fontSize++) {
+            UIFont *customFont = [UIFont systemFontOfSize:fontSize weight:UIFontWeightRegular];
+            label.font = [[UIFontMetrics metricsForTextStyle:textStyle] scaledFontForFont:customFont
+                                                            compatibleWithTraitCollection:traitCollection];
+            [line addObject:@(label.font.pointSize)];
+          }
+          NSLog(@"%@", [line componentsJoinedByString:@", "]);
+        }
+        NSLog(@"");
+      }
+    }
   }
 }
 
