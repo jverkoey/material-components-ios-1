@@ -20,7 +20,6 @@
 
 @implementation ChipsActionExampleViewController {
   UICollectionView *_collectionView;
-  MDCChipView *_sizingChip;
   BOOL _isOutlined;
 }
 
@@ -38,10 +37,15 @@
   // Our preferred CollectionView Layout For chips
   MDCChipCollectionViewFlowLayout *layout = [[MDCChipCollectionViewFlowLayout alloc] init];
   layout.minimumInteritemSpacing = 10;
+  MDCChipCollectionViewCell *cell = [[MDCChipCollectionViewCell alloc] init];
+  layout.estimatedItemSize = [cell intrinsicContentSize];
 
   // Action chips should allow single selection, collection view default is based on single
   // selection. Note that MDCChipCollectionViewCell manages the state of the chip accordingly.
-  _collectionView = [[UICollectionView alloc] initWithFrame:CGRectZero collectionViewLayout:layout];
+  _collectionView = [[UICollectionView alloc] initWithFrame:self.view.bounds
+                                       collectionViewLayout:layout];
+  _collectionView.autoresizingMask = (UIViewAutoresizingFlexibleWidth
+                                      | UIViewAutoresizingFlexibleHeight);
 
   // Since there is no scrolling turning off the delaysContentTouches makes the cells respond faster
   _collectionView.delaysContentTouches = NO;
@@ -58,15 +62,11 @@
     _collectionView.contentInsetAdjustmentBehavior = UIScrollViewContentInsetAdjustmentAlways;
   }
 
-  // This is used to calculate the size of each chip based on the chip setup
-  _sizingChip = [[MDCChipView alloc] init];
-
   [self.view addSubview:_collectionView];
 }
 
 - (void)viewDidLoad {
   [super viewDidLoad];
-  [_sizingChip applyThemeWithScheme:self.containerScheme];
 
   _isOutlined = NO;
   self.navigationItem.rightBarButtonItem =
@@ -74,6 +74,12 @@
                                        style:UIBarButtonItemStylePlain
                                       target:self
                                       action:@selector(switchStyle)];
+}
+
+- (void)viewDidLayoutSubviews {
+  [super viewDidLayoutSubviews];
+
+  [_collectionView.collectionViewLayout invalidateLayout];
 }
 
 - (void)switchStyle {
@@ -89,12 +95,6 @@
   }
 }
 
-- (void)viewWillLayoutSubviews {
-  [super viewWillLayoutSubviews];
-
-  _collectionView.frame = self.view.bounds;
-}
-
 - (NSInteger)collectionView:(UICollectionView *)collectionView
      numberOfItemsInSection:(NSInteger)section {
   return self.titles.count;
@@ -105,6 +105,8 @@
   MDCChipCollectionViewCell *cell =
       [collectionView dequeueReusableCellWithReuseIdentifier:@"Cell" forIndexPath:indexPath];
   MDCChipView *chipView = cell.chipView;
+
+  chipView.mdc_adjustsFontForContentSizeCategory = YES;
 
   // Customize Chip
   chipView.titleLabel.text = self.titles[indexPath.row];
@@ -128,13 +130,6 @@
 
   // Do the action related to the chip
   [self setTitle:[NSString stringWithFormat:@"Action %d", (int)indexPath.row]];
-}
-
-- (CGSize)collectionView:(UICollectionView *)collectionView
-                    layout:(UICollectionViewLayout *)collectionViewLayout
-    sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-  _sizingChip.titleLabel.text = self.titles[indexPath.row];
-  return [_sizingChip sizeThatFits:collectionView.bounds.size];
 }
 
 - (NSArray *)titles {
