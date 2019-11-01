@@ -182,10 +182,6 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   // layout guide. Once we drop iOS 8 support this can be changed to a UILayoutGuide instead.
   UIView *_topSafeAreaGuide;
 
-  // Whether the flexible header is currently within an animate block for changing the tracking
-  // scroll view.
-  BOOL _isAnimatingTrackingScrollViewChange;
-
   MDCStatusBarShifter *_statusBarShifter;
 
   // Layers for header shadows.
@@ -391,7 +387,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   [self fhv_updateShadowPath];
 
   [CATransaction begin];
-  BOOL allowCAActions = _isAnimatingTrackingScrollViewChange;
+  BOOL allowCAActions = self.allowShadowLayerFrameAnimationsInLayoutSubviews;
   [CATransaction setDisableActions:!allowCAActions];
   _defaultShadowLayer.frame = self.bounds;
   _customShadowLayer.frame = self.bounds;
@@ -1565,8 +1561,6 @@ static BOOL isRunningiOS10_3OrAbove() {
       [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 
   void (^animate)(void) = ^{
-    self->_isAnimatingTrackingScrollViewChange = YES;
-
     [CATransaction begin];
 #if TARGET_IPHONE_SIMULATOR
     [CATransaction setAnimationDuration:duration * [self fhv_dragCoefficient]];
@@ -1577,12 +1571,12 @@ static BOOL isRunningiOS10_3OrAbove() {
 
     [self fhv_updateLayout];
 
-    // Force any layout changes to be committed during this animation block.
-    [self layoutIfNeeded];
+    if (self.allowShadowLayerFrameAnimationsInLayoutSubviews) {
+      // Force any layout changes to be committed during this animation block.
+      [self layoutIfNeeded];
+    }
 
     [CATransaction commit];
-
-    self->_isAnimatingTrackingScrollViewChange = NO;
   };
   void (^completion)(BOOL) = ^(BOOL finished) {
     if (!finished) {

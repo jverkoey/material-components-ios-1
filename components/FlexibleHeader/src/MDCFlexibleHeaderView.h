@@ -423,6 +423,21 @@ IB_DESIGNABLE
 @end
 
 // clang-format off
+@interface MDCFlexibleHeaderView (ToBeDeprecated)
+
+/**
+ Whether to allow frame animations in layoutSubviews.
+
+ Enabling this property allows layoutSubviews to implicitly animate the shadow frames.
+
+ Default is NO.
+ */
+@property(nonatomic, assign) BOOL allowShadowLayerFrameAnimationsInLayoutSubviews;
+
+@end
+// clang-format on
+
+// clang-format off
 @interface MDCFlexibleHeaderView ()
 
 #pragma mark Accessing the header's views
