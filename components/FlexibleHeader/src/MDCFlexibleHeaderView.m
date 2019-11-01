@@ -1567,29 +1567,29 @@ static BOOL isRunningiOS10_3OrAbove() {
   void (^animate)(void);
   if (self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView) {
     animate = ^{
-        self->_isAnimatingTrackingScrollViewChange = YES;
+      self->_isAnimatingTrackingScrollViewChange = YES;
 
-        [CATransaction begin];
-    #if TARGET_IPHONE_SIMULATOR
-        [CATransaction setAnimationDuration:duration * [self fhv_dragCoefficient]];
-    #else
-        [CATransaction setAnimationDuration:duration];
-    #endif
-        [CATransaction setAnimationTimingFunction:timingFunction];
+      [CATransaction begin];
+#if TARGET_IPHONE_SIMULATOR
+      [CATransaction setAnimationDuration:duration * [self fhv_dragCoefficient]];
+#else
+      [CATransaction setAnimationDuration:duration];
+#endif
+      [CATransaction setAnimationTimingFunction:timingFunction];
 
-        [self fhv_updateLayout];
+      [self fhv_updateLayout];
 
-        // Force any layout changes to be committed during this animation block.
-        [self layoutIfNeeded];
+      // Force any layout changes to be committed during this animation block.
+      [self layoutIfNeeded];
 
-        [CATransaction commit];
+      [CATransaction commit];
 
-        self->_isAnimatingTrackingScrollViewChange = NO;
-      };
+      self->_isAnimatingTrackingScrollViewChange = NO;
+    };
   } else {
     animate = ^{
-        [self fhv_updateLayout];
-      };
+      [self fhv_updateLayout];
+    };
   }
   void (^completion)(BOOL) = ^(BOOL finished) {
     if (!finished) {
