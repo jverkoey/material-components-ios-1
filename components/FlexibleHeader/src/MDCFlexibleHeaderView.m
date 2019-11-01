@@ -391,7 +391,8 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   [self fhv_updateShadowPath];
 
   [CATransaction begin];
-  BOOL allowCAActions = _isAnimatingTrackingScrollViewChange && self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView;
+  BOOL allowCAActions = _isAnimatingTrackingScrollViewChange &&
+                        self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView;
   [CATransaction setDisableActions:!allowCAActions];
   _defaultShadowLayer.frame = self.bounds;
   _customShadowLayer.frame = self.bounds;
