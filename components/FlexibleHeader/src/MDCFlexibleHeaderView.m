@@ -223,6 +223,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
 @synthesize inFrontOfInfiniteContent = _inFrontOfInfiniteContent;
 @synthesize sharedWithManyScrollViews = _sharedWithManyScrollViews;
 @synthesize visibleShadowOpacity = _visibleShadowOpacity;
+@synthesize allowShadowLayerFrameAnimationsInLayoutSubviews = _allowShadowLayerFrameAnimationsInLayoutSubviews;
 
 - (void)dealloc {
 #if DEBUG

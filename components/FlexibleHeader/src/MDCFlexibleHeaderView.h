@@ -430,6 +430,8 @@ IB_DESIGNABLE
 
  Enabling this property allows layoutSubviews to implicitly animate the shadow frames.
 
+ This property will eventually be animated by default and then deleted.
+
  Default is NO.
  */
 @property(nonatomic, assign) BOOL allowShadowLayerFrameAnimationsInLayoutSubviews;
