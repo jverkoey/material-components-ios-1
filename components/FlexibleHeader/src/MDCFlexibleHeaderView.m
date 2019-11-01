@@ -391,8 +391,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   [self fhv_updateShadowPath];
 
   [CATransaction begin];
-  BOOL allowCAActions = _isAnimatingTrackingScrollViewChange &&
-                        self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView;
+  BOOL allowCAActions = _isAnimatingTrackingScrollViewChange;
   [CATransaction setDisableActions:!allowCAActions];
   _defaultShadowLayer.frame = self.bounds;
   _customShadowLayer.frame = self.bounds;
@@ -1565,28 +1564,33 @@ static BOOL isRunningiOS10_3OrAbove() {
   CAMediaTimingFunction *timingFunction =
       [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 
-  void (^animate)(void) = ^{
-    self->_isAnimatingTrackingScrollViewChange = YES;
+  void (^animate)(void);
+  if (self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView) {
+    animate = ^{
+        self->_isAnimatingTrackingScrollViewChange = YES;
 
-    [CATransaction begin];
-#if TARGET_IPHONE_SIMULATOR
-    [CATransaction setAnimationDuration:duration * [self fhv_dragCoefficient]];
-#else
-    [CATransaction setAnimationDuration:duration];
-#endif
-    [CATransaction setAnimationTimingFunction:timingFunction];
+        [CATransaction begin];
+    #if TARGET_IPHONE_SIMULATOR
+        [CATransaction setAnimationDuration:duration * [self fhv_dragCoefficient]];
+    #else
+        [CATransaction setAnimationDuration:duration];
+    #endif
+        [CATransaction setAnimationTimingFunction:timingFunction];
 
-    [self fhv_updateLayout];
+        [self fhv_updateLayout];
 
-    if (self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView) {
-      // Force any layout changes to be committed during this animation block.
-      [self layoutIfNeeded];
-    }
+        // Force any layout changes to be committed during this animation block.
+        [self layoutIfNeeded];
 
-    [CATransaction commit];
+        [CATransaction commit];
 
-    self->_isAnimatingTrackingScrollViewChange = NO;
-  };
+        self->_isAnimatingTrackingScrollViewChange = NO;
+      };
+  } else {
+    animate = ^{
+        [self fhv_updateLayout];
+      };
+  }
   void (^completion)(BOOL) = ^(BOOL finished) {
     if (!finished) {
       return;
