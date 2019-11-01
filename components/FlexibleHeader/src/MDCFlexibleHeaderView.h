@@ -367,6 +367,18 @@ IB_DESIGNABLE
 @property(nonatomic) BOOL sharedWithManyScrollViews;
 
 /**
+ Whether to allow shadow frame animations when animating changes to the tracking scroll view.
+
+ Enabling this property allows layoutSubviews to animate the shadow frames as part of the animation
+ that occurs when changing tracking scroll views.
+
+ This property will eventually be enabled by default and then deleted.
+
+ Default is NO.
+ */
+@property(nonatomic, assign) BOOL allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView;
+
+/**
  If enabled, the trackingScrollView doesn't adjust the content inset when its
  contentInsetAdjustmentBehavior is set to be UIScrollViewContentInsetAdjustmentNever.
 
@@ -421,23 +433,6 @@ IB_DESIGNABLE
 - (void)flexibleHeaderViewFrameDidChange:(nonnull MDCFlexibleHeaderView *)headerView;
 
 @end
-
-// clang-format off
-@interface MDCFlexibleHeaderView (ToBeDeprecated)
-
-/**
- Whether to allow frame animations in layoutSubviews.
-
- Enabling this property allows layoutSubviews to implicitly animate the shadow frames.
-
- This property will eventually be animated by default and then deleted.
-
- Default is NO.
- */
-@property(nonatomic, assign) BOOL allowShadowLayerFrameAnimationsInLayoutSubviews;
-
-@end
-// clang-format on
 
 // clang-format off
 @interface MDCFlexibleHeaderView ()

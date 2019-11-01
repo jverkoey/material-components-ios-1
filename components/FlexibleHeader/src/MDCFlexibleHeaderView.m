@@ -191,6 +191,10 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   // The block executed when shadow intensity changes.
   MDCFlexibleHeaderShadowIntensityChangeBlock _shadowIntensityChangeBlock;
 
+  // Whether the flexible header is currently within an animate block for changing the tracking
+  // scroll view.
+  BOOL _isAnimatingTrackingScrollViewChange;
+
   Class _wkWebViewClass;
 
 #if DEBUG
@@ -223,7 +227,6 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
 @synthesize inFrontOfInfiniteContent = _inFrontOfInfiniteContent;
 @synthesize sharedWithManyScrollViews = _sharedWithManyScrollViews;
 @synthesize visibleShadowOpacity = _visibleShadowOpacity;
-@synthesize allowShadowLayerFrameAnimationsInLayoutSubviews = _allowShadowLayerFrameAnimationsInLayoutSubviews;
 
 - (void)dealloc {
 #if DEBUG
@@ -388,7 +391,7 @@ static inline MDCFlexibleHeaderShiftBehavior ShiftBehaviorForCurrentAppContext(
   [self fhv_updateShadowPath];
 
   [CATransaction begin];
-  BOOL allowCAActions = self.allowShadowLayerFrameAnimationsInLayoutSubviews;
+  BOOL allowCAActions = _isAnimatingTrackingScrollViewChange && self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView;
   [CATransaction setDisableActions:!allowCAActions];
   _defaultShadowLayer.frame = self.bounds;
   _customShadowLayer.frame = self.bounds;
@@ -1562,6 +1565,8 @@ static BOOL isRunningiOS10_3OrAbove() {
       [CAMediaTimingFunction functionWithName:kCAMediaTimingFunctionEaseInEaseOut];
 
   void (^animate)(void) = ^{
+    self->_isAnimatingTrackingScrollViewChange = YES;
+
     [CATransaction begin];
 #if TARGET_IPHONE_SIMULATOR
     [CATransaction setAnimationDuration:duration * [self fhv_dragCoefficient]];
@@ -1572,12 +1577,14 @@ static BOOL isRunningiOS10_3OrAbove() {
 
     [self fhv_updateLayout];
 
-    if (self.allowShadowLayerFrameAnimationsInLayoutSubviews) {
+    if (self.allowShadowLayerFrameAnimationsWhenChangingTrackingScrollView) {
       // Force any layout changes to be committed during this animation block.
       [self layoutIfNeeded];
     }
 
     [CATransaction commit];
+
+    self->_isAnimatingTrackingScrollViewChange = NO;
   };
   void (^completion)(BOOL) = ^(BOOL finished) {
     if (!finished) {
