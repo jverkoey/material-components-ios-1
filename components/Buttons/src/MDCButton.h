@@ -73,16 +73,6 @@
 @property(nonatomic, getter=isUppercaseTitle) BOOL uppercaseTitle UI_APPEARANCE_SELECTOR;
 
 /**
- Insets to apply to the button’s hit area.
-
- Allows the button to detect touches outside of its bounds. A negative value indicates an
- extension past the bounds.
-
- Default is UIEdgeInsetsZero.
- */
-@property(nonatomic) UIEdgeInsets hitAreaInsets;
-
-/**
  The minimum size of the button’s alignment rect. If either the height or width are non-positive
  (negative or zero), they will be ignored and that axis will adjust to its content size.
 
@@ -153,6 +143,16 @@
  Default value for shapeGenerator is nil.
  */
 @property(nullable, nonatomic, strong) id<MDCShapeGenerating> shapeGenerator;
+
+/**
+ A hint that may be used when creating a shape generator in order to inset the visible portion of
+ the button within the bounds of the view.
+
+ This property is only a hint; changing it will not affect any behavior of the button.
+
+ Default is UIEdgeInsetsZero.
+ */
+@property(nonatomic) UIEdgeInsets marginsHint;
 
 /**
  If @c true, @c accessiblityTraits will always include @c UIAccessibilityTraitButton.
@@ -349,5 +349,24 @@
  @note This API will eventually be deprecated and removed.
  */
 - (nullable UIFont *)titleFontForState:(UIControlState)state;
+
+@end
+
+#pragma mark - To be deprecated
+
+@interface MDCButton ()
+
+/**
+ Insets to apply to the button’s hit area.
+
+ Allows the button to detect touches outside of its bounds. A negative value indicates an
+ extension past the bounds.
+
+ Default is UIEdgeInsetsZero.
+
+ @note This property will eventually be deprecated and removed. Please use a combination of
+ backgroundEdgeInsets and a bigger frame instead.
+ */
+@property(nonatomic) UIEdgeInsets hitAreaInsets;
 
 @end

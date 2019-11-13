@@ -50,9 +50,32 @@
   [super tearDown];
 }
 
-- (void)generateSnapshotAndVerifyForView:(UIView *)view {
-  [view sizeToFit];
-  UIView *snapshotView = [view mdc_addToBackgroundView];
+- (void)generateSnapshotAndVerifyForView:(MDCButton *)button {
+  [self generateSnapshotAndVerifyForView:button showFrame:NO];
+}
+
+- (void)generateSnapshotAndVerifyForView:(MDCButton *)button showFrame:(BOOL)showFrame {
+  [button sizeToFit];
+  button.frame = CGRectMake(0, 0,
+                            button.bounds.size.width
+                            + button.shapeGeneratorMarginsHint.left
+                            + button.shapeGeneratorMarginsHint.right,
+                            button.bounds.size.height
+                            + button.shapeGeneratorMarginsHint.top
+                            + button.shapeGeneratorMarginsHint.bottom);
+
+  UIView *viewToSnapshot;
+  if (showFrame) {
+    UIView *frameView = [[UIView alloc] initWithFrame:button.frame];
+    frameView.layer.borderWidth = 1;
+    frameView.layer.borderColor = UIColor.blackColor.CGColor;
+    [frameView addSubview:button];
+    viewToSnapshot = frameView;
+  } else {
+    viewToSnapshot = button;
+  }
+
+  UIView *snapshotView = [viewToSnapshot mdc_addToBackgroundView];
   [self snapshotVerifyView:snapshotView];
 }
 
@@ -99,6 +122,63 @@
 
   // Then
   [self generateSnapshotAndVerifyForView:floatingButton];
+}
+
+- (void)testTextThemedButtonWithFrame {
+  // When
+  [self.button applyTextThemeWithScheme:self.containerScheme];
+
+  // Then
+  [self generateSnapshotAndVerifyForView:self.button showFrame:YES];
+}
+
+- (void)testContainedThemedButtonWithFrame {
+  // When
+  [self.button applyContainedThemeWithScheme:self.containerScheme];
+
+  // Then
+  [self generateSnapshotAndVerifyForView:self.button showFrame:YES];
+}
+
+- (void)testOutlineThemedButtonWithFrame {
+  // When
+  [self.button applyOutlinedThemeWithScheme:self.containerScheme];
+
+  // Then
+  [self generateSnapshotAndVerifyForView:self.button showFrame:YES];
+}
+
+- (void)testTextThemedButtonWithMarginsAndVisibleFrame {
+  // When
+  self.button.marginsHint = UIEdgeInsetsMake(8, 8, 8, 8);
+  self.containerScheme.shapeScheme =
+      [[MDCShapeScheme alloc] initWithDefaults:MDCShapeSchemeDefaultsMaterial201809];
+  [self.button applyTextThemeWithScheme:self.containerScheme];
+
+  // Then
+  [self generateSnapshotAndVerifyForView:self.button showFrame:YES];
+}
+
+- (void)testContainedThemedButtonWithMarginsAndVisibleFrame {
+  // When
+  self.button.marginsHint = UIEdgeInsetsMake(8, 8, 8, 8);
+  self.containerScheme.shapeScheme =
+      [[MDCShapeScheme alloc] initWithDefaults:MDCShapeSchemeDefaultsMaterial201809];
+  [self.button applyContainedThemeWithScheme:self.containerScheme];
+
+  // Then
+  [self generateSnapshotAndVerifyForView:self.button showFrame:YES];
+}
+
+- (void)testOutlineThemedButtonWithMarginsAndVisibleFrame {
+  // When
+  self.button.marginsHint = UIEdgeInsetsMake(8, 8, 8, 8);
+  self.containerScheme.shapeScheme =
+      [[MDCShapeScheme alloc] initWithDefaults:MDCShapeSchemeDefaultsMaterial201809];
+  [self.button applyOutlinedThemeWithScheme:self.containerScheme];
+
+  // Then
+  [self generateSnapshotAndVerifyForView:self.button showFrame:YES];
 }
 
 @end

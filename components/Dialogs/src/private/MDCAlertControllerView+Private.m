@@ -35,8 +35,6 @@ static const CGFloat MDCDialogTitleIconVerticalPadding = 12.0;
 static const UIEdgeInsets MDCDialogActionsInsets = {8.0, 8.0, 8.0, 8.0};
 static const CGFloat MDCDialogActionsHorizontalPadding = 8.0;
 static const CGFloat MDCDialogActionsVerticalPadding = 12.0;
-static const CGFloat MDCDialogActionButtonMinimumHeight = 36.0;
-static const CGFloat MDCDialogActionButtonMinimumWidth = 48.0;
 static const CGFloat MDCDialogActionMinTouchTarget = 48;
 
 static const CGFloat MDCDialogMessageOpacity = (CGFloat)0.54;
@@ -139,8 +137,8 @@ static const CGFloat MDCDialogMessageOpacity = (CGFloat)0.54;
     button.mdc_adjustsFontForContentSizeCategory = self.mdc_adjustsFontForContentSizeCategory;
     // TODO(#1726): Determine default text color values for Normal and Disabled
     CGRect buttonRect = button.bounds;
-    buttonRect.size.height = MAX(buttonRect.size.height, MDCDialogActionButtonMinimumHeight);
-    buttonRect.size.width = MAX(buttonRect.size.width, MDCDialogActionButtonMinimumWidth);
+    buttonRect.size.height = MAX(buttonRect.size.height, MDCDialogActionMinTouchTarget);
+    buttonRect.size.width = MAX(buttonRect.size.width, MDCDialogActionMinTouchTarget);
     button.frame = buttonRect;
   }
 }
@@ -357,7 +355,7 @@ static const CGFloat MDCDialogMessageOpacity = (CGFloat)0.54;
   CGSize size = CGSizeZero;
   NSArray<MDCButton *> *buttons = self.actionManager.buttonsInActionOrder;
   if (0 < [buttons count]) {
-    CGFloat maxButtonHeight = MDCDialogActionButtonMinimumHeight;
+    CGFloat maxButtonHeight = MDCDialogActionMinTouchTarget;
     size.width = MDCDialogActionsInsets.left + MDCDialogActionsInsets.right;
     for (UIButton *button in buttons) {
       CGSize buttonSize = [button sizeThatFits:size];
@@ -381,7 +379,7 @@ static const CGFloat MDCDialogMessageOpacity = (CGFloat)0.54;
     size.width = MDCDialogActionsInsets.left + MDCDialogActionsInsets.right;
     for (UIButton *button in buttons) {
       CGSize buttonSize = [button sizeThatFits:size];
-      buttonSize.height = MAX(buttonSize.height, MDCDialogActionButtonMinimumHeight);
+      buttonSize.height = MAX(buttonSize.height, MDCDialogActionMinTouchTarget);
       size.height += buttonSize.height;
       size.width = MAX(size.width, buttonSize.width);
       if (button != [buttons lastObject]) {
@@ -491,16 +489,17 @@ static const CGFloat MDCDialogMessageOpacity = (CGFloat)0.54;
 
   for (MDCButton *button in buttons) {
     [button sizeToFit];
+    CGFloat verticalInsets = (MDCDialogActionMinTouchTarget - CGRectGetHeight(button.frame)) / 2;
+    CGFloat horizontalInsets = (MDCDialogActionMinTouchTarget - CGRectGetWidth(button.frame)) / 2;
+    verticalInsets = MAX(0, verticalInsets);
+    horizontalInsets = MAX(0, horizontalInsets);
+    button.marginsHint = UIEdgeInsetsMake(verticalInsets, horizontalInsets,
+                                          verticalInsets, horizontalInsets);
+
     CGRect buttonFrame = button.frame;
-    buttonFrame.size.width = MAX(CGRectGetWidth(buttonFrame), MDCDialogActionButtonMinimumWidth);
-    buttonFrame.size.height = MAX(CGRectGetHeight(buttonFrame), MDCDialogActionButtonMinimumHeight);
+    buttonFrame.size.width = MAX(CGRectGetWidth(buttonFrame), MDCDialogActionMinTouchTarget);
+    buttonFrame.size.height = MAX(CGRectGetHeight(buttonFrame), MDCDialogActionMinTouchTarget);
     button.frame = buttonFrame;
-    CGFloat verticalInsets = (CGRectGetHeight(button.frame) - MDCDialogActionMinTouchTarget) / 2;
-    CGFloat horizontalInsets = (CGRectGetWidth(button.frame) - MDCDialogActionMinTouchTarget) / 2;
-    verticalInsets = MIN(0, verticalInsets);
-    horizontalInsets = MIN(0, horizontalInsets);
-    button.hitAreaInsets =
-        UIEdgeInsetsMake(verticalInsets, horizontalInsets, verticalInsets, horizontalInsets);
   }
 
   // Used to calculate the height of the scrolling content, so we limit the width.

@@ -95,6 +95,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   BOOL _mdc_adjustsFontForContentSizeCategory;
 }
 @property(nonatomic, strong, readonly, nonnull) MDCStatefulRippleView *rippleView;
+@property(nonatomic, strong, nullable) CAShapeLayer *rippleViewMask;
 @property(nonatomic, strong) MDCInkView *inkView;
 @property(nonatomic, readonly, strong) MDCShapedShadowLayer *layer;
 @end
@@ -174,6 +175,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   self.layer.cornerRadius = MDCButtonDefaultCornerRadius;
   if (!self.layer.shapeGenerator) {
     self.layer.shadowPath = [self boundingPath].CGPath;
+    [self applyRippleMask];
   }
   self.layer.shadowColor = [UIColor blackColor].CGColor;
   self.layer.elevation = [self elevationForState:self.state];
@@ -201,6 +203,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   _inkView.inkColor = [UIColor colorWithWhite:1 alpha:(CGFloat)0.2];
 
   _rippleView = [[MDCStatefulRippleView alloc] initWithFrame:self.bounds];
+  _rippleView.usesSuperviewShadowLayerAsMask = NO;
   _rippleView.rippleColor = [UIColor colorWithWhite:1 alpha:(CGFloat)0.12];
 
   // Default content insets
@@ -249,6 +252,16 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
 
 #pragma mark - UIView
 
+- (void)applyRippleMask {
+  if (!self.rippleViewMask) {
+    self.rippleViewMask = [[CAShapeLayer alloc] init];
+  }
+  CGRect bounds = UIEdgeInsetsInsetRect(self.bounds, self.marginsHint);
+  bounds.origin = CGPointZero;
+  self.rippleViewMask.path = [self boundingPathForBounds:bounds].CGPath;
+  self.rippleView.layer.mask = self.rippleViewMask;
+}
+
 - (void)layoutSubviews {
   [super layoutSubviews];
 
@@ -257,6 +270,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
   [self updateBorderColor];
   if (!self.layer.shapeGenerator) {
     self.layer.shadowPath = [self boundingPath].CGPath;
+    [self applyRippleMask];
   }
   if ([self respondsToSelector:@selector(cornerRadius)]) {
 #pragma clang diagnostic push
@@ -278,6 +292,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
         CGRectMake(offsetX, offsetY, CGRectGetWidth(self.bounds), CGRectGetHeight(self.bounds));
   } else {
     CGRect bounds = CGRectStandardize(self.bounds);
+    bounds = UIEdgeInsetsInsetRect(bounds, self.marginsHint);
     _inkView.frame = bounds;
     self.rippleView.frame = bounds;
   }
@@ -853,6 +868,10 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
 }
 
 - (UIBezierPath *)boundingPath {
+  return [self boundingPathForBounds:UIEdgeInsetsInsetRect(self.bounds, self.marginsHint)];
+}
+
+- (UIBezierPath *)boundingPathForBounds:(CGRect)bounds {
   CGFloat cornerRadius = self.layer.cornerRadius;
 
   if ([self respondsToSelector:@selector(cornerRadius)]) {
@@ -861,7 +880,7 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
     cornerRadius = [self cornerRadius];
 #pragma clang diagnostic pop
   }
-  return [UIBezierPath bezierPathWithRoundedRect:self.bounds cornerRadius:cornerRadius];
+  return [UIBezierPath bezierPathWithRoundedRect:bounds cornerRadius:cornerRadius];
 }
 
 - (UIEdgeInsets)defaultContentEdgeInsets {
@@ -940,8 +959,11 @@ static NSAttributedString *uppercaseAttributedString(NSAttributedString *string)
 - (void)setShapeGenerator:(id<MDCShapeGenerating>)shapeGenerator {
   if (shapeGenerator) {
     self.layer.shadowPath = nil;
+    self.rippleView.layer.mask = nil;
+    self.rippleViewMask = nil;
   } else {
     self.layer.shadowPath = [self boundingPath].CGPath;
+    [self applyRippleMask];
   }
   self.layer.shapeGenerator = shapeGenerator;
   // The imageView is added very early in the lifecycle of a UIButton, therefore we need to move

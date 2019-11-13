@@ -118,6 +118,7 @@
                      @"require decisions, or involve multiple tasks.",
     @"primaryDemo" : @YES,
     @"presentable" : @YES,
+    @"debug": @YES,
   };
 }
 

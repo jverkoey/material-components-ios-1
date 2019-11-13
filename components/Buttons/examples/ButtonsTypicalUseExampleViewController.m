@@ -14,6 +14,7 @@
 
 #import "MaterialButtons.h"
 #import "MaterialButtons+Theming.h"
+#import "MaterialShapeLibrary.h"
 #import "MaterialContainerScheme.h"
 #import "MaterialTypography.h"
 
@@ -55,13 +56,7 @@ const CGSize kMinimumAccessibleButtonSize = {64.0, 48.0};
   [containedButton setTitle:@"Button" forState:UIControlStateNormal];
   [containedButton applyContainedThemeWithScheme:self.containerScheme];
   [containedButton sizeToFit];
-  CGFloat containedButtonVerticalInset =
-      MIN(0, -(kMinimumAccessibleButtonSize.height - CGRectGetHeight(containedButton.bounds)) / 2);
-  CGFloat containedButtonHorizontalInset =
-      MIN(0, -(kMinimumAccessibleButtonSize.width - CGRectGetWidth(containedButton.bounds)) / 2);
-  containedButton.hitAreaInsets =
-      UIEdgeInsetsMake(containedButtonVerticalInset, containedButtonHorizontalInset,
-                       containedButtonVerticalInset, containedButtonHorizontalInset);
+
   [containedButton addTarget:self
                       action:@selector(didTap:)
             forControlEvents:UIControlEventTouchUpInside];

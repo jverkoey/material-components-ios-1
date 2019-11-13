@@ -23,6 +23,13 @@
   rectangleShape.topRightCorner = shapeScheme.smallComponentShape.topRightCorner;
   rectangleShape.bottomLeftCorner = shapeScheme.smallComponentShape.bottomLeftCorner;
   rectangleShape.bottomRightCorner = shapeScheme.smallComponentShape.bottomRightCorner;
+
+  UIEdgeInsets margins = button.marginsHint;
+  rectangleShape.topLeftCornerOffset = CGPointMake(margins.left, margins.top);
+  rectangleShape.topRightCornerOffset = CGPointMake(-margins.right, margins.top);
+  rectangleShape.bottomLeftCornerOffset = CGPointMake(margins.left, -margins.bottom);
+  rectangleShape.bottomRightCornerOffset = CGPointMake(-margins.right, -margins.bottom);
+
   button.shapeGenerator = rectangleShape;
 }
 
